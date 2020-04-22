@@ -1,10 +1,9 @@
+import os
+import shutil
 import threading
 import time
-import requests
 
-from mirai import Plain, Image
-from pixivpy3 import *
-
+from pixivpy3 import ByPassSniApi
 from settings import settings
 
 __back_api__ = None
@@ -55,38 +54,61 @@ def has_tag(illust, tag: str):
 
 def download_illust(illust):
     import os
-    dirname = os.path.abspath(os.path.join(os.path.curdir, settings["illust"]["download_dir"]))
+
+    download_dir: str = settings["illust"]["download_dir"]
+    download_quantity: str = settings["illust"]["download_quantity"]
+    download_replace: bool = settings["illust"]["download_replace"]
+    domain = settings["illust"]["domain"]
+    compress_oversize: bool = settings["illust"]["compress_oversize"]
+
+    dirname = os.path.join(os.path.curdir, download_dir)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
 
-    quantity: str = settings["illust"]["download_quantity"]
-    if quantity == "original":
+    if download_quantity == "original":
         if len(illust["meta_pages"]) > 0:
             url: str = illust["meta_pages"][0]["image_urls"]["original"]
         else:
             url: str = illust["meta_single_page"]["original_image_url"]
     else:
-        url: str = illust["image_urls"][quantity]
+        url: str = illust["image_urls"][download_quantity]
 
     filename = os.path.basename(url)
     fullpath = os.path.join(dirname, filename)
+
     if os.path.exists(fullpath):
-        if settings["illust"]["download_replace"]:
+        if download_replace:
             os.remove(fullpath)
         else:
             return fullpath
 
-    if settings["illust"]["domain"] is not None:
-        url = url.replace("i.pximg.net", settings["illust"]["domain"])
+    if domain is not None:
+        url = url.replace("i.pximg.net", domain)
         # r = requests.get(url, stream=True)
         # with open(fullpath, "wb") as f:
         #     for chunk in r.iter_content(chunk_size=32):
         #         f.write(chunk)
     api().download(url=url, path=dirname)
+
+    if compress_oversize:
+        compress_illust(fullpath)
     return fullpath
 
 
+def compress_illust(fullpath):
+    max_size: int = settings["illust"]["max_size"]
+
+    from PIL import Image
+    img = Image.open(fullpath)
+    w, h = img.size
+    if w > max_size or h > max_size:
+        ratio = min(max_size/w, max_size/h)
+        img_cp = img.resize((int(ratio*w),int(ratio*h)),Image.ANTIALIAS)
+        img_cp.save(fullpath)
+
+
 def illust_to_message(illust):
+    from mirai import Plain, Image
     pattern: str = settings["illust"]["reply_pattern"]
     string = pattern.replace("$title", illust["title"]) \
         .replace("$tags", " ".join(map(lambda x: x["name"], illust["tags"]))) \

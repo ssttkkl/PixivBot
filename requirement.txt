@@ -1,3 +1,4 @@
 pixivpy
 kuriyama
 json5
+pillow

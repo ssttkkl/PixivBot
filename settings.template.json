@@ -37,6 +37,8 @@
     "download_dir": "cache/illust_img", // 下载插画的目录
     "download_quantity": "original", // 下载插画的品质，可选：origin, medium,square_medium
     "download_replace": false, // 下载插画时，若已经存在是否覆盖
+    "compress_oversize": true, // 是否要对图片进行压缩
+    "max_size": 1200, // 若图片的长或宽大于此处设定的数值，则进行压缩
     "reply_pattern": "「$title」\ntags: $tags\nhttps://www.pixiv.net/artworks/$id\n", // 回复消息的模板（仅支持$title, $tags, $id三个参数）
     "r18_img_escape": true, // 是否要规制r-18插画
     "r18_img_escape_message": "R-18自主规制", // 当为r-18插画时，用于代替图片的提示消息

@@ -15,6 +15,12 @@ MiraiPixiv
 
 ## 感谢
 
+[python](https://www.python.org/)
+
 [pixivpy](https://github.com/upbit/pixivpy)
 
 [python-mirai](https://github.com/NatriumLab/python-mirai)
+
+[json5](https://github.com/json5/json5)
+
+[pillow](https://github.com/python-pillow/Pillow)
