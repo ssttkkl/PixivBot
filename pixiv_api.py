@@ -1,9 +1,8 @@
-import os
-import shutil
 import threading
 import time
 
 from pixivpy3 import ByPassSniApi
+
 from settings import settings
 
 __back_api__ = None
@@ -28,12 +27,23 @@ def api():
     return __back_api__
 
 
-def shuffle_illust(illusts):
+def shuffle_illust(illusts, shuffle_method):
     import random
 
-    bookmarks = list(map(lambda illust: int(illust["total_bookmarks"]), illusts))
-    sum_bm = sum(bookmarks)
-    possibility = list(map(lambda x: x / sum_bm, bookmarks))
+    if shuffle_method == "bookmarks_proportion":
+        bookmarks = list(map(lambda illust: int(illust["total_bookmarks"]), illusts))
+        sum_bm = sum(bookmarks)
+        possibility = list(map(lambda x: x / sum_bm, bookmarks))
+    elif shuffle_method == "view_proportion":
+        view = list(map(lambda illust: int(illust["total_view"]), illusts))
+        sum_view = sum(view)
+        possibility = list(map(lambda x: x / sum_view, view))
+    elif shuffle_method == "uniform":
+        possibility = [1 / len(illusts)] * len(illusts)
+    else:
+        raise ValueError("shuffle_method's value expects bookmarks_proportion, view_proportion or uniform. "
+                         f"{shuffle_method} found.")
+
     for i in range(1, len(possibility)):
         possibility[i] = possibility[i] + possibility[i - 1]
     rand = random.random()
@@ -102,12 +112,12 @@ def compress_illust(fullpath):
     img = Image.open(fullpath)
     w, h = img.size
     if w > max_size or h > max_size:
-        ratio = min(max_size/w, max_size/h)
-        img_cp = img.resize((int(ratio*w),int(ratio*h)),Image.ANTIALIAS)
+        ratio = min(max_size / w, max_size / h)
+        img_cp = img.resize((int(ratio * w), int(ratio * h)), Image.ANTIALIAS)
         img_cp.save(fullpath)
 
 
-def illust_to_message(illust):
+def illust_to_message(illust, flash=False):
     from mirai import Plain, Image
     pattern: str = settings["illust"]["reply_pattern"]
     string = pattern.replace("$title", illust["title"]) \

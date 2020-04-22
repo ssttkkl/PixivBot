@@ -72,18 +72,21 @@ def __bookmarks_cached__():
 
 
 async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
+    trigger: str = settings["shuffle_bookmarks"]["trigger"]
+    not_found_message: str = settings["shuffle_bookmarks"]["not_found_message"]
+    shuffle_method: str = settings["shuffle_bookmarks"]["shuffle_method"]
+
     try:
         content = message.toString()
-        if settings["shuffle_bookmarks"]["trigger"] in content:
+        if trigger in content:
             print(f"pixiv shuffle bookmarks asked.")
             illusts = __bookmarks_cached__()["illusts"]
             if len(illusts) > 0:
-                illust = pixiv_api.shuffle_illust(illusts)
+                illust = pixiv_api.shuffle_illust(illusts, shuffle_method)
                 print(f"""illust {illust["id"]} selected.""")
                 await reply(bot, source, subject, pixiv_api.illust_to_message(illust))
             else:
-                not_found_message = [Plain(settings["shuffle_bookmarks"]["not_found_message"])]
-                await reply(bot, source, subject, not_found_message)
+                await reply(bot, source, subject, [Plain(not_found_message)])
 
     except Exception as exc:
         traceback.print_exc()
