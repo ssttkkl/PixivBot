@@ -1,0 +1,61 @@
+{
+  "mirai": {
+    "qq": ,
+    "auth_key": ,
+    "port":
+  },
+  "pixiv": {
+    "username": ,
+    "password":
+  },
+  "ranking": {
+    "trigger": {
+      "default": "看看榜",
+      "day": "看看日榜",
+      "week": "看看周榜",
+      "month": "看看月榜",
+      "day_male": "看看男性榜",
+      "day_female": "看看女性榜",
+      "week_original": "看看原创榜",
+      "week_rookie": "看看新人榜",
+      "day_manga": "看看漫画榜"
+    },
+    "default_ranking_mode": "day",
+    "default_range": "1-20",
+    "item_per_page_group": 50,
+    "item_per_page_friend": 10,
+    "item_pattern": "#$rank $title (https://www.pixiv.net/artworks/$id)\n"
+  },
+  "illust": {
+    "trigger": "看看图",
+    "domain": "i.pixiv.cat",
+    "download_dir": "cache/illust_img",
+    "download_quantity": "original",
+    "download_replace": false,
+    "reply_pattern": "「$title」\ntags: $tags\nhttps://www.pixiv.net/artworks/$id\n",
+    "r18_img_escape": true,
+    "r18_img_escape_message": "R-18自主规制",
+    "r18g_img_escape": true,
+    "r18g_img_escape_message": "R-18G自主规制"
+  },
+  "shuffle_illust": {
+    "trigger": "来张$keyword图",
+    "not_found_message": "别看了，没有的。",
+    "search_cache_dir": "cache/search_cache",
+    "search_cache_outdated_time": 86400,
+    "search_item_limit": 500,
+    "search_page_limit": 30,
+    "search_r18": false,
+    "search_r18g": false
+  },
+  "shuffle_bookmarks": {
+    "trigger": "来张私家车",
+    "not_found_message": "别看了，没有的。",
+    "search_cache_filename": "cache/bookmarks.json",
+    "search_cache_outdated_time": 3600,
+    "search_item_limit": 500,
+    "search_page_limit": 30,
+    "search_r18": false,
+    "search_r18g": false
+  }
+}
