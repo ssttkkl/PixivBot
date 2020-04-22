@@ -66,7 +66,7 @@ def __search_cached__(keyword):
                 search_result = pixiv_api.api().search_illust(**next_qs)
                 page = page + 1
 
-        print(f"found {len(illusts)} [{keyword}] illusts over {page} page.")
+        print(f"{len(illusts)} [{keyword}] illusts found over {page} pages.")
         # 写入缓存
         with open(cache_file, "w", encoding="utf8") as f:
             content = dict(illusts=illusts)
@@ -103,7 +103,7 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
 
         if len(illusts) > 0:
             illust = pixiv_api.shuffle_illust(illusts)
-            print(f"""illust {illust["id"]} is selected.""")
+            print(f"""illust {illust["id"]} selected.""")
             await reply(bot, source, subject, pixiv_api.illust_to_message(illust))
         else:
             not_found_message = [Plain(settings["shuffle_illust"]["not_found_message"])]

@@ -56,7 +56,7 @@ def __bookmarks_cached__():
                 search_result = pixiv_api.api().user_bookmarks_illust(**next_qs)
                 page = page + 1
 
-        print(f"found {len(illusts)} bookmarks over {page} page.")
+        print(f"{len(illusts)} bookmarks found over {page} pages.")
         # 写入缓存
         with open(cache_file, "w", encoding="utf8") as f:
             content = dict(illusts=illusts)
@@ -79,7 +79,7 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
             illusts = __bookmarks_cached__()["illusts"]
             if len(illusts) > 0:
                 illust = pixiv_api.shuffle_illust(illusts)
-                print(f"""illust {illust["id"]} is selected.""")
+                print(f"""illust {illust["id"]} selected.""")
                 await reply(bot, source, subject, pixiv_api.illust_to_message(illust))
             else:
                 not_found_message = [Plain(settings["shuffle_bookmarks"]["not_found_message"])]

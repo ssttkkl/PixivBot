@@ -1,15 +1,19 @@
 {
+  // 这部分是与 MiraiAPIHTTP 通信的参数
   "mirai": {
     "qq": ,
     "auth_key": ,
-    "port":
+    "port":,
+    "enable_websocket": false
   },
+  // 这部分是用于登入 pixiv 的账号密码
   "pixiv": {
     "username": ,
     "password":
   },
+  // 这部分是查看排行榜的配置
   "ranking": {
-    "trigger": {
+    "trigger": { // 触发词，当消息中包含这些词语时就会触发
       "default": "看看榜",
       "day": "看看日榜",
       "week": "看看周榜",
@@ -20,42 +24,46 @@
       "week_rookie": "看看新人榜",
       "day_manga": "看看漫画榜"
     },
-    "default_ranking_mode": "day",
-    "default_range": "1-20",
-    "item_per_page_group": 50,
-    "item_per_page_friend": 10,
-    "item_pattern": "#$rank $title (https://www.pixiv.net/artworks/$id)\n"
+    "default_ranking_mode": "day", // 默认查看的排行榜
+    "default_range": "1-20", // 默认查看的排行榜范围
+    "item_per_page_group": 50,  // 每条群消息包含多少个插画（避免消息过长）
+    "item_per_page_friend": 10,  // 每条好友消息包含多少个插画（避免消息过长）
+    "item_pattern": "#$rank $title (https://www.pixiv.net/artworks/$id)\n" // 每个插画的消息模板（仅支持$rank, $title, $id三个参数）
   },
+  // 这部分是通过id查看插画的配置
   "illust": {
-    "trigger": "看看图",
-    "domain": "i.pixiv.cat",
-    "download_dir": "cache/illust_img",
-    "download_quantity": "original",
-    "download_replace": false,
-    "reply_pattern": "「$title」\ntags: $tags\nhttps://www.pixiv.net/artworks/$id\n",
-    "r18_img_escape": true,
-    "r18_img_escape_message": "R-18自主规制",
-    "r18g_img_escape": true,
-    "r18g_img_escape_message": "R-18G自主规制"
+    "trigger": "看看图", // 触发词
+    "domain": "i.pixiv.cat", // 反代使用的域名，若不希望使用反代则设为null
+    "download_dir": "cache/illust_img", // 下载插画的目录
+    "download_quantity": "original", // 下载插画的品质，可选：origin, medium,square_medium
+    "download_replace": false, // 下载插画时，若已经存在是否覆盖
+    "reply_pattern": "「$title」\ntags: $tags\nhttps://www.pixiv.net/artworks/$id\n", // 回复消息的模板（仅支持$title, $tags, $id三个参数）
+    "r18_img_escape": true, // 是否要规制r-18插画
+    "r18_img_escape_message": "R-18自主规制", // 当为r-18插画时，用于代替图片的提示消息
+    "r18g_img_escape": true, // 是否要规制r-18g插画
+    "r18g_img_escape_message": "R-18G自主规制" // 当为r-18g插画时，用于代替图片的提示消息
   },
+  // 这部分是搜索关键字随机抽选插画的配置
   "shuffle_illust": {
-    "trigger": "来张$keyword图",
-    "not_found_message": "别看了，没有的。",
-    "search_cache_dir": "cache/search_cache",
-    "search_cache_outdated_time": 86400,
-    "search_item_limit": 500,
-    "search_page_limit": 30,
-    "search_r18": false,
-    "search_r18g": false
+    "trigger": "来张$keyword图", // 触发词的模板，其中$keyword指代关键字
+    "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
+    "search_cache_dir": "cache/search_cache", // 搜索结果缓存的目录
+    "search_cache_outdated_time": 86400, // 搜索结果缓存的时间，单位：秒
+    "search_item_limit": 500, // 一次搜索最多包含多少插画
+    "search_page_limit": 30, // 一次搜索最多翻多少页
+    "search_r18": false, // 搜索结果是否要包含r-18插画
+    "search_r18g": false // 搜索结果是否要包含r-18g插画
   },
+  // 这部分是随机抽选书签插画的配置
   "shuffle_bookmarks": {
-    "trigger": "来张私家车",
-    "not_found_message": "别看了，没有的。",
-    "search_cache_filename": "cache/bookmarks.json",
-    "search_cache_outdated_time": 3600,
-    "search_item_limit": 500,
-    "search_page_limit": 30,
-    "search_r18": false,
-    "search_r18g": false
+    "trigger": "来张私家车", // 触发词
+    "user_id": 6059616, // 要查看书签的用户id
+    "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
+    "search_cache_filename": "cache/bookmarks.json", // 搜索结果缓存的文件
+    "search_cache_outdated_time": 3600, // 搜索结果缓存的时间，单位：秒
+    "search_item_limit": 500, // 一次搜索最多包含多少插画
+    "search_page_limit": 30, // 一次搜索最多翻多少页
+    "search_r18": false, // 搜索结果是否要包含r-18插画
+    "search_r18g": false // 搜索结果是否要包含r-18g插画
   }
 }

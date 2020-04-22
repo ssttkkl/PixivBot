@@ -9,6 +9,8 @@ from settings import settings
 qq = settings["mirai"]["qq"]
 authKey = settings["mirai"]["auth_key"]
 mirai_api_http_locate = f"""localhost:{settings["mirai"]["port"]}/"""
+if settings["mirai"]["enable_websocket"]:
+    mirai_api_http_locate = mirai_api_http_locate + "ws"
 
 bot = Mirai(f"mirai://{mirai_api_http_locate}?authKey={authKey}&qq={qq}")
 
