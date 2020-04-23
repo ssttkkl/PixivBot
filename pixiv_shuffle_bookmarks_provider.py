@@ -16,7 +16,7 @@ def __bookmarks_cached__():
     search_r18: bool = settings["shuffle_bookmarks"]["search_r18"]
     search_r18g: bool = settings["shuffle_bookmarks"]["search_r18g"]
     search_cache_filename: str = settings["shuffle_bookmarks"]["search_cache_filename"]
-    search_cache_outdated_time: int = settings["shuffle_bookmarks"]["search_cache_outdated_time"]
+    search_cache_outdated_time: int = settings["shuffle_bookmarks"]["search_cache_outdated_time"] # nullable
 
     # 缓存文件路径
     cache_file = os.path.join(os.path.curdir, search_cache_filename)
@@ -27,7 +27,7 @@ def __bookmarks_cached__():
     if os.path.exists(cache_file):
         now = time.time()
         mtime = os.path.getmtime(cache_file)
-        if now - mtime <= search_cache_outdated_time:
+        if search_cache_outdated_time is None or now - mtime <= search_cache_outdated_time:
             with open(cache_file, "r", encoding="utf8") as f:
                 content = json.load(f)
                 if "illusts" in content and len(content["illusts"]) > 0:

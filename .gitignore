@@ -3,3 +3,4 @@ settings.json
 pixiv_pwd.json
 /cache/
 /__pycache__/
+/.vscode/

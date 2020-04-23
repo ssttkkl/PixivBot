@@ -17,10 +17,12 @@ def __search_cached__(keyword):
     search_r18: bool = settings["shuffle_illust"]["search_r18"]
     search_r18g: bool = settings["shuffle_illust"]["search_r18g"]
     search_cache_dir: str = settings["shuffle_illust"]["search_cache_dir"]
-    search_cache_outdated_time: int = settings["shuffle_illust"]["search_cache_outdated_time"]
+
+    search_cache_outdated_time = settings["shuffle_illust"]["search_cache_outdated_time"]  # nullable
+    search_bookmarks_lower_bound = settings["shuffle_illust"]["search_bookmarks_lower_bound"]  # nullable
 
     # 缓存文件路径
-    filename = re.sub("\.[<\>\/\\\|\:\"\*\?]", "_", keyword)  # 转义非法字符
+    filename = re.sub("\.[<>/\\\|:\"*?]", "_", keyword)  # 转义非法字符
     if search_r18:
         filename = filename + ".r18"
     if search_r18g:
@@ -37,7 +39,7 @@ def __search_cached__(keyword):
     if os.path.exists(cache_file):
         now = time.time()
         mtime = os.path.getmtime(cache_file)
-        if now - mtime <= search_cache_outdated_time:
+        if search_cache_outdated_time is None or now - mtime <= search_cache_outdated_time:
             with open(cache_file, "r", encoding="utf8") as f:
                 content = json.load(f)
                 if "illusts" in content and len(content["illusts"]) > 0:
@@ -54,6 +56,10 @@ def __search_cached__(keyword):
                 if pixiv_api.has_tag(illust, "R-18") and not search_r18:
                     continue
                 if pixiv_api.has_tag(illust, "R-18G") and not search_r18g:
+                    continue
+
+                # 书签下限过滤
+                if search_cache_outdated_time is not None and illust["total_bookmarks"] < search_bookmarks_lower_bound:
                     continue
 
                 illusts.append(illust)
