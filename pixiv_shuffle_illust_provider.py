@@ -18,8 +18,12 @@ def __search_cached__(keyword):
     search_r18g: bool = settings["shuffle_illust"]["search_r18g"]
     search_cache_dir: str = settings["shuffle_illust"]["search_cache_dir"]
 
-    search_cache_outdated_time = settings["shuffle_illust"]["search_cache_outdated_time"]  # nullable
-    search_bookmarks_lower_bound = settings["shuffle_illust"]["search_bookmarks_lower_bound"]  # nullable
+    search_cache_outdated_time = settings["shuffle_illust"]["search_cache_outdated_time"] \
+        if "search_cache_outdated_time" in settings["shuffle_illust"] else None  # nullable
+    search_bookmarks_lower_bound = settings["shuffle_illust"]["search_bookmarks_lower_bound"] \
+        if "search_bookmarks_lower_bound" in settings["shuffle_illust"] else None  # nullable
+    search_view_lower_bound = settings["shuffle_illust"]["search_view_lower_bound"] \
+        if "search_view_lower_bound" in settings["shuffle_illust"] else None  # nullable
 
     # 缓存文件路径
     filename = re.sub("\.[<>/\\\|:\"*?]", "_", keyword)  # 转义非法字符
@@ -62,6 +66,10 @@ def __search_cached__(keyword):
                 if search_cache_outdated_time is not None and illust["total_bookmarks"] < search_bookmarks_lower_bound:
                     continue
 
+                # 浏览量下限过滤
+                if search_view_lower_bound is not None and illust["total_view"] < search_view_lower_bound:
+                    continue
+
                 illusts.append(illust)
                 if len(illusts) >= search_item_limit:
                     break
@@ -87,36 +95,41 @@ def __search_cached__(keyword):
         return content
 
 
+def __find_keyword__(message: MessageChain):
+    trigger = settings["shuffle_illust"]["trigger"]
+    regex = re.compile(trigger.replace("$keyword", "(.*)"))
+
+    for plain in message.getAllofComponent(Plain):
+        match_result = regex.search(plain.toString())
+        if match_result is not None:
+            return match_result.group(1)
+    return None
+
+
+def __get_illusts__(keyword: str):
+    if keyword:  # 若指定关键词，则进行搜索
+        return __search_cached__(keyword)["illusts"]
+    else:  # 若未指定关键词，则从今日排行榜中选取
+        return pixiv_api.api().illust_ranking()["illusts"]
+
+
 async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
-    trigger: str = settings["shuffle_illust"]["trigger"]
     not_found_message: str = settings["shuffle_illust"]["not_found_message"]
     shuffle_method: str = settings["shuffle_illust"]["shuffle_method"]
 
     try:
-        plain = message.getFirstComponent(Plain)
-        if plain is None:
+        keyword = __find_keyword__(message)
+        if keyword is None:
             return
-        content = plain.toString()
 
-        match_result = re.match(pattern=trigger.replace("$keyword", "(.*)"), string=content)
-        if match_result is None:
-            return
-        keyword = match_result.group(1)
-
-        if keyword:  # 若指定关键词，则进行搜索
-            print(f"pixiv shuffle illust [{keyword}] asked.")
-            illusts = __search_cached__(keyword)["illusts"]
-        else:  # 若未指定关键词，则从今日排行榜中选取
-            print(f"pixiv shuffle illust from ranking asked.")
-            illusts = pixiv_api.api().illust_ranking()["illusts"]
-
+        print(f"pixiv shuffle illust [{keyword}] asked.")
+        illusts = __get_illusts__(keyword)
         if len(illusts) > 0:
             illust = pixiv_api.shuffle_illust(illusts, shuffle_method)
             print(f"""illust {illust["id"]} selected.""")
             await reply(bot, source, subject, pixiv_api.illust_to_message(illust))
         else:
             await reply(bot, source, subject, [Plain(not_found_message)])
-
     except Exception as exc:
         traceback.print_exc()
         await reply(bot, source, subject, [Plain(str(exc)[:128])])

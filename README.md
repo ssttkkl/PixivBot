@@ -4,6 +4,11 @@ MiraiPixiv
 支持**查看pixiv榜单**，**通过id查看插画**，**搜索关键字随机抽选插画**，**随机抽选书签插画**功能。
 
 ## 使用方式
+
+>`python bot.py`
+
+依赖库：[kuriyama](https://github.com/NatriumLab/python-mirai) [pixivpy](https://github.com/upbit/pixivpy) [json5](https://github.com/json5/json5) [pillow](https://github.com/python-pillow/Pillow)
+
 初次使用请将settings.template.json更名为settings.json，并填写mirai与pixiv栏目的信息。
 
 - 看看榜*1-20*：查看pixiv榜单的第1到第20名（可省略*1-20*）

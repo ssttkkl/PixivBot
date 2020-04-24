@@ -17,10 +17,13 @@ def api():
 
     __lock__.acquire()
     try:
+        username: str = settings["pixiv"]["username"]
+        password: str = settings["pixiv"]["password"]
+
         __back_api__ = ByPassSniApi()
         __back_api__.require_appapi_hosts()
         __back_api__.set_accept_language('zh-cn')
-        __back_api__.login(settings["pixiv"]["username"], settings["pixiv"]["password"])
+        __back_api__.login(username, password)
         __api_init_time__ = time.time()
     finally:
         __lock__.release()
@@ -68,8 +71,9 @@ def download_illust(illust):
     download_dir: str = settings["illust"]["download_dir"]
     download_quantity: str = settings["illust"]["download_quantity"]
     download_replace: bool = settings["illust"]["download_replace"]
-    domain = settings["illust"]["domain"]
     compress_oversize: bool = settings["illust"]["compress_oversize"]
+    domain = settings["illust"]["domain"] \
+        if "domain" in settings["illust"] else None  # nullable
 
     dirname = os.path.join(os.path.curdir, download_dir)
     if not os.path.exists(dirname):
@@ -106,9 +110,13 @@ def download_illust(illust):
 
 
 def compress_illust(fullpath):
-    max_size: int = settings["illust"]["max_size"]
+    compress_oversize: bool = settings["illust"]["compress_oversize"]
+    if not compress_oversize:
+        return
 
     from PIL import Image
+    max_size: int = settings["illust"]["max_size"]
+
     img = Image.open(fullpath)
     w, h = img.size
     if w > max_size or h > max_size:
@@ -119,16 +127,26 @@ def compress_illust(fullpath):
 
 def illust_to_message(illust, flash=False):
     from mirai import Plain, Image
+
     pattern: str = settings["illust"]["reply_pattern"]
+    r18_img_escape: bool = settings["illust"]["r18_img_escape"]
+    r18g_img_escape: bool = settings["illust"]["r18g_img_escape"]
+    r18g_img_escape_message: str = settings["illust"]["r18g_img_escape_message"] \
+        if "r18g_img_escape_message" in settings["illust"] and settings["illust"]["r18g_img_escape_message"] is not None \
+        else ""  # nullable
+    r18_img_escape_message: str = settings["illust"]["r18_img_escape_message"] \
+        if "r18_img_escape_message" in settings["illust"] and settings["illust"]["r18_img_escape_message"] is not None \
+        else ""  # nullable
+
     string = pattern.replace("$title", illust["title"]) \
         .replace("$tags", " ".join(map(lambda x: x["name"], illust["tags"]))) \
         .replace("$id", str(illust["id"]))
     message = [Plain(string)]
 
-    if has_tag(illust, "R-18G") and settings["illust"]["r18g_img_escape"]:
-        message.append(Plain(settings["illust"]["r18g_img_escape_message"]))
-    elif has_tag(illust, "R-18") and settings["illust"]["r18_img_escape"]:
-        message.append(Plain(settings["illust"]["r18_img_escape_message"]))
+    if has_tag(illust, "R-18G") and r18g_img_escape:
+        message.append(Plain(r18g_img_escape_message))
+    elif has_tag(illust, "R-18") and r18_img_escape:
+        message.append(Plain(r18_img_escape_message))
     else:
         filename = download_illust(illust)
         message.append(Image.fromFileSystem(filename))

@@ -16,39 +16,17 @@ bot = Mirai(f"mirai://{mirai_api_http_locate}?authKey={authKey}&qq={qq}")
 
 
 @bot.receiver("GroupMessage")
-async def pixiv_ranking_provider_group_receiver(bot: Mirai, source: Source, group: Group, message: MessageChain):
+async def group_receiver(bot: Mirai, source: Source, group: Group, message: MessageChain):
     await pixiv_ranking_provider.receive(bot, source, group, message)
-
-
-@bot.receiver("FriendMessage")
-async def pixiv_ranking_provider_friend_receiver(bot: Mirai, source: Source, friend: Friend, message: MessageChain):
-    await pixiv_ranking_provider.receive(bot, source, friend, message)
-
-
-@bot.receiver("GroupMessage")
-async def pixiv_illust_provider_group_receiver(bot: Mirai, source: Source, group: Group, message: MessageChain):
     await pixiv_illust_provider.receive(bot, source, group, message)
-
-
-@bot.receiver("FriendMessage")
-async def pixiv_illust_provider_friend_receiver(bot: Mirai, source: Source, friend: Friend, message: MessageChain):
-    await pixiv_illust_provider.receive(bot, source, friend, message)
-
-
-@bot.receiver("GroupMessage")
-async def pixiv_shuffle_illust_provider_group_receiver(bot: Mirai, source: Source, group: Group, message: MessageChain):
     await pixiv_shuffle_illust_provider.receive(bot, source, group, message)
 
 
 @bot.receiver("FriendMessage")
-async def pixiv_shuffle_illust_provider_friend_receiver(bot: Mirai, source: Source, friend: Friend,
-                                                        message: MessageChain):
+async def friend_receiver(bot: Mirai, source: Source, friend: Friend, message: MessageChain):
+    await pixiv_ranking_provider.receive(bot, source, friend, message)
+    await pixiv_illust_provider.receive(bot, source, friend, message)
     await pixiv_shuffle_illust_provider.receive(bot, source, friend, message)
-
-
-@bot.receiver("FriendMessage")
-async def pixiv_shuffle_bookmarks_provider_friend_receiver(bot: Mirai, source: Source,
-                                                           friend: Friend, message: MessageChain):
     await pixiv_shuffle_bookmarks_provider.receive(bot, source, friend, message)
 
 

@@ -16,7 +16,8 @@ def __bookmarks_cached__():
     search_r18: bool = settings["shuffle_bookmarks"]["search_r18"]
     search_r18g: bool = settings["shuffle_bookmarks"]["search_r18g"]
     search_cache_filename: str = settings["shuffle_bookmarks"]["search_cache_filename"]
-    search_cache_outdated_time: int = settings["shuffle_bookmarks"]["search_cache_outdated_time"] # nullable
+    search_cache_outdated_time = settings["shuffle_bookmarks"]["search_cache_outdated_time"] \
+        if "search_cache_outdated_time" in settings["shuffle_bookmarks"] else None  # nullable
 
     # 缓存文件路径
     cache_file = os.path.join(os.path.curdir, search_cache_filename)
@@ -71,14 +72,21 @@ def __bookmarks_cached__():
         return content
 
 
-async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
+def __check_triggered__(message:MessageChain):
     trigger: str = settings["shuffle_bookmarks"]["trigger"]
+
+    for plain in message.getAllofComponent(Plain):
+        if trigger in plain.toString():
+            return True
+    return False
+
+
+async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
     not_found_message: str = settings["shuffle_bookmarks"]["not_found_message"]
     shuffle_method: str = settings["shuffle_bookmarks"]["shuffle_method"]
 
     try:
-        content = message.toString()
-        if trigger in content:
+        if __check_triggered__(message):
             print(f"pixiv shuffle bookmarks asked.")
             illusts = __bookmarks_cached__()["illusts"]
             if len(illusts) > 0:

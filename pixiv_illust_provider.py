@@ -7,22 +7,29 @@ from bot_utils import *
 from settings import settings
 
 
+def __check_triggered__(message: MessageChain):
+    trigger: str = settings["illust"]["trigger"]
+
+    content = ''.join([x.toString() for x in message.getAllofComponent(Plain)])
+    return trigger in content
+
+
+def __findall_illust_ids__(message: MessageChain):
+    regex = re.compile("[1-9][0-9]*")
+    for plain in message.getAllofComponent(Plain):
+        for match_result in regex.finditer(plain.toString()):
+            yield int(match_result.group())
+
+
 async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
     try:
-        plain = message.getFirstComponent(Plain)
-        if plain is None:
-            return
-        content = plain.toString()
-
-        if settings["illust"]["trigger"] in content:
-            for match_result in re.finditer("[1-9][0-9]*", content):
-                illust_id = int(match_result.group())
+        if __check_triggered__(message):
+            for illust_id in __findall_illust_ids__(message):
                 print(f"pixiv illust {illust_id} asked.")
 
                 result = pixiv_api.api().illust_detail(illust_id)
                 if "error" in result:
-                    error_message = [Plain(result["error"]["user_message"])]
-                    await reply(bot, source, subject, error_message)
+                    await reply(bot, source, subject, [Plain(result["error"]["user_message"])])
                 else:
                     await reply(bot, source, subject, pixiv_api.illust_to_message(result["illust"]))
     except Exception as exc:
