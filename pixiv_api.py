@@ -1,5 +1,6 @@
 import threading
 import time
+import os
 
 from pixivpy3 import ByPassSniApi
 
@@ -66,16 +67,13 @@ def has_tag(illust, tag: str):
 
 
 def download_illust(illust):
-    import os
-
     download_dir: str = settings["illust"]["download_dir"]
     download_quantity: str = settings["illust"]["download_quantity"]
     download_replace: bool = settings["illust"]["download_replace"]
-    compress_oversize: bool = settings["illust"]["compress_oversize"]
     domain = settings["illust"]["domain"] \
         if "domain" in settings["illust"] else None  # nullable
 
-    dirname = os.path.join(os.path.curdir, download_dir)
+    dirname = f"./{download_dir}"
     if not os.path.exists(dirname):
         os.makedirs(dirname)
 
@@ -87,42 +85,62 @@ def download_illust(illust):
     else:
         url: str = illust["image_urls"][download_quantity]
 
+    # 从url中截取的文件名
     filename = os.path.basename(url)
     fullpath = os.path.join(dirname, filename)
+    
+    # 上面的文件名将后缀改为jpg的文件名（用于检查是否存在压缩过的文件）
+    basename, extension = os.path.splitext(filename)
+    filename_as_jpg = basename + ".jpg"
+    fullpath_as_jpg = os.path.join(dirname, filename_as_jpg)
 
-    if os.path.exists(fullpath):
-        if download_replace:
-            os.remove(fullpath)
-        else:
-            return fullpath
+    filepath_to_process = None
+    
+    # 检查本地是否存在
+    if not download_replace:
+        if os.path.exists(fullpath):
+            filepath_to_process = fullpath
+        elif os.path.exists(fullpath_as_jpg):
+            filepath_to_process = fullpath_as_jpg
+    
+    # 如果本地不存在则下载
+    if filepath_to_process is None:
+        if domain is not None:
+            url = url.replace("i.pximg.net", domain)
+        api().download(url=url, path=dirname)
+        filepath_to_process = fullpath
 
-    if domain is not None:
-        url = url.replace("i.pximg.net", domain)
-        # r = requests.get(url, stream=True)
-        # with open(fullpath, "wb") as f:
-        #     for chunk in r.iter_content(chunk_size=32):
-        #         f.write(chunk)
-    api().download(url=url, path=dirname)
-
-    if compress_oversize:
-        compress_illust(fullpath)
-    return fullpath
+    return compress_illust(filepath_to_process)
 
 
 def compress_illust(fullpath):
-    compress_oversize: bool = settings["illust"]["compress_oversize"]
-    if not compress_oversize:
-        return
+    compress: bool = settings["illust"]["compress"]
+    if not compress:
+        return fullpath
 
     from PIL import Image
-    max_size: int = settings["illust"]["max_size"]
+    compress_size: int = settings["illust"]["compress_size"]
+    compress_quantity: int = settings["illust"]["compress_quantity"]
 
-    img = Image.open(fullpath)
-    w, h = img.size
-    if w > max_size or h > max_size:
-        ratio = min(max_size / w, max_size / h)
-        img_cp = img.resize((int(ratio * w), int(ratio * h)), Image.ANTIALIAS)
-        img_cp.save(fullpath)
+    with Image.open(fullpath) as img:
+        w, h = img.size
+        if w > compress_size or h > compress_size:
+            ratio = min(compress_size / w, compress_size / h)
+            img_cp = img.resize((int(ratio * w), int(ratio * h)), Image.ANTIALIAS)
+        else:
+            img_cp = img.copy()
+        img_cp = img_cp.convert("RGB")
+
+    # 将原来的文件删除，然后保存压缩后的文件
+    try:
+        os.remove(fullpath)
+    finally:
+        dirname, basename = os.path.split(fullpath)
+        basename, _ = os.path.splitext(basename)
+        basename = basename + ".jpg"
+        fullpath = os.path.join(dirname, basename)
+        img_cp.save(fullpath, optimize=True, quantity=compress_quantity)
+        return fullpath
 
 
 def illust_to_message(illust, flash=False):
