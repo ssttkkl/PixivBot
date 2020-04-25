@@ -9,7 +9,7 @@ from bot_utils import reply
 from settings import settings
 
 
-def __find_illustrator__(message: MessageChain):
+def __find_illustrator__(message: MessageChain) -> T.Optional[str]:
     trigger = settings["shuffle_illustrator_illust"]["trigger"]
     regex = re.compile(trigger.replace("$illustrator", "(.*)"))
 
@@ -20,7 +20,7 @@ def __find_illustrator__(message: MessageChain):
     return None
 
 
-def __get_illusts__(illustrator: str):
+def __get_illusts__(illustrator: str) -> T.Sequence[dict]:
     import os
 
     search_item_limit: int = settings["shuffle_illustrator_illust"]["search_item_limit"]
@@ -29,18 +29,18 @@ def __get_illusts__(illustrator: str):
     search_r18g: bool = settings["shuffle_illustrator_illust"]["search_r18g"]
     search_cache_dir: str = settings["shuffle_illust"]["search_cache_dir"]
 
-    search_cache_outdated_time = settings["shuffle_illust"]["search_cache_outdated_time"] \
+    search_cache_outdated_time: T.Optional[int] = settings["shuffle_illust"]["search_cache_outdated_time"] \
         if "search_cache_outdated_time" in settings["shuffle_illust"] else None  # nullable
-    search_bookmarks_lower_bound = settings["shuffle_illustrator_illust"]["search_bookmarks_lower_bound"] \
+    search_bookmarks_lower_bound: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_bookmarks_lower_bound"] \
         if "search_bookmarks_lower_bound" in settings["shuffle_illustrator_illust"] else None  # nullable
-    search_view_lower_bound = settings["shuffle_illustrator_illust"]["search_view_lower_bound"] \
+    search_view_lower_bound: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_view_lower_bound"] \
         if "search_view_lower_bound" in settings["shuffle_illustrator_illust"] else None  # nullable
 
     illustrator = pixiv_api.api().search_user(illustrator)["user_previews"][0]["user"]
     illustrator_id: int = illustrator["id"]
     illustrator_name: str = illustrator["name"]
 
-    def illust_filter(illust):
+    def illust_filter(illust: dict) -> bool:
         # R-18/R-18G规避
         if pixiv_api.has_tag(illust, "R-18") and not search_r18:
             return False
@@ -54,14 +54,14 @@ def __get_illusts__(illustrator: str):
             return False
         return True
 
-    def load_from_pixiv():
+    def load_from_pixiv() -> T.Sequence[dict]:
         illusts = list(pixiv_api.iter_illusts(search_func=pixiv_api.api().user_illusts,
                                               illust_filter=illust_filter,
                                               init_qs=dict(user_id=illustrator_id),
                                               search_item_limit=search_item_limit,
                                               search_page_limit=search_page_limit))
         print(f"[{illustrator_name} ({illustrator_id})]'s {len(illusts)} illusts were found.")
-        return dict(illusts=illusts)
+        return illusts
 
     # 缓存文件路径
     dirname = os.path.join(os.path.curdir, search_cache_dir)

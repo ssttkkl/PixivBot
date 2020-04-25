@@ -5,11 +5,12 @@ import threading
 import time
 import traceback
 import typing as T
+from pathlib import Path
 
 import pixivpy3
 from mirai.event.message.base import BaseMessageComponent
 from pydantic.typing import NoneType
-from pathlib import Path
+
 from settings import settings
 
 __back_api__ = None
@@ -41,9 +42,9 @@ def api() -> pixivpy3.ByPassSniApi:
     return __back_api__
 
 
-def get_illusts_cached(load_from_pixiv_func: T.Callable[[], T.List[dict]],
+def get_illusts_cached(load_from_pixiv_func: T.Callable[[], T.Sequence[dict]],
                        cache_file: T.Union[str, pathlib.Path],
-                       cache_outdated_time: T.Union[NoneType, int]) -> T.List[dict]:
+                       cache_outdated_time: T.Union[NoneType, int]) -> T.Sequence[dict]:
     """
     尝试从缓存文件读取illusts，若不存在则从服务器获取并写入缓存文件
     :param load_from_pixiv_func: 用于从服务器获取illusts的函数，返回值应为包含illust的列表
@@ -95,7 +96,7 @@ def iter_illusts(search_func: T.Callable[..., dict],
                  illust_filter: T.Callable[[dict], bool],
                  init_qs: dict,
                  search_item_limit: int,
-                 search_page_limit: int) -> T.Generator[dict]:
+                 search_page_limit: int) -> T.Generator[dict, None, None]:
     """
     反复调用search_func自动翻页获取illusts，实现illust的生成器
     :param search_func: 用于从服务器获取illusts的函数，返回值应为包含键"illusts"的词典
@@ -124,7 +125,7 @@ def iter_illusts(search_func: T.Callable[..., dict],
             page = page + 1
 
 
-def shuffle_illust(illusts: T.List[dict],
+def shuffle_illust(illusts: T.Sequence[dict],
                    shuffle_method: str) -> dict:
     """
     从illusts随机抽选一个illust
@@ -244,7 +245,7 @@ def compress_illust(filepath: Path, filepath_compressed: Path):
     img_cp.save(filepath_compressed, optimize=True, quantity=compress_quantity)
 
 
-def illust_to_message(illust: dict) -> T.List[BaseMessageComponent]:
+def illust_to_message(illust: dict) -> T.Sequence[BaseMessageComponent]:
     """
     将给定illust按照模板转换为message
     :param illust: 给定illust

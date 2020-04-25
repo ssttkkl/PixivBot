@@ -6,7 +6,7 @@ from bot_utils import *
 from settings import settings
 
 
-def __get_bookmarks__():
+def __get_bookmarks__() -> T.Sequence[dict]:
     import os
 
     user_id: int = settings["shuffle_bookmarks"]["user_id"]
@@ -15,10 +15,10 @@ def __get_bookmarks__():
     search_item_limit: int = settings["shuffle_bookmarks"]["search_item_limit"]
     search_page_limit: int = settings["shuffle_bookmarks"]["search_page_limit"]
     search_cache_filename: str = settings["shuffle_bookmarks"]["search_cache_filename"]
-    search_cache_outdated_time = settings["shuffle_bookmarks"]["search_cache_outdated_time"] \
+    search_cache_outdated_time: T.Optional[int] = settings["shuffle_bookmarks"]["search_cache_outdated_time"] \
         if "search_cache_outdated_time" in settings["shuffle_bookmarks"] else None  # nullable
 
-    def illust_fliter(illust):
+    def illust_fliter(illust: dict) -> bool:
         # R-18/R-18G规避
         if pixiv_api.has_tag(illust, "R-18") and not search_r18:
             return False
@@ -26,14 +26,14 @@ def __get_bookmarks__():
             return False
         return True
 
-    def load_from_pixiv():
-        illusts = pixiv_api.iter_illusts(search_func=pixiv_api.api().user_bookmarks_illust,
-                                         illust_filter=illust_fliter,
-                                         init_qs=dict(user_id=pixiv_api.api().user_id),
-                                         search_item_limit=search_item_limit,
-                                         search_page_limit=search_page_limit)
+    def load_from_pixiv() -> T.Sequence[dict]:
+        illusts = list(pixiv_api.iter_illusts(search_func=pixiv_api.api().user_bookmarks_illust,
+                                              illust_filter=illust_fliter,
+                                              init_qs=dict(user_id=pixiv_api.api().user_id),
+                                              search_item_limit=search_item_limit,
+                                              search_page_limit=search_page_limit))
         print(f"{len(illusts)} illust were found in user [{user_id}]'s bookmarks.")
-        return dict(illusts=illusts)
+        return illusts
 
     # 缓存文件路径
     dirpath = os.path.curdir
@@ -46,7 +46,7 @@ def __get_bookmarks__():
     return illusts
 
 
-def __check_triggered__(message: MessageChain):
+def __check_triggered__(message: MessageChain) -> bool:
     trigger: str = settings["shuffle_bookmarks"]["trigger"]
 
     for plain in message.getAllofComponent(Plain):
@@ -62,7 +62,7 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
     try:
         if __check_triggered__(message):
             print(f"pixiv shuffle bookmarks asked.")
-            illusts = __get_bookmarks__()["illusts"]
+            illusts = __get_bookmarks__()
             if len(illusts) > 0:
                 illust = pixiv_api.shuffle_illust(illusts, shuffle_method)
                 print(f"""illust {illust["id"]} selected.""")

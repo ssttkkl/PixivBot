@@ -7,14 +7,14 @@ from bot_utils import *
 from settings import settings
 
 
-def __check_triggered__(message: MessageChain):
+def __check_triggered__(message: MessageChain) -> bool:
     trigger: str = settings["illust"]["trigger"]
 
     content = ''.join([x.toString() for x in message.getAllofComponent(Plain)])
     return trigger in content
 
 
-def __findall_illust_ids__(message: MessageChain):
+def __findall_illust_ids__(message: MessageChain) -> T.Generator[int, None, None]:
     regex = re.compile("[1-9][0-9]*")
     for plain in message.getAllofComponent(Plain):
         for match_result in regex.finditer(plain.toString()):

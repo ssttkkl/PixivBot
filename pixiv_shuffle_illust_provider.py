@@ -7,7 +7,7 @@ from bot_utils import *
 from settings import settings
 
 
-def __search_illusts__(keyword):
+def __search_illusts__(keyword: str) -> T.Sequence[dict]:
     import os
 
     search_item_limit: int = settings["shuffle_illust"]["search_item_limit"]
@@ -16,11 +16,11 @@ def __search_illusts__(keyword):
     search_r18g: bool = settings["shuffle_illust"]["search_r18g"]
     search_cache_dir: str = settings["shuffle_illust"]["search_cache_dir"]
 
-    search_cache_outdated_time = settings["shuffle_illust"]["search_cache_outdated_time"] \
+    search_cache_outdated_time: T.Optional[int] = settings["shuffle_illust"]["search_cache_outdated_time"] \
         if "search_cache_outdated_time" in settings["shuffle_illust"] else None  # nullable
-    search_bookmarks_lower_bound = settings["shuffle_illust"]["search_bookmarks_lower_bound"] \
+    search_bookmarks_lower_bound: T.Optional[int] = settings["shuffle_illust"]["search_bookmarks_lower_bound"] \
         if "search_bookmarks_lower_bound" in settings["shuffle_illust"] else None  # nullable
-    search_view_lower_bound = settings["shuffle_illust"]["search_view_lower_bound"] \
+    search_view_lower_bound: T.Optional[int] = settings["shuffle_illust"]["search_view_lower_bound"] \
         if "search_view_lower_bound" in settings["shuffle_illust"] else None  # nullable
 
     def illust_filter(illust):
@@ -44,7 +44,7 @@ def __search_illusts__(keyword):
                                               search_item_limit=search_item_limit,
                                               search_page_limit=search_page_limit))
         print(f"{len(illusts)} [{keyword}] illusts were found.")
-        return dict(illusts=illusts)
+        return illusts
 
     # 缓存文件路径
     dirpath = os.path.join(os.path.curdir, search_cache_dir)
@@ -57,14 +57,14 @@ def __search_illusts__(keyword):
     return illusts
 
 
-def __get_illusts__(keyword: str):
+def __get_illusts__(keyword: str) -> T.Sequence[dict]:
     if keyword:  # 若指定关键词，则进行搜索
         return __search_illusts__(keyword)
     else:  # 若未指定关键词，则从今日排行榜中选取
         return pixiv_api.api().illust_ranking()["illusts"]
 
 
-def __find_keyword__(message: MessageChain):
+def __find_keyword__(message: MessageChain) -> T.Optional[str]:
     trigger = settings["shuffle_illust"]["trigger"]
     regex = re.compile(trigger.replace("$keyword", "(.*)"))
 

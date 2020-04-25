@@ -43,7 +43,7 @@ def __findall_ranges__(message: MessageChain):
     default_range = settings["ranking"]["default_range"]
 
     empty = True
-    regex = re.compile("[1-9][0-9]*\\-[1-9][0-9]*")
+    regex = re.compile("[1-9][0-9]*-[1-9][0-9]*")
     for plain in message.getAllofComponent(Plain):
         for match_result in regex.finditer(plain.toString()):
             empty = False
