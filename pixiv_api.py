@@ -84,6 +84,8 @@ def download_illust(illust):
             url: str = illust["meta_single_page"]["original_image_url"]
     else:
         url: str = illust["image_urls"][download_quantity]
+    if domain is not None:
+        url = url.replace("i.pximg.net", domain)
 
     # 从url中截取的文件名
     filename = os.path.basename(url)
@@ -91,26 +93,14 @@ def download_illust(illust):
     
     # 上面的文件名将后缀改为jpg的文件名（用于检查是否存在压缩过的文件）
     basename, extension = os.path.splitext(filename)
-    filename_as_jpg = basename + ".jpg"
-    fullpath_as_jpg = os.path.join(dirname, filename_as_jpg)
+    filename_compressed = basename + ".compressed.jpg"
+    fullpath_compressed = os.path.join(dirname, filename_compressed)
 
-    filepath_to_process = None
-    
-    # 检查本地是否存在
-    if not download_replace:
-        if os.path.exists(fullpath):
-            filepath_to_process = fullpath
-        elif os.path.exists(fullpath_as_jpg):
-            filepath_to_process = fullpath_as_jpg
-    
-    # 如果本地不存在则下载
-    if filepath_to_process is None:
-        if domain is not None:
-            url = url.replace("i.pximg.net", domain)
-        api().download(url=url, path=dirname)
-        filepath_to_process = fullpath
-
-    return compress_illust(filepath_to_process)
+    if not download_replace and os.path.exists(fullpath_compressed):
+        return fullpath_compressed
+    elif download_replace or not os.path.exists(fullpath):
+        api().download(url=url, path=dirname, name=filename, replace=download_replace)
+    return compress_illust(fullpath)
 
 
 def compress_illust(fullpath):
@@ -137,7 +127,7 @@ def compress_illust(fullpath):
     finally:
         dirname, basename = os.path.split(fullpath)
         basename, _ = os.path.splitext(basename)
-        basename = basename + ".jpg"
+        basename = basename + ".compressed.jpg"
         fullpath = os.path.join(dirname, basename)
         img_cp.save(fullpath, optimize=True, quantity=compress_quantity)
         return fullpath
