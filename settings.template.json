@@ -70,5 +70,18 @@
     "search_page_limit": 30, // 一次搜索最多翻多少页
     "search_r18": false, // 搜索结果是否要包含r-18插画
     "search_r18g": false // 搜索结果是否要包含r-18g插画
+  },
+  "shuffle_illustrator_illust":{
+    "trigger": "来张$illustrator老师", // 触发词的模板，其中$illustrator指代画师
+    "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
+    "shuffle_method": "uniform", // 抽选方法。“uniform”为均匀分布、“bookmarks_proportion”为概率与书签数呈比例、“view_proportion”为概率与浏览数呈比例。
+    "search_cache_dir": "cache/illustrator_cache", // 搜索结果缓存的目录
+    "search_cache_outdated_time": 86400, // 搜索结果缓存的时间，null表示无限期（单位：秒）
+    "search_item_limit": 500, // 一次搜索最多包含多少插画
+    "search_page_limit": 30, // 一次搜索最多翻多少页
+    "search_bookmarks_lower_bound": null, // 搜索结果只包含书签数不少于指定值的插画，null表示不设下限
+    "search_view_lower_bound": null, // 搜索结果只包含浏览数不少于指定值的插画，null表示不设下限
+    "search_r18": false, // 搜索结果是否要包含r-18插画
+    "search_r18g": false // 搜索结果是否要包含r-18g插画
   }
 }
