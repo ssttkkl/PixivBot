@@ -95,20 +95,27 @@ def get_illusts_cached(load_from_pixiv_func: T.Callable[[], T.Sequence[dict]],
 def iter_illusts(search_func: T.Callable[..., dict],
                  illust_filter: T.Callable[[dict], bool],
                  init_qs: dict,
-                 search_item_limit: int,
-                 search_page_limit: int) -> T.Generator[dict, None, None]:
+                 search_item_limit: T.Optional[int],
+                 search_page_limit: T.Optional[int]) -> T.Generator[dict, None, None]:
     """
     反复调用search_func自动翻页获取illusts，实现illust的生成器
     :param search_func: 用于从服务器获取illusts的函数，返回值应为包含键"illusts"的词典
     :param illust_filter: 对每个illust调用以过滤不符合的，返回True为包含，False为不包含
     :param init_qs: 初次调用search_func时的参数
-    :param search_item_limit: 最多生成多少项
-    :param search_page_limit: 最多翻页多少次
+    :param search_item_limit: 最多生成多少项，若未指定则无限制
+    :param search_page_limit: 最多翻页多少次，若未指定则无限制
     :return: illust的生成器
     """
+
+    if search_item_limit is None:
+        search_item_limit = 2 ** 32
+    if search_page_limit is None:
+        search_page_limit = 2 ** 32
+
     search_result = search_func(**init_qs)
     page = 1
     counter = 0
+
     while counter < search_item_limit and page < search_page_limit:
         for illust in search_result["illusts"]:
             # R-18/R-18G规避

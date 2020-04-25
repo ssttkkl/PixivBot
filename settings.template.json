@@ -14,7 +14,7 @@
   // 这部分是查看排行榜的配置
   "ranking": {
     "trigger": { // 触发词，当消息中包含这些词语时就会触发
-      "default": "看看榜",
+      "default": ["看看榜", "ランキングを見せてください"],
       "day": "看看日榜",
       "week": "看看周榜",
       "month": "看看月榜",
@@ -32,7 +32,7 @@
   },
   // 这部分是通过id查看插画的配置
   "illust": {
-    "trigger": "看看图", // 触发词
+    "trigger": ["看看图", "イラストを見せてください"], // 触发词
     "domain": "i.pixiv.cat", // 反代使用的域名，若不希望使用反代则设为null
     "download_dir": "cache/illust_img", // 下载插画的目录
     "download_quantity": "original", // 下载插画的品质，可选：origin, medium,square_medium
@@ -48,7 +48,7 @@
   },
   // 这部分是搜索关键字随机抽选插画的配置
   "shuffle_illust": {
-    "trigger": "来张$keyword图", // 触发词的模板，其中$keyword指代关键字
+    "trigger": ["来张$keyword图", "$keywordのイラストをください"], // 触发词的模板，其中$keyword指代关键字
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
     "shuffle_method": "bookmarks_proportion", // 抽选方法。“uniform”为均匀分布、“bookmarks_proportion”为概率与书签数呈比例、“view_proportion”为概率与浏览数呈比例。
     "search_cache_dir": "cache/search_cache", // 搜索结果缓存的目录
@@ -60,8 +60,8 @@
   },
   // 这部分是随机抽选书签插画的配置
   "shuffle_bookmarks": {
-    "trigger": "来张私家车", // 触发词
-    "user_id": 6059616, // 要查看书签的用户id
+    "trigger": ["来张私家车", "ブックマークの一つをください"], // 触发词
+    "user_id": , // 要查看书签的用户id
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
     "shuffle_method": "uniform", // 抽选方法。“uniform”为均匀分布、“bookmarks_proportion”为概率与书签数呈比例、“view_proportion”为概率与浏览数呈比例。
     "search_cache_filename": "cache/bookmarks.json", // 搜索结果缓存的文件
@@ -72,13 +72,13 @@
     "search_r18g": false // 搜索结果是否要包含r-18g插画
   },
   "shuffle_illustrator_illust":{
-    "trigger": "来张$illustrator老师", // 触发词的模板，其中$illustrator指代画师
+    "trigger": ["来张$illustrator老师的作品", "$illustrator先生のイラスト一つをください"], // 触发词的模板，其中$illustrator指代画师
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
     "shuffle_method": "uniform", // 抽选方法。“uniform”为均匀分布、“bookmarks_proportion”为概率与书签数呈比例、“view_proportion”为概率与浏览数呈比例。
     "search_cache_dir": "cache/illustrator_cache", // 搜索结果缓存的目录
     "search_cache_outdated_time": 86400, // 搜索结果缓存的时间，null表示无限期（单位：秒）
-    "search_item_limit": 500, // 一次搜索最多包含多少插画
-    "search_page_limit": 30, // 一次搜索最多翻多少页
+    "search_item_limit": null, // 一次搜索最多包含多少插画
+    "search_page_limit": null, // 一次搜索最多翻多少页
     "search_bookmarks_lower_bound": null, // 搜索结果只包含书签数不少于指定值的插画，null表示不设下限
     "search_view_lower_bound": null, // 搜索结果只包含浏览数不少于指定值的插画，null表示不设下限
     "search_r18": false, // 搜索结果是否要包含r-18插画

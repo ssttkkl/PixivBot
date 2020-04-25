@@ -6,60 +6,49 @@ import pixiv_api
 from bot_utils import *
 from settings import settings
 
+trigger = settings["ranking"]["trigger"]
 
-def __fetch_illust_ranking__(mode: str, topn: int):
-    cnt = 0
-    next_qs = dict(mode=mode)
-    while True:
-        search_result = pixiv_api.api().illust_ranking(**next_qs)
-        for illust in search_result["illusts"]:
-            cnt = cnt + 1
-            yield illust
-            if cnt >= topn:
-                return
-        next_qs = pixiv_api.api().parse_qs(search_result["next_url"])
-        if next_qs is None:
-            break
+for key in trigger:
+    if isinstance(trigger[key], str):
+        trigger[key] = [trigger[key]]
+
+default_ranking_mode: str = settings["ranking"]["default_ranking_mode"]
+default_range: str = settings["ranking"]["default_range"]
+pattern: str = settings["ranking"]["item_pattern"]
+item_per_page_group: int = settings["ranking"]["item_per_page_group"]
+item_per_page_friend: int = settings["ranking"]["item_per_page_friend"]
 
 
 def __find_ranking_mode__(message: MessageChain):
-    trigger = settings["ranking"]["trigger"]
-    default_ranking_mode = settings["ranking"]["default_ranking_mode"]
+    content = plain_str(message)
 
-    for plain in message.getAllofComponent(Plain):
-        mode = None
-        for key in trigger:
-            if trigger[key] in plain.toString():
-                mode = key
-                break
-        if mode == "default":
-            mode = default_ranking_mode
-        if mode is not None:
-            return mode
+    for key in trigger:
+        for x in trigger[key]:
+            if x in content:
+                if key == "default":
+                    return default_ranking_mode
+                else:
+                    return key
     return None
 
 
 def __findall_ranges__(message: MessageChain):
-    default_range = settings["ranking"]["default_range"]
+    content = plain_str(message)
 
-    empty = True
-    regex = re.compile("[1-9][0-9]*-[1-9][0-9]*")
-    for plain in message.getAllofComponent(Plain):
-        for match_result in regex.finditer(plain.toString()):
-            empty = False
-            begin, end = map(int, match_result.group().split('-'))
-            yield begin, end
+    regex = "[1-9][0-9]*-[1-9][0-9]*"
+    res = re.findall(regex, content)
+    if len(res) == 0:
+        res = re.findall(regex, default_range)
 
-    if empty:
-        for match_result in regex.finditer(default_range):
-            begin, end = map(int, match_result.group().split('-'))
-            yield begin, end
+    return [tuple(map(int, x.split('-'))) for x in res]
 
 
 def __generate_messages__(mode: str, begin: int, end: int, item_per_page: int):
-    pattern: str = settings["ranking"]["item_pattern"]
-
-    illusts = list(__fetch_illust_ranking__(mode, end))[begin - 1:]
+    illusts = list(pixiv_api.iter_illusts(search_func=pixiv_api.api().illust_ranking,
+                                          illust_filter=lambda x: True,
+                                          init_qs=dict(mode=mode),
+                                          search_item_limit=end,
+                                          search_page_limit=None))[begin - 1:]
 
     message = []
     rank = begin
@@ -85,9 +74,9 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
                 print(f"pixiv {mode} ranking {begin}-{end} asked.")
 
                 if isinstance(subject, Group):
-                    item_per_page: int = settings["ranking"]["item_per_page_group"]
+                    item_per_page: int = item_per_page_group
                 elif isinstance(subject, Friend):
-                    item_per_page: int = settings["ranking"]["item_per_page_friend"]
+                    item_per_page: int = item_per_page_friend
                 else:
                     raise TypeError(f"param \"subject\" expect type Group or Friend, not {type(subject)}. ")
 

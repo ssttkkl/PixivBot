@@ -6,19 +6,25 @@ import pixiv_api
 from bot_utils import *
 from settings import settings
 
+trigger = settings["illust"]["trigger"]
+
+if isinstance(trigger, str):
+    trigger = [trigger]
+
 
 def __check_triggered__(message: MessageChain) -> bool:
-    trigger: str = settings["illust"]["trigger"]
-
-    content = ''.join([x.toString() for x in message.getAllofComponent(Plain)])
-    return trigger in content
+    content = plain_str(message)
+    for x in trigger:
+        if x in content:
+            return True
+    return False
 
 
 def __findall_illust_ids__(message: MessageChain) -> T.Generator[int, None, None]:
+    content = plain_str(message)
     regex = re.compile("[1-9][0-9]*")
-    for plain in message.getAllofComponent(Plain):
-        for match_result in regex.finditer(plain.toString()):
-            yield int(match_result.group())
+    for match_result in regex.finditer(content):
+        yield int(match_result.group())
 
 
 async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):

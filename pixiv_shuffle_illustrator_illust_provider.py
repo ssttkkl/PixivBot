@@ -5,16 +5,37 @@ import typing as T
 from mirai import *
 
 import pixiv_api
-from bot_utils import reply
+from bot_utils import reply, plain_str
 from settings import settings
+
+trigger = settings["shuffle_illustrator_illust"]["trigger"]
+
+if isinstance(trigger, str):
+    trigger = [trigger]
+
+search_r18: bool = settings["shuffle_illustrator_illust"]["search_r18"]
+search_r18g: bool = settings["shuffle_illustrator_illust"]["search_r18g"]
+search_cache_dir: str = settings["shuffle_illustrator_illust"]["search_cache_dir"]
+not_found_message: str = settings["shuffle_illustrator_illust"]["not_found_message"]
+shuffle_method: str = settings["shuffle_illustrator_illust"]["shuffle_method"]
+
+search_cache_outdated_time: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_cache_outdated_time"] \
+    if "search_cache_outdated_time" in settings["shuffle_illustrator_illust"] else None  # nullable
+search_bookmarks_lower_bound: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_bookmarks_lower_bound"] \
+    if "search_bookmarks_lower_bound" in settings["shuffle_illustrator_illust"] else None  # nullable
+search_view_lower_bound: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_view_lower_bound"] \
+    if "search_view_lower_bound" in settings["shuffle_illustrator_illust"] else None  # nullable
+search_item_limit: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_item_limit"] \
+    if "search_item_limit" in settings["shuffle_illustrator_illust"] else None  # nullable
+search_page_limit: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_page_limit"] \
+    if "search_page_limit" in settings["shuffle_illustrator_illust"] else None  # nullable
 
 
 def __find_illustrator__(message: MessageChain) -> T.Optional[str]:
-    trigger = settings["shuffle_illustrator_illust"]["trigger"]
-    regex = re.compile(trigger.replace("$illustrator", "(.*)"))
-
-    for plain in message.getAllofComponent(Plain):
-        match_result = regex.search(plain.toString())
+    content = plain_str(message)
+    for x in trigger:
+        regex = x.replace("$illustrator", "(.*)")
+        match_result = re.search(regex, content)
         if match_result is not None:
             return match_result.group(1)
     return None
@@ -22,19 +43,6 @@ def __find_illustrator__(message: MessageChain) -> T.Optional[str]:
 
 def __get_illusts__(illustrator: str) -> T.Sequence[dict]:
     import os
-
-    search_item_limit: int = settings["shuffle_illustrator_illust"]["search_item_limit"]
-    search_page_limit: int = settings["shuffle_illustrator_illust"]["search_page_limit"]
-    search_r18: bool = settings["shuffle_illustrator_illust"]["search_r18"]
-    search_r18g: bool = settings["shuffle_illustrator_illust"]["search_r18g"]
-    search_cache_dir: str = settings["shuffle_illustrator_illust"]["search_cache_dir"]
-
-    search_cache_outdated_time: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_cache_outdated_time"] \
-        if "search_cache_outdated_time" in settings["shuffle_illustrator_illust"] else None  # nullable
-    search_bookmarks_lower_bound: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_bookmarks_lower_bound"] \
-        if "search_bookmarks_lower_bound" in settings["shuffle_illustrator_illust"] else None  # nullable
-    search_view_lower_bound: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_view_lower_bound"] \
-        if "search_view_lower_bound" in settings["shuffle_illustrator_illust"] else None  # nullable
 
     illustrator = pixiv_api.api().search_user(illustrator)["user_previews"][0]["user"]
     illustrator_id: int = illustrator["id"]
@@ -75,9 +83,6 @@ def __get_illusts__(illustrator: str) -> T.Sequence[dict]:
 
 
 async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
-    not_found_message: str = settings["shuffle_illustrator_illust"]["not_found_message"]
-    shuffle_method: str = settings["shuffle_illustrator_illust"]["shuffle_method"]
-
     try:
         illustrator = __find_illustrator__(message)
         if illustrator is None:
@@ -86,7 +91,7 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
         print(f"pixiv shuffle illustrator illust [{illustrator}] asked.")
         illusts = __get_illusts__(illustrator)
         if len(illusts) > 0:
-            illust = pixiv_api.shuffle_illustrator_illust(illusts, shuffle_method)
+            illust = pixiv_api.shuffle_illust(illusts, shuffle_method)
             print(f"""illust {illust["id"]} selected.""")
             await reply(bot, source, subject, pixiv_api.illust_to_message(illust))
         else:

@@ -6,24 +6,32 @@ import pixiv_api
 from bot_utils import *
 from settings import settings
 
+trigger = settings["shuffle_illust"]["trigger"]
+
+if isinstance(trigger, str):
+    trigger = [trigger]
+
+not_found_message: str = settings["shuffle_illust"]["not_found_message"]
+shuffle_method: str = settings["shuffle_illust"]["shuffle_method"]
+search_r18: bool = settings["shuffle_illust"]["search_r18"]
+search_r18g: bool = settings["shuffle_illust"]["search_r18g"]
+search_cache_dir: str = settings["shuffle_illust"]["search_cache_dir"]
+
+search_cache_outdated_time: T.Optional[int] = settings["shuffle_illust"]["search_cache_outdated_time"] \
+    if "search_cache_outdated_time" in settings["shuffle_illust"] else None  # nullable
+search_bookmarks_lower_bound: T.Optional[int] = settings["shuffle_illust"]["search_bookmarks_lower_bound"] \
+    if "search_bookmarks_lower_bound" in settings["shuffle_illust"] else None  # nullable
+search_view_lower_bound: T.Optional[int] = settings["shuffle_illust"]["search_view_lower_bound"] \
+    if "search_view_lower_bound" in settings["shuffle_illust"] else None  # nullable
+search_item_limit: T.Optional[int] = settings["shuffle_illust"]["search_item_limit"] \
+    if "search_item_limit" in settings["shuffle_illust"] else None  # nullable
+search_page_limit: T.Optional[int] = settings["shuffle_illust"]["search_page_limit"] \
+    if "search_page_limit" in settings["shuffle_illust"] else None  # nullable
 
 def __search_illusts__(keyword: str) -> T.Sequence[dict]:
     import os
 
-    search_item_limit: int = settings["shuffle_illust"]["search_item_limit"]
-    search_page_limit: int = settings["shuffle_illust"]["search_page_limit"]
-    search_r18: bool = settings["shuffle_illust"]["search_r18"]
-    search_r18g: bool = settings["shuffle_illust"]["search_r18g"]
-    search_cache_dir: str = settings["shuffle_illust"]["search_cache_dir"]
-
-    search_cache_outdated_time: T.Optional[int] = settings["shuffle_illust"]["search_cache_outdated_time"] \
-        if "search_cache_outdated_time" in settings["shuffle_illust"] else None  # nullable
-    search_bookmarks_lower_bound: T.Optional[int] = settings["shuffle_illust"]["search_bookmarks_lower_bound"] \
-        if "search_bookmarks_lower_bound" in settings["shuffle_illust"] else None  # nullable
-    search_view_lower_bound: T.Optional[int] = settings["shuffle_illust"]["search_view_lower_bound"] \
-        if "search_view_lower_bound" in settings["shuffle_illust"] else None  # nullable
-
-    def illust_filter(illust):
+    def illust_filter(illust) -> bool:
         # R-18/R-18G规避
         if pixiv_api.has_tag(illust, "R-18") and not search_r18:
             return False
@@ -37,7 +45,7 @@ def __search_illusts__(keyword: str) -> T.Sequence[dict]:
             return False
         return True
 
-    def load_from_pixiv():
+    def load_from_pixiv() -> T.Sequence[dict]:
         illusts = list(pixiv_api.iter_illusts(search_func=pixiv_api.api().search_illust,
                                               illust_filter=illust_filter,
                                               init_qs=dict(word=keyword),
@@ -65,20 +73,16 @@ def __get_illusts__(keyword: str) -> T.Sequence[dict]:
 
 
 def __find_keyword__(message: MessageChain) -> T.Optional[str]:
-    trigger = settings["shuffle_illust"]["trigger"]
-    regex = re.compile(trigger.replace("$keyword", "(.*)"))
-
-    for plain in message.getAllofComponent(Plain):
-        match_result = regex.search(plain.toString())
+    content = plain_str(message)
+    for x in trigger:
+        regex = x.replace("$keyword", "(.*)")
+        match_result = re.search(regex, content)
         if match_result is not None:
             return match_result.group(1)
     return None
 
 
 async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
-    not_found_message: str = settings["shuffle_illust"]["not_found_message"]
-    shuffle_method: str = settings["shuffle_illust"]["shuffle_method"]
-
     try:
         keyword = __find_keyword__(message)
         if keyword is None:
