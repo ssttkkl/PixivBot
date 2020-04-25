@@ -4,6 +4,7 @@ import pixiv_illust_provider
 import pixiv_ranking_provider
 import pixiv_shuffle_bookmarks_provider
 import pixiv_shuffle_illust_provider
+import pixiv_shuffle_illustrator_illust_provider
 from settings import settings
 
 qq = settings["mirai"]["qq"]
@@ -20,6 +21,7 @@ async def group_receiver(bot: Mirai, source: Source, group: Group, message: Mess
     await pixiv_ranking_provider.receive(bot, source, group, message)
     await pixiv_illust_provider.receive(bot, source, group, message)
     await pixiv_shuffle_illust_provider.receive(bot, source, group, message)
+    await pixiv_shuffle_illustrator_illust_provider.receive(bot, source, group, message)
 
 
 @bot.receiver("FriendMessage")
@@ -28,6 +30,7 @@ async def friend_receiver(bot: Mirai, source: Source, friend: Friend, message: M
     await pixiv_illust_provider.receive(bot, source, friend, message)
     await pixiv_shuffle_illust_provider.receive(bot, source, friend, message)
     await pixiv_shuffle_bookmarks_provider.receive(bot, source, friend, message)
+    await pixiv_shuffle_illustrator_illust_provider.receive(bot, source, friend, message)
 
 
 if __name__ == "__main__":

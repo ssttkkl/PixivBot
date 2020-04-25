@@ -7,10 +7,8 @@ from bot_utils import *
 from settings import settings
 
 
-def __search_cached__(keyword):
-    import json
+def __search_illusts__(keyword):
     import os
-    import time
 
     search_item_limit: int = settings["shuffle_illust"]["search_item_limit"]
     search_page_limit: int = settings["shuffle_illust"]["search_page_limit"]
@@ -25,74 +23,45 @@ def __search_cached__(keyword):
     search_view_lower_bound = settings["shuffle_illust"]["search_view_lower_bound"] \
         if "search_view_lower_bound" in settings["shuffle_illust"] else None  # nullable
 
+    def illust_filter(illust):
+        # R-18/R-18G规避
+        if pixiv_api.has_tag(illust, "R-18") and not search_r18:
+            return False
+        if pixiv_api.has_tag(illust, "R-18G") and not search_r18g:
+            return False
+        # 书签下限过滤
+        if search_bookmarks_lower_bound is not None and illust["total_bookmarks"] < search_bookmarks_lower_bound:
+            return False
+        # 浏览量下限过滤
+        if search_view_lower_bound is not None and illust["total_view"] < search_view_lower_bound:
+            return False
+        return True
+
+    def load_from_pixiv():
+        illusts = list(pixiv_api.iter_illusts(search_func=pixiv_api.api().search_illust,
+                                              illust_filter=illust_filter,
+                                              init_qs=dict(word=keyword),
+                                              search_item_limit=search_item_limit,
+                                              search_page_limit=search_page_limit))
+        print(f"{len(illusts)} [{keyword}] illusts were found.")
+        return dict(illusts=illusts)
+
     # 缓存文件路径
-    filename = re.sub("\.[<>/\\\|:\"*?]", "_", keyword)  # 转义非法字符
-    if search_r18:
-        filename = filename + ".r18"
-    if search_r18g:
-        filename = filename + ".r18g"
-    filename = filename + ".json"
-    dirname = os.path.join(os.path.curdir, search_cache_dir)
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
-    cache_file = os.path.join(dirname, filename)
+    dirpath = os.path.join(os.path.curdir, search_cache_dir)
+    filename = re.sub("\.[<>/\\\|:\"*?]", "_", keyword) + ".json"  # 转义非法字符
+    cache_file = os.path.join(dirpath, filename)
 
-    content = dict(illusts=[])
+    illusts = pixiv_api.get_illusts_cached(load_from_pixiv_func=load_from_pixiv,
+                                           cache_file=cache_file,
+                                           cache_outdated_time=search_cache_outdated_time)
+    return illusts
 
-    # 若缓存文件存在且未过期，读取缓存后返回
-    if os.path.exists(cache_file):
-        now = time.time()
-        mtime = os.path.getmtime(cache_file)
-        if search_cache_outdated_time is None or now - mtime <= search_cache_outdated_time:
-            with open(cache_file, "r", encoding="utf8") as f:
-                content = json.load(f)
-                if "illusts" in content and len(content["illusts"]) > 0:
-                    return content
 
-    # 从pixiv加载
-    try:
-        illusts = []
-        search_result = pixiv_api.api().search_illust(keyword)
-        page = 1
-        while len(illusts) < search_item_limit and page < search_page_limit:
-            for illust in search_result["illusts"]:
-                # R-18/R-18G规避
-                if pixiv_api.has_tag(illust, "R-18") and not search_r18:
-                    continue
-                if pixiv_api.has_tag(illust, "R-18G") and not search_r18g:
-                    continue
-
-                # 书签下限过滤
-                if search_cache_outdated_time is not None and illust["total_bookmarks"] < search_bookmarks_lower_bound:
-                    continue
-
-                # 浏览量下限过滤
-                if search_view_lower_bound is not None and illust["total_view"] < search_view_lower_bound:
-                    continue
-
-                illusts.append(illust)
-                if len(illusts) >= search_item_limit:
-                    break
-            else:
-                next_qs = pixiv_api.api().parse_qs(search_result["next_url"])
-                if next_qs is None:
-                    break
-                search_result = pixiv_api.api().search_illust(**next_qs)
-                page = page + 1
-
-        print(f"{len(illusts)} [{keyword}] illusts found over {page} pages.")
-        # 写入缓存
-        with open(cache_file, "w", encoding="utf8") as f:
-            content = dict(illusts=illusts)
-            f.write(json.dumps(content))
-        return content
-    except:
-        traceback.print_exc()
-        # 从pixiv加载时发生异常，尝试读取缓存
-        if os.path.exists(cache_file):
-            with open(cache_file, "r", encoding="utf8") as f:
-                content = json.load(f)
-        return content
+def __get_illusts__(keyword: str):
+    if keyword:  # 若指定关键词，则进行搜索
+        return __search_illusts__(keyword)
+    else:  # 若未指定关键词，则从今日排行榜中选取
+        return pixiv_api.api().illust_ranking()["illusts"]
 
 
 def __find_keyword__(message: MessageChain):
@@ -104,13 +73,6 @@ def __find_keyword__(message: MessageChain):
         if match_result is not None:
             return match_result.group(1)
     return None
-
-
-def __get_illusts__(keyword: str):
-    if keyword:  # 若指定关键词，则进行搜索
-        return __search_cached__(keyword)["illusts"]
-    else:  # 若未指定关键词，则从今日排行榜中选取
-        return pixiv_api.api().illust_ranking()["illusts"]
 
 
 async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
