@@ -1,15 +1,15 @@
 {
   // 这部分是与 MiraiAPIHTTP 通信的参数
   "mirai": {
-    "qq": ,
-    "auth_key": ,
-    "port":,
+    "qq": 123456,
+    "auth_key": "auth_key",
+    "port": 8000,
     "enable_websocket": false
   },
   // 这部分是用于登入 pixiv 的账号密码
   "pixiv": {
-    "username": ,
-    "password":
+    "username": "username",
+    "password": "password"
   },
   // 这部分是查看排行榜的配置
   "ranking": {
@@ -35,7 +35,7 @@
     "trigger": ["看看图", "イラストを見せてください"], // 触发词
     "domain": "i.pixiv.cat", // 反代使用的域名，若不希望使用反代则设为null
     "download_dir": "cache/illust_img", // 下载插画的目录
-    "download_quantity": "original", // 下载插画的品质，可选：origin, medium,square_medium
+    "download_quantity": "original", // 下载插画的品质，可选值：origin, medium, square_medium
     "download_replace": false, // 下载插画时，若已经存在是否覆盖
     "compress": true, // 是否要对图片进行压缩
     "compress_size": 1200, // 将图片的长或宽压缩至此处设定的数值，保持原有长宽比
@@ -52,22 +52,24 @@
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
     "shuffle_method": "bookmarks_proportion", // 抽选方法。“uniform”为均匀分布、“bookmarks_proportion”为概率与书签数呈比例、“view_proportion”为概率与浏览数呈比例。
     "search_cache_dir": "cache/search_cache", // 搜索结果缓存的目录
-    "search_cache_outdated_time": 86400, // 搜索结果缓存的时间，单位：秒
+    "search_cache_outdated_time": 86400, // 搜索结果缓存的时间，null表示无限期（单位：秒）
     "search_item_limit": 500, // 一次搜索最多包含多少插画
     "search_page_limit": 30, // 一次搜索最多翻多少页
+    "search_bookmarks_lower_bound": 100, // 搜索结果只包含书签数不少于指定值的插画，null表示不设下限
+    "search_view_lower_bound": null, // 搜索结果只包含浏览数不少于指定值的插画，null表示不设下限
     "search_r18": false, // 搜索结果是否要包含r-18插画
     "search_r18g": false // 搜索结果是否要包含r-18g插画
   },
   // 这部分是随机抽选书签插画的配置
   "shuffle_bookmarks": {
     "trigger": ["来张私家车", "ブックマークの一つをください"], // 触发词
-    "user_id": , // 要查看书签的用户id
+    "user_id": 123456, // 要查看书签的用户id
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
     "shuffle_method": "uniform", // 抽选方法。“uniform”为均匀分布、“bookmarks_proportion”为概率与书签数呈比例、“view_proportion”为概率与浏览数呈比例。
     "search_cache_filename": "cache/bookmarks.json", // 搜索结果缓存的文件
-    "search_cache_outdated_time": 3600, // 搜索结果缓存的时间，单位：秒
-    "search_item_limit": 500, // 一次搜索最多包含多少插画
-    "search_page_limit": 30, // 一次搜索最多翻多少页
+    "search_cache_outdated_time": 3600, // 搜索结果缓存的时间，null表示无限期（单位：秒）
+    "search_item_limit": 1000, // 一次搜索最多包含多少插画
+    "search_page_limit": 50, // 一次搜索最多翻多少页
     "search_r18": false, // 搜索结果是否要包含r-18插画
     "search_r18g": false // 搜索结果是否要包含r-18g插画
   },
