@@ -1,3 +1,4 @@
+import os
 import re
 import traceback
 import typing as T
@@ -18,20 +19,18 @@ search_r18g: bool = settings["shuffle_illustrator_illust"]["search_r18g"]
 search_cache_dir: str = settings["shuffle_illustrator_illust"]["search_cache_dir"]
 not_found_message: str = settings["shuffle_illustrator_illust"]["not_found_message"]
 shuffle_method: str = settings["shuffle_illustrator_illust"]["shuffle_method"]
-
-search_cache_outdated_time: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_cache_outdated_time"] \
-    if "search_cache_outdated_time" in settings["shuffle_illustrator_illust"] else None  # nullable
-search_bookmarks_lower_bound: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_bookmarks_lower_bound"] \
-    if "search_bookmarks_lower_bound" in settings["shuffle_illustrator_illust"] else None  # nullable
-search_view_lower_bound: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_view_lower_bound"] \
-    if "search_view_lower_bound" in settings["shuffle_illustrator_illust"] else None  # nullable
-search_item_limit: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_item_limit"] \
-    if "search_item_limit" in settings["shuffle_illustrator_illust"] else None  # nullable
-search_page_limit: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_page_limit"] \
-    if "search_page_limit" in settings["shuffle_illustrator_illust"] else None  # nullable
+search_cache_outdated_time: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_cache_outdated_time"]
+search_bookmarks_lower_bound: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_bookmarks_lower_bound"]
+search_view_lower_bound: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_view_lower_bound"]
+search_item_limit: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_item_limit"]
+search_page_limit: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_page_limit"]
 
 
 def __find_illustrator__(message: MessageChain) -> T.Optional[str]:
+    """
+    找出消息中所指定的画师
+    :return: 画师，若未触发则为None
+    """
     content = plain_str(message)
     for x in trigger:
         regex = x.replace("$illustrator", "(.*)")
@@ -42,8 +41,9 @@ def __find_illustrator__(message: MessageChain) -> T.Optional[str]:
 
 
 def __get_illusts__(illustrator: str) -> T.Sequence[dict]:
-    import os
-
+    """
+    获取指定画师的画像（从缓存或服务器）
+    """
     illustrator = pixiv_api.api().search_user(illustrator)["user_previews"][0]["user"]
     illustrator_id: int = illustrator["id"]
     illustrator_name: str = illustrator["name"]
@@ -82,7 +82,14 @@ def __get_illusts__(illustrator: str) -> T.Sequence[dict]:
     return illusts
 
 
-async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
+async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain) -> T.NoReturn:
+    """
+    接收消息
+    :param bot: Mirai Bot实例
+    :param source: 消息的Source
+    :param subject: 消息的发送对象
+    :param message: 消息
+    """
     try:
         illustrator = __find_illustrator__(message)
         if illustrator is None:

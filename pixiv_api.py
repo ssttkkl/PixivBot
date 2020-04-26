@@ -17,6 +17,22 @@ __back_api__ = None
 __api_init_time__ = 0
 __lock__ = threading.RLock()
 
+username: str = settings["pixiv"]["username"]
+password: str = settings["pixiv"]["password"]
+
+compress: bool = settings["illust"]["compress"]
+compress_size: int = settings["illust"]["compress_size"]
+compress_quantity: int = settings["illust"]["compress_quantity"]
+download_dir: str = settings["illust"]["download_dir"]
+download_quantity: str = settings["illust"]["download_quantity"]
+download_replace: bool = settings["illust"]["download_replace"]
+domain: T.Optional[str] = settings["illust"]["domain"]
+reply_pattern: str = settings["illust"]["reply_pattern"]
+r18_img_escape: bool = settings["illust"]["r18_img_escape"]
+r18g_img_escape: bool = settings["illust"]["r18g_img_escape"]
+r18g_img_escape_message: T.Optional[str] = settings["illust"]["r18g_img_escape_message"]
+r18_img_escape_message: T.Optional[str] = settings["illust"]["r18_img_escape_message"]
+
 
 def api() -> pixivpy3.ByPassSniApi:
     """
@@ -29,9 +45,6 @@ def api() -> pixivpy3.ByPassSniApi:
 
     __lock__.acquire()
     try:
-        username: str = settings["pixiv"]["username"]
-        password: str = settings["pixiv"]["password"]
-
         __back_api__ = pixivpy3.ByPassSniApi()
         __back_api__.require_appapi_hosts()
         __back_api__.set_accept_language('zh-cn')
@@ -187,14 +200,6 @@ def save_illust(illust: dict) -> Path:
     :param illust: 给定illust
     :return: illust保存的路径
     """
-
-    compress: bool = settings["illust"]["compress"]
-    download_dir: str = settings["illust"]["download_dir"]
-    download_quantity: str = settings["illust"]["download_quantity"]
-    download_replace: bool = settings["illust"]["download_replace"]
-    domain = settings["illust"]["domain"] \
-        if "domain" in settings["illust"] else None  # nullable
-
     dirpath = Path("./" + download_dir)
     if not dirpath.exists():
         dirpath.mkdir()
@@ -237,8 +242,6 @@ def compress_illust(filepath: Path, filepath_compressed: Path):
     :param filepath_compressed: 压缩后的illust保存的路径
     """
     from PIL import Image
-    compress_size: int = settings["illust"]["compress_size"]
-    compress_quantity: int = settings["illust"]["compress_quantity"]
 
     with Image.open(filepath) as img:
         w, h = img.size
@@ -260,17 +263,7 @@ def illust_to_message(illust: dict) -> T.Sequence[BaseMessageComponent]:
     """
     from mirai import Plain, Image
 
-    pattern: str = settings["illust"]["reply_pattern"]
-    r18_img_escape: bool = settings["illust"]["r18_img_escape"]
-    r18g_img_escape: bool = settings["illust"]["r18g_img_escape"]
-    r18g_img_escape_message: str = settings["illust"]["r18g_img_escape_message"] \
-        if "r18g_img_escape_message" in settings["illust"] and settings["illust"]["r18g_img_escape_message"] is not None \
-        else ""  # nullable
-    r18_img_escape_message: str = settings["illust"]["r18_img_escape_message"] \
-        if "r18_img_escape_message" in settings["illust"] and settings["illust"]["r18_img_escape_message"] is not None \
-        else ""  # nullable
-
-    string = pattern.replace("$title", illust["title"]) \
+    string = reply_pattern.replace("$title", illust["title"]) \
         .replace("$tags", " ".join(map(lambda x: x["name"], illust["tags"]))) \
         .replace("$id", str(illust["id"]))
     message = [Plain(string)]

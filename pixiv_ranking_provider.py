@@ -1,6 +1,5 @@
 import re
 import traceback
-import typing as T
 
 import pixiv_api
 from bot_utils import *
@@ -14,12 +13,16 @@ for key in trigger:
 
 default_ranking_mode: str = settings["ranking"]["default_ranking_mode"]
 default_range: str = settings["ranking"]["default_range"]
-pattern: str = settings["ranking"]["item_pattern"]
+item_pattern: str = settings["ranking"]["item_pattern"]
 item_per_page_group: int = settings["ranking"]["item_per_page_group"]
 item_per_page_friend: int = settings["ranking"]["item_per_page_friend"]
 
 
-def __find_ranking_mode__(message: MessageChain):
+def __find_ranking_mode__(message: MessageChain) -> T.Optional[str]:
+    """
+    找出消息中所指定的排行榜种类
+    :return: 排行榜种类，若没有则为None
+    """
     content = plain_str(message)
 
     for key in trigger:
@@ -32,7 +35,11 @@ def __find_ranking_mode__(message: MessageChain):
     return None
 
 
-def __findall_ranges__(message: MessageChain):
+def __findall_ranges__(message: MessageChain) -> T.List[T.Tuple[int]]:
+    """
+    找出消息中指定的所有排行范围
+    :return: 排行范围的列表
+    """
     content = plain_str(message)
 
     regex = "[1-9][0-9]*-[1-9][0-9]*"
@@ -43,7 +50,15 @@ def __findall_ranges__(message: MessageChain):
     return [tuple(map(int, x.split('-'))) for x in res]
 
 
-def __generate_messages__(mode: str, begin: int, end: int, item_per_page: int):
+def __generate_reply__(mode: str, begin: int, end: int, item_per_page: int) -> T.Generator[list, None, None]:
+    """
+    生成回复消息
+    :param mode: 排行榜种类
+    :param begin: 起始排名
+    :param end: 结束排名
+    :param item_per_page: 每条消息包含多少条
+    :return: message的生成器
+    """
     illusts = list(pixiv_api.iter_illusts(search_func=pixiv_api.api().illust_ranking,
                                           illust_filter=lambda x: True,
                                           init_qs=dict(mode=mode),
@@ -53,7 +68,7 @@ def __generate_messages__(mode: str, begin: int, end: int, item_per_page: int):
     message = []
     rank = begin
     for illust in illusts:
-        string = pattern.replace("$rank", str(rank)) \
+        string = item_pattern.replace("$rank", str(rank)) \
             .replace("$title", illust["title"]) \
             .replace("$id", str(illust["id"]))
         message.append(Plain(string))
@@ -66,7 +81,14 @@ def __generate_messages__(mode: str, begin: int, end: int, item_per_page: int):
         yield message
 
 
-async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
+async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain) -> T.NoReturn:
+    """
+    接收消息
+    :param bot: Mirai Bot实例
+    :param source: 消息的Source
+    :param subject: 消息的发送对象
+    :param message: 消息
+    """
     try:
         mode = __find_ranking_mode__(message)
         if mode is not None:
@@ -80,7 +102,7 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
                 else:
                     raise TypeError(f"param \"subject\" expect type Group or Friend, not {type(subject)}. ")
 
-                for message in __generate_messages__(mode, begin, end, item_per_page):
+                for message in __generate_reply__(mode, begin, end, item_per_page):
                     await reply(bot, source, subject, message)
     except Exception as exc:
         traceback.print_exc()

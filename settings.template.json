@@ -62,7 +62,7 @@
   },
   // 这部分是随机抽选书签插画的配置
   "shuffle_bookmarks": {
-    "trigger": ["来张私家车", "ブックマークの一つをください"], // 触发词
+    "trigger": ["来张私家车", "ブックマーク一つをください"], // 触发词
     "user_id": 123456, // 要查看书签的用户id
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
     "shuffle_method": "uniform", // 抽选方法。“uniform”为均匀分布、“bookmarks_proportion”为概率与书签数呈比例、“view_proportion”为概率与浏览数呈比例。
