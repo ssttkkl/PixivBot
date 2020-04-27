@@ -7,17 +7,18 @@ from settings import settings
 trigger = settings["shuffle_bookmarks"]["trigger"]
 
 if isinstance(trigger, str):
-    trigger = [trigger]
+    trigger: T.Sequence[str] = [trigger]
 
 user_id: int = settings["shuffle_bookmarks"]["user_id"]
-search_r18: bool = settings["shuffle_bookmarks"]["search_r18"]
-search_r18g: bool = settings["shuffle_bookmarks"]["search_r18g"]
 not_found_message: str = settings["shuffle_bookmarks"]["not_found_message"]
 shuffle_method: str = settings["shuffle_bookmarks"]["shuffle_method"]
 search_cache_filename: str = settings["shuffle_bookmarks"]["search_cache_filename"]
 search_cache_outdated_time: T.Optional[int] = settings["shuffle_bookmarks"]["search_cache_outdated_time"]
+search_bookmarks_lower_bound: T.Optional[int] = settings["shuffle_bookmarks"]["search_bookmarks_lower_bound"]
+search_view_lower_bound: T.Optional[int] = settings["shuffle_bookmarks"]["search_view_lower_bound"]
 search_item_limit: T.Optional[int] = settings["shuffle_bookmarks"]["search_item_limit"]
 search_page_limit: T.Optional[int] = settings["shuffle_bookmarks"]["search_page_limit"]
+search_filter_tags: T.Sequence[str] = settings["shuffle_bookmarks"]["search_filter_tags"]
 
 
 def __get_bookmarks__() -> T.Sequence[dict]:
@@ -26,17 +27,22 @@ def __get_bookmarks__() -> T.Sequence[dict]:
     """
     import os
 
-    def illust_fliter(illust: dict) -> bool:
-        # R-18/R-18G规避
-        if pixiv_api.has_tag(illust, "R-18") and not search_r18:
+    def illust_filter(illust) -> bool:
+        # 标签过滤
+        for tag in search_filter_tags:
+            if pixiv_api.has_tag(illust, tag):
+                return False
+        # 书签下限过滤
+        if search_bookmarks_lower_bound is not None and illust["total_bookmarks"] < search_bookmarks_lower_bound:
             return False
-        if pixiv_api.has_tag(illust, "R-18G") and not search_r18g:
+        # 浏览量下限过滤
+        if search_view_lower_bound is not None and illust["total_view"] < search_view_lower_bound:
             return False
         return True
 
     def load_from_pixiv() -> T.Sequence[dict]:
         illusts = list(pixiv_api.iter_illusts(search_func=pixiv_api.api().user_bookmarks_illust,
-                                              illust_filter=illust_fliter,
+                                              illust_filter=illust_filter,
                                               init_qs=dict(user_id=pixiv_api.api().user_id),
                                               search_item_limit=search_item_limit,
                                               search_page_limit=search_page_limit))

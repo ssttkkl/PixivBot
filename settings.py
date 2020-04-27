@@ -14,7 +14,7 @@ def check_settings(template: dict, config: dict, path: str = "") -> bool:
                 print(f"Expect json object at {path}.{key}, {type(config[key])} found in config file. Copy from the template.")
                 config[key] = template[key]
                 edited = True
-            edited = edited or check_settings(template[key], config[key], f"{path}.{key}")
+            edited = check_settings(template[key], config[key], f"{path}.{key}") or edited
     return edited
 
 

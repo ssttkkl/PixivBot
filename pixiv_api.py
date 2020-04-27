@@ -28,10 +28,9 @@ download_quantity: str = settings["illust"]["download_quantity"]
 download_replace: bool = settings["illust"]["download_replace"]
 domain: T.Optional[str] = settings["illust"]["domain"]
 reply_pattern: str = settings["illust"]["reply_pattern"]
-r18_img_escape: bool = settings["illust"]["r18_img_escape"]
-r18g_img_escape: bool = settings["illust"]["r18g_img_escape"]
-r18g_img_escape_message: T.Optional[str] = settings["illust"]["r18g_img_escape_message"]
-r18_img_escape_message: T.Optional[str] = settings["illust"]["r18_img_escape_message"]
+block_tags: T.Sequence[str] = settings["illust"]["block_tags"]
+block_mode: str = settings["illust"]["block_mode"]
+block_message: str = settings["illust"]["block_message"]
 
 
 def api() -> pixivpy3.ByPassSniApi:
@@ -301,14 +300,22 @@ def illust_to_message(illust: dict) -> T.Sequence[BaseMessageComponent]:
     string = reply_pattern.replace("$title", illust["title"]) \
         .replace("$tags", " ".join(map(lambda x: x["name"], illust["tags"]))) \
         .replace("$id", str(illust["id"]))
-    message = [Plain(string)]
 
-    if has_tag(illust, "R-18G") and r18g_img_escape:
-        message.append(Plain(r18g_img_escape_message))
-    elif has_tag(illust, "R-18") and r18_img_escape:
-        message.append(Plain(r18_img_escape_message))
+    illegal_tags = []
+    for tag in block_tags:
+        if has_tag(illust, tag):
+            illegal_tags.append(tag)
+
+    if len(illegal_tags) > 0:
+        block_message_formatted = block_message.replace("%tag", ' '.join(illegal_tags))
+        if block_mode == "escape_img":
+            message = [Plain(string + '\n' + block_message_formatted)]
+        elif block_mode == "fully_block":
+            message = [Plain(block_message_formatted)]
+        else:
+            raise ValueError("illegal block_mode value: " + block_mode)
     else:
         filename = save_illust(illust)
-        message.append(Image.fromFileSystem(filename))
+        message = [Plain(string), Image.fromFileSystem(filename)]
 
     return message
