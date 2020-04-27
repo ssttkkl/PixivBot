@@ -40,14 +40,17 @@ def __find_keyword__(message: MessageChain) -> T.Optional[str]:
     return None
 
 
-def __get_illustrator_id__(keyword: str) -> int:
+def __get_illustrator_id__(keyword: str) -> T.Optional[int]:
     """
     获取指定关键词的画师id和名称
     :param keyword: 搜索关键词
     :return: 画师的id和名称
     """
-    user = pixiv_api.api().search_user(keyword)["user_previews"][0]["user"]
-    return user["id"]
+    user_previews = pixiv_api.api().search_user(keyword)["user_previews"]
+    if len(user_previews) == 0:
+        return None
+    else:
+        return user_previews[0]["user"]["id"]
 
 
 def __get_illusts__(illustrator_id: int) -> T.Sequence[dict]:
@@ -106,13 +109,16 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
 
         print(f"pixiv shuffle illustrator illust [{keyword}] asked.")
         illustrator_id = __get_illustrator_id__(keyword)
-        illusts = __get_illusts__(illustrator_id)
-        if len(illusts) > 0:
-            illust = pixiv_api.shuffle_illust(illusts, shuffle_method)
-            print(f"""illust {illust["id"]} selected.""")
-            await reply(bot, source, subject, pixiv_api.illust_to_message(illust))
-        else:
+        if illustrator_id is None:
             await reply(bot, source, subject, [Plain(not_found_message)])
+        else:
+            illusts = __get_illusts__(illustrator_id)
+            if len(illusts) == 0:
+                await reply(bot, source, subject, [Plain(not_found_message)])
+            else:
+                illust = pixiv_api.shuffle_illust(illusts, shuffle_method)
+                print(f"""illust {illust["id"]} selected.""")
+                await reply(bot, source, subject, pixiv_api.illust_to_message(illust))
     except Exception as exc:
         traceback.print_exc()
         await reply(bot, source, subject, [Plain(str(exc)[:128])])
