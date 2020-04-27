@@ -30,6 +30,6 @@ with open("settings.template.json", "r", encoding="utf8") as f:
 edited = check_settings(settings_template, settings)
 if edited:
     with open("settings.json", "w", encoding="utf8") as f:
-        json5.dump(settings, f, ensure_ascii=False)
+        json5.dump(settings, f, ensure_ascii=False, quote_keys=True)
 
 print("Config file was loaded successfully.")
