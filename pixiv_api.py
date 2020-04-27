@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import pathlib
 import threading
@@ -9,7 +10,6 @@ from pathlib import Path
 
 import pixivpy3
 from mirai.event.message.base import BaseMessageComponent
-from pydantic.typing import NoneType
 
 from settings import settings
 
@@ -57,7 +57,7 @@ def api() -> pixivpy3.ByPassSniApi:
 
 def get_illusts_cached(load_from_pixiv_func: T.Callable[[], T.Sequence[dict]],
                        cache_file: T.Union[str, pathlib.Path],
-                       cache_outdated_time: T.Union[NoneType, int]) -> T.Sequence[dict]:
+                       cache_outdated_time: T.Optional[int]) -> T.Sequence[dict]:
     """
     尝试从缓存文件读取illusts，若不存在则从服务器获取并写入缓存文件
     :param load_from_pixiv_func: 用于从服务器获取illusts的函数，返回值应为包含illust的列表
@@ -150,7 +150,7 @@ def shuffle_illust(illusts: T.Sequence[dict],
     """
     从illusts随机抽选一个illust
     :param illusts: illust的列表
-    :param shuffle_method: 随机抽选的方法，可选项：bookmarks_proportion, view_proportion, uniform
+    :param shuffle_method: 随机抽选的方法，可选项：bookmarks_proportion, view_proportion, time_proportion, uniform
     :return: 随机抽选的一个illust
     """
     import random
@@ -163,11 +163,27 @@ def shuffle_illust(illusts: T.Sequence[dict],
         view = list(map(lambda illust: int(illust["total_view"]), illusts))
         sum_view = sum(view)
         possibility = list(map(lambda x: x / sum_view, view))
+    elif shuffle_method == "time_proportion":
+        def str_to_stamp(date_str: str):
+            import time
+            date_str, timezone_str = date_str[0:19], date_str[19:]
+            stamp = time.mktime(time.strptime(date_str, "%Y-%m-%dT%H:%M:%S"))
+
+            offset = 1 if timezone_str[0] == "-" else -1
+            offset = offset * (int(timezone_str[1:3]) * 60 + int(timezone_str[4:])) * 60
+
+            stamp = stamp + offset - time.timezone
+            return stamp
+
+        delta_time = list(map(lambda illust: time.time() - str_to_stamp(illust["create_date"]), illusts))
+        possibility = list(map(lambda x: math.exp(-x / 5e7), delta_time))
+        sum_poss = sum(possibility)
+        for i in range(len(possibility)):
+            possibility[i] = possibility[i] / sum_poss
     elif shuffle_method == "uniform":
         possibility = [1 / len(illusts)] * len(illusts)
     else:
-        raise ValueError("shuffle_method's value expects bookmarks_proportion, view_proportion or uniform. "
-                         f"{shuffle_method} found.")
+        raise ValueError("illegal shuffle_method value f\"{shuffle_method}\", expects bookmarks_proportion, view_proportion, time_proportion or uniform. ")
 
     for i in range(1, len(possibility)):
         possibility[i] = possibility[i] + possibility[i - 1]

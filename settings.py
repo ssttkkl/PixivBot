@@ -2,16 +2,20 @@ import json5
 import os.path
 
 
-def check_settings(template: dict, config: dict, path: str = ""):
+def check_settings(template: dict, config: dict, path: str = "") -> bool:
+    edited = False
     for key in template:
         if key not in config:
             print(f"No {path}.{key} was found in config file. Copy from the template.")
             config[key] = template[key]
+            edited = True
         elif isinstance(template[key], dict):
             if not isinstance(config[key], dict):
                 print(f"Expect json object at {path}.{key}, {type(config[key])} found in config file. Copy from the template.")
                 config[key] = template[key]
-            check_settings(template[key], config[key], f"{path}.{key}")
+                edited = True
+            edited = edited or check_settings(template[key], config[key], f"{path}.{key}")
+    return edited
 
 
 if os.path.exists("settings.json"):
@@ -23,8 +27,9 @@ else:
 with open("settings.template.json", "r", encoding="utf8") as f:
     settings_template = json5.load(f)
 
-check_settings(settings_template, settings)
-with open("settings.json", "w", encoding="utf8") as f:
-    json5.dump(settings, f, ensure_ascii=False)
+edited = check_settings(settings_template, settings)
+if edited:
+    with open("settings.json", "w", encoding="utf8") as f:
+        json5.dump(settings, f, ensure_ascii=False)
 
 print("Config file was loaded successfully.")
