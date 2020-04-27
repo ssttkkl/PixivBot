@@ -156,14 +156,17 @@ def shuffle_illust(illusts: T.Sequence[dict],
     import random
 
     if shuffle_method == "bookmarks_proportion":
+        # 概率正比于书签数
         bookmarks = list(map(lambda illust: int(illust["total_bookmarks"]), illusts))
         sum_bm = sum(bookmarks)
-        possibility = list(map(lambda x: x / sum_bm, bookmarks))
+        probability = list(map(lambda x: x / sum_bm, bookmarks))
     elif shuffle_method == "view_proportion":
+        # 概率正比于查看人数
         view = list(map(lambda illust: int(illust["total_view"]), illusts))
         sum_view = sum(view)
-        possibility = list(map(lambda x: x / sum_view, view))
+        probability = list(map(lambda x: x / sum_view, view))
     elif shuffle_method == "time_proportion":
+        # 概率正比于 exp((当前时间戳 - 画像发布时间戳) / 3e7)
         def str_to_stamp(date_str: str):
             import time
             date_str, timezone_str = date_str[0:19], date_str[19:]
@@ -176,22 +179,38 @@ def shuffle_illust(illusts: T.Sequence[dict],
             return stamp
 
         delta_time = list(map(lambda illust: time.time() - str_to_stamp(illust["create_date"]), illusts))
-        possibility = list(map(lambda x: math.exp(-x / 5e7), delta_time))
-        sum_poss = sum(possibility)
-        for i in range(len(possibility)):
-            possibility[i] = possibility[i] / sum_poss
+        probability = list(map(lambda x: math.exp(-x / 3e7), delta_time))
+        sum_poss = sum(probability)
+        for i in range(len(probability)):
+            probability[i] = probability[i] / sum_poss
     elif shuffle_method == "uniform":
-        possibility = [1 / len(illusts)] * len(illusts)
+        # 概率相等
+        probability = [1 / len(illusts)] * len(illusts)
     else:
-        raise ValueError("illegal shuffle_method value f\"{shuffle_method}\", expects bookmarks_proportion, view_proportion, time_proportion or uniform. ")
+        raise ValueError(
+            "illegal shuffle_method value f\"{shuffle_method}\"")
 
-    for i in range(1, len(possibility)):
-        possibility[i] = possibility[i] + possibility[i - 1]
-    rand = random.random()
-    for i in range(len(possibility)):
-        if possibility[i] > rand:
-            return illusts[i]
-    return illusts[len(illusts) - 1]
+    probability_distribution = [probability[0]]  # 概率分布
+    for i in range(1, len(probability)):
+        probability_distribution.append(probability[i] + probability_distribution[i - 1])
+
+    def select() -> int:
+        """
+        利用二分查找概率分布中第一个大于随机数的位置
+        :return: 索引
+        """
+        ran = random.random()
+
+        first, last = 0, len(probability_distribution) - 1
+        while first < last:
+            mid = (first + last) // 2
+            if probability_distribution[mid] > ran:
+                last = mid
+            else:
+                first = mid + 1
+        return first
+
+    return illusts[select()]
 
 
 def has_tag(illust: dict,

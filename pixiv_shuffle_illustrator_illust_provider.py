@@ -26,10 +26,10 @@ search_item_limit: T.Optional[int] = settings["shuffle_illustrator_illust"]["sea
 search_page_limit: T.Optional[int] = settings["shuffle_illustrator_illust"]["search_page_limit"]
 
 
-def __find_illustrator__(message: MessageChain) -> T.Optional[str]:
+def __find_keyword__(message: MessageChain) -> T.Optional[str]:
     """
-    找出消息中所指定的画师
-    :return: 画师，若未触发则为None
+    找出消息中的搜索关键字
+    :return: 搜索关键字，若未触发则为None
     """
     content = plain_str(message)
     for x in trigger:
@@ -40,13 +40,22 @@ def __find_illustrator__(message: MessageChain) -> T.Optional[str]:
     return None
 
 
-def __get_illusts__(illustrator: str) -> T.Sequence[dict]:
+def __get_illustrator_id__(keyword: str) -> int:
+    """
+    获取指定关键词的画师id和名称
+    :param keyword: 搜索关键词
+    :return: 画师的id和名称
+    """
+    user = pixiv_api.api().search_user(keyword)["user_previews"][0]["user"]
+    return user["id"]
+
+
+def __get_illusts__(illustrator_id: int) -> T.Sequence[dict]:
     """
     获取指定画师的画像（从缓存或服务器）
+    :param illustrator_id: 画师的用户id
+    :return: 画像列表
     """
-    illustrator = pixiv_api.api().search_user(illustrator)["user_previews"][0]["user"]
-    illustrator_id: int = illustrator["id"]
-    illustrator_name: str = illustrator["name"]
 
     def illust_filter(illust: dict) -> bool:
         # R-18/R-18G规避
@@ -68,7 +77,7 @@ def __get_illusts__(illustrator: str) -> T.Sequence[dict]:
                                               init_qs=dict(user_id=illustrator_id),
                                               search_item_limit=search_item_limit,
                                               search_page_limit=search_page_limit))
-        print(f"[{illustrator_name} ({illustrator_id})]'s {len(illusts)} illusts were found.")
+        print(f"[{illustrator_id}]'s {len(illusts)} illusts were found.")
         return illusts
 
     # 缓存文件路径
@@ -91,12 +100,13 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
     :param message: 消息
     """
     try:
-        illustrator = __find_illustrator__(message)
-        if illustrator is None:
+        keyword = __find_keyword__(message)
+        if keyword is None:
             return
 
-        print(f"pixiv shuffle illustrator illust [{illustrator}] asked.")
-        illusts = __get_illusts__(illustrator)
+        print(f"pixiv shuffle illustrator illust [{keyword}] asked.")
+        illustrator_id = __get_illustrator_id__(keyword)
+        illusts = __get_illusts__(illustrator_id)
         if len(illusts) > 0:
             illust = pixiv_api.shuffle_illust(illusts, shuffle_method)
             print(f"""illust {illust["id"]} selected.""")

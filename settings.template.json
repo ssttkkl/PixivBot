@@ -65,7 +65,7 @@
     "trigger": ["来张私家车", "ブックマーク一つをください"], // 触发词
     "user_id": 123456, // 要查看书签的用户id
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
-    "shuffle_method": "uniform", // 抽选方法。“uniform”为均匀分布、“bookmarks_proportion”为概率与书签数呈比例、“view_proportion”为概率与浏览数呈比例、“time_proportion”为概率与发布时间的时间差的负指数数呈比例。
+    "shuffle_method": "uniform", // 抽选方法。同上
     "search_cache_filename": "cache/bookmarks.json", // 搜索结果缓存的文件
     "search_cache_outdated_time": 3600, // 搜索结果缓存的时间，null表示无限期（单位：秒）
     "search_item_limit": 1000, // 一次搜索最多包含多少插画
@@ -76,7 +76,7 @@
   "shuffle_illustrator_illust":{
     "trigger": ["来张$illustrator老师的作品", "$illustrator先生のイラスト一つをください"], // 触发词的模板，其中$illustrator指代画师
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
-    "shuffle_method": "time_proportion", // 抽选方法。“uniform”为均匀分布、“bookmarks_proportion”为概率与书签数呈比例、“view_proportion”为概率与浏览数呈比例、“time_proportion”为概率与发布时间的时间差的负指数数呈比例。
+    "shuffle_method": "time_proportion", // 抽选方法。同上
     "search_cache_dir": "cache/illustrator_cache", // 搜索结果缓存的目录
     "search_cache_outdated_time": 86400, // 搜索结果缓存的时间，null表示无限期（单位：秒）
     "search_item_limit": null, // 一次搜索最多包含多少插画
