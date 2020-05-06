@@ -19,6 +19,7 @@ __lock__ = threading.RLock()
 
 username: str = settings["pixiv"]["username"]
 password: str = settings["pixiv"]["password"]
+bypass: bool = settings["pixiv"]["bypass"]
 
 compress: bool = settings["illust"]["compress"]
 compress_size: int = settings["illust"]["compress_size"]
@@ -44,8 +45,11 @@ def api() -> pixivpy3.ByPassSniApi:
 
     __lock__.acquire()
     try:
-        __back_api__ = pixivpy3.ByPassSniApi()
-        __back_api__.require_appapi_hosts()
+        if bypass:
+            __back_api__ = pixivpy3.ByPassSniApi()
+            __back_api__.require_appapi_hosts()
+        else:
+            __back_api__ = pixivpy3.AppPixivAPI()
         __back_api__.set_accept_language('zh-cn')
         __back_api__.login(username, password)
         __api_init_time__ = time.time()

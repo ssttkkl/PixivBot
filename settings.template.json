@@ -9,7 +9,8 @@
   // 这部分是用于登入 pixiv 的账号密码
   "pixiv": {
     "username": "username",
-    "password": "password"
+    "password": "password",
+    "bypass": false
   },
   // 这部分是查看排行榜的配置
   "ranking": {
@@ -33,7 +34,7 @@
   // 这部分是通过id查看插画的配置
   "illust": {
     "trigger": ["看看图", "イラストを見せてください"], // 触发词
-    "domain": "i.pixiv.cat", // 反代使用的域名，若不希望使用反代则设为null
+    "domain": null, // 反代使用的域名，若不希望使用反代则设为null
     "download_dir": "cache/illust_img", // 下载插画的目录
     "download_quantity": "original", // 下载插画的品质，可选值：origin, medium, square_medium
     "download_replace": false, // 下载插画时，若已经存在是否覆盖
