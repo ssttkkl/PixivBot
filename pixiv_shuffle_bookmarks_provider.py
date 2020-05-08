@@ -50,9 +50,7 @@ def __get_bookmarks__() -> T.Sequence[dict]:
         return illusts
 
     # 缓存文件路径
-    dirpath = os.path.curdir
-    filename = f"{user_id}_{search_cache_filename}"
-    cache_file = os.path.join(dirpath, filename)
+    cache_file = os.path.abspath(search_cache_filename)
 
     illusts = pixiv_api.get_illusts_cached(load_from_pixiv_func=load_from_pixiv,
                                            cache_file=cache_file,
