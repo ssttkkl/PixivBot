@@ -11,7 +11,9 @@ trigger = settings["shuffle_illust"]["trigger"]
 if isinstance(trigger, str):
     trigger = [trigger]
 
+limit_per_query: int = settings["shuffle_illust"]["limit_per_query"]
 not_found_message: str = settings["shuffle_illust"]["not_found_message"]
+overlimit_message: str = settings["shuffle_illust"]["overlimit_message"]
 shuffle_method: str = settings["shuffle_illust"]["shuffle_method"]
 search_cache_dir: str = settings["shuffle_illust"]["search_cache_dir"]
 search_cache_outdated_time: T.Optional[int] = settings["shuffle_illust"]["search_cache_outdated_time"]
@@ -62,17 +64,44 @@ def __get_illusts__(keyword: str) -> T.Sequence[dict]:
     return illusts
 
 
-def __find_keyword__(message: MessageChain) -> T.Optional[str]:
+def __check_triggered__(message: MessageChain) -> T.Optional[T.Tuple[str, int]]:
     """
-    找出消息中所指定的关键字
-    :return: 关键字，若未触发则为None，若未指定则为""
+    找出消息中所指定的关键字和数字
+    :return: 关键字和数字，若未触发则为None，若未指定关键字则为""，若未指定数字则为1
     """
     content = plain_str(message)
     for x in trigger:
-        regex = x.replace("$keyword", "(.*)")
+        pos = dict(keyword=x.find("$keyword"), number=x.find("$number"))
+
+        regex = x
+        if pos["number"] != -1:
+            regex = regex.replace("$number", "(.*)")
+        if pos["keyword"] != -1:
+            regex = regex.replace("$keyword", "(.*)")
         match_result = re.search(regex, content)
+
         if match_result is not None:
-            return match_result.group(1)
+            if pos["keyword"] != -1 and pos["number"] != -1:
+                if pos["keyword"] < pos["number"]:
+                    keyword, number = match_result.group(1), match_result.group(2)
+                else:
+                    keyword, number = match_result.group(2), match_result.group(1)
+            elif pos["keyword"] != -1:
+                keyword, number = match_result.group(1), "1"
+            elif pos["number"] != -1:
+                keyword, number = "", match_result.group(1)
+            else:
+                keyword, number = "", "1"
+
+            try:
+                if number.isdigit():
+                    number = int(number)
+                else:
+                    number = decode_chinese_int(number)
+                return keyword, number
+            except:
+                return keyword, 1
+
     return None
 
 
@@ -85,18 +114,23 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
     :param message: 消息
     """
     try:
-        keyword = __find_keyword__(message)
-        if keyword is None:
+        trigger_result = __check_triggered__(message)
+        if trigger_result is None:
             return
+        keyword, number = trigger_result
 
-        print(f"pixiv shuffle illust [{keyword}] asked.")
-        illusts = __get_illusts__(keyword)
-        if len(illusts) > 0:
-            illust = pixiv_api.shuffle_illust(illusts, shuffle_method)
-            print(f"""illust {illust["id"]} selected.""")
-            await reply(bot, source, subject, pixiv_api.illust_to_message(illust))
+        if number > limit_per_query:
+            await reply(bot, source, subject, [Plain(overlimit_message)])
         else:
-            await reply(bot, source, subject, [Plain(not_found_message)])
+            for i in range(number):
+                print(f"pixiv shuffle illust [{keyword}] asked.")
+                illusts = __get_illusts__(keyword)
+                if len(illusts) > 0:
+                    illust = pixiv_api.shuffle_illust(illusts, shuffle_method)
+                    print(f"""illust {illust["id"]} selected.""")
+                    await reply(bot, source, subject, pixiv_api.illust_to_message(illust))
+                else:
+                    await reply(bot, source, subject, [Plain(not_found_message)])
     except Exception as exc:
         traceback.print_exc()
         await reply(bot, source, subject, [Plain(str(exc)[:128])])

@@ -48,8 +48,10 @@
   },
   // 这部分是搜索关键字随机抽选插画的配置
   "shuffle_illust": {
-    "trigger": ["来张$keyword图", "$keywordのイラストをください"], // 触发词的模板，其中$keyword指代关键字
+    "trigger": ["来$number张$keyword图", "$keywordのイラストをください"], // 触发词的模板，其中$keyword指代关键字，$number指代数量
+    "limit_per_query": 10, // 单次请求最大的图片数量
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
+    "overlimit_message": "别看那么多色图了", // 当请求数量超过限制时回复的消息
     "shuffle_method": "bookmarks_proportion", // 抽选方法。"uniform"均匀分布、"bookmarks_proportion"概率与书签数呈比例、"view_proportion"概率与浏览数呈比例、"time_proportion"概率与发布时间的时间差的负指数呈比例。
     "search_cache_dir": "cache/search_cache", // 搜索结果缓存的目录
     "search_cache_outdated_time": 86400, // 搜索结果缓存的时间，null表示无限期（单位：秒）

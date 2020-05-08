@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 import typing as T
 
 from mirai import *
@@ -33,3 +34,35 @@ def plain_str(message: MessageChain) -> str:
     提取消息中的文本
     """
     return ' '.join([x.toString() for x in message.getAllofComponent(Plain)])
+
+
+__numerals__ = {'零': 0, '一': 1, '二': 2, '两': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
+                '百': 100, '千': 1000, '万': 10000, '亿': 100000000}
+
+
+def decode_chinese_int(text: str) -> int:
+    """
+    将中文整数转换为int
+    :param text: 中文整数
+    :return: 对应int
+    """
+    if text[0] == '负':
+        return -decode_chinese_int(text[1:])
+    if text[0] == '正':
+        return decode_chinese_int(text[1:])
+
+    ans = 0
+    radix = 1
+    for i in reversed(range(len(text))):
+        digit = __numerals__[text[i]]
+        if digit >= 10:
+            if digit > radix:  # 成为新的基数
+                radix = digit
+                if i == 0:  # 若给定字符串省略了最前面的“一”，如十三、十五……
+                    ans = ans + radix
+            else:
+                radix = radix * digit
+        else:
+            ans = ans + radix * digit
+
+    return ans
