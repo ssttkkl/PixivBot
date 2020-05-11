@@ -1,3 +1,4 @@
+import asyncio
 import os
 import re
 import traceback
@@ -122,7 +123,7 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
         if number > limit_per_query:
             await reply(bot, source, subject, [Plain(overlimit_message)])
         else:
-            for i in range(number):
+            async def answer():
                 print(f"pixiv shuffle illust [{keyword}] asked.")
                 illusts = __get_illusts__(keyword)
                 if len(illusts) > 0:
@@ -131,6 +132,9 @@ async def receive(bot: Mirai, source: Source, subject: T.Union[Group, Friend], m
                     await reply(bot, source, subject, pixiv_api.illust_to_message(illust))
                 else:
                     await reply(bot, source, subject, [Plain(not_found_message)])
+            tasks = list([asyncio.create_task(answer()) for _ in range(number)])
+            for task in tasks:
+                await task
     except Exception as exc:
         traceback.print_exc()
         await reply(bot, source, subject, [Plain(str(exc)[:128])])

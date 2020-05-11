@@ -1,3 +1,6 @@
+import asyncio
+import typing as T
+
 from mirai import *
 
 import pixiv_illust_provider
@@ -22,39 +25,33 @@ group_function = settings["function"]["group"]
 friend_function = settings["function"]["friend"]
 
 
-@bot.receiver("GroupMessage")
-async def group_receiver(bot: Mirai, source: Source, group: Group, message: MessageChain):
-    if group_function["listen"] is not None and group.id not in group_function["listen"]:
+async def on_receive(function_dict: dict, bot: Mirai, source: Source, subject: T.Union[Group, Friend],
+                     message: MessageChain):
+    if function_dict["listen"] is not None and subject.id not in function_dict["listen"]:
         return
 
-    if group_function["ranking"]:
-        await pixiv_ranking_provider.receive(bot, source, group, message)
-    if group_function["illust"]:
-        await pixiv_illust_provider.receive(bot, source, group, message)
-    if group_function["shuffle_illust"]:
-        await pixiv_shuffle_illust_provider.receive(bot, source, group, message)
-    if group_function["shuffle_bookmarks"]:
-        await pixiv_shuffle_bookmarks_provider.receive(bot, source, group, message)
-    if group_function["shuffle_illustrator"]:
-        await pixiv_shuffle_illustrator_illust_provider.receive(bot, source, group, message)
+    if function_dict["ranking"]:
+        await pixiv_ranking_provider.receive(bot, source, subject, message)
+    if function_dict["illust"]:
+        await pixiv_illust_provider.receive(bot, source, subject, message)
+    if function_dict["shuffle_illust"]:
+        await pixiv_shuffle_illust_provider.receive(bot, source, subject, message)
+    if function_dict["shuffle_bookmarks"]:
+        await pixiv_shuffle_bookmarks_provider.receive(bot, source, subject, message)
+    if function_dict["shuffle_illustrator"]:
+        await pixiv_shuffle_illustrator_illust_provider.receive(bot, source, subject, message)
+
+
+@bot.receiver("GroupMessage")
+async def group_receiver(bot: Mirai, source: Source, group: Group, message: MessageChain):
+    asyncio.create_task(on_receive(group_function, bot, source, group, message))
 
 
 @bot.receiver("FriendMessage")
 async def friend_receiver(bot: Mirai, source: Source, friend: Friend, message: MessageChain):
-    if friend_function["listen"] is not None and friend.id not in friend_function["listen"]:
-        return
-
-    if friend_function["ranking"]:
-        await pixiv_ranking_provider.receive(bot, source, friend, message)
-    if friend_function["illust"]:
-        await pixiv_illust_provider.receive(bot, source, friend, message)
-    if friend_function["shuffle_illust"]:
-        await pixiv_shuffle_illust_provider.receive(bot, source, friend, message)
-    if friend_function["shuffle_bookmarks"]:
-        await pixiv_shuffle_bookmarks_provider.receive(bot, source, friend, message)
-    if friend_function["shuffle_illustrator"]:
-        await pixiv_shuffle_illustrator_illust_provider.receive(bot, source, friend, message)
+    asyncio.create_task(on_receive(friend_function, bot, source, friend, message))
 
 
 if __name__ == "__main__":
     bot.run()
+
