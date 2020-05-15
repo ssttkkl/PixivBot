@@ -38,12 +38,12 @@ async def on_receive(function_dict: dict, bot: Mirai, source: Source, subject: T
 
 @bot.receiver("GroupMessage")
 async def group_receiver(bot: Mirai, source: Source, group: Group, message: MessageChain):
-    asyncio.create_task(on_receive(settings["function"]["group"], bot, source, group, message))
+    await on_receive(settings["function"]["group"], bot, source, group, message)
 
 
 @bot.receiver("FriendMessage")
 async def friend_receiver(bot: Mirai, source: Source, friend: Friend, message: MessageChain):
-    asyncio.create_task(on_receive(settings["function"]["friend"], bot, source, friend, message))
+    await on_receive(settings["function"]["friend"], bot, source, friend, message)
 
 
 if __name__ == "__main__":
