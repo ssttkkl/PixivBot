@@ -5,9 +5,10 @@ MiraiPixiv
 
 ## 使用方式
 
->`python bot.py`
+> 1.  配置mirai-console与mirai-api-http（参见：https://mirai-py.originpages.com/mirai/use-console.html）
+> 2. `python bot.py`
 
-依赖库：[kuriyama](https://github.com/NatriumLab/python-mirai) [pixivpy](https://github.com/upbit/pixivpy) [json5](https://github.com/json5/json5) [pillow](https://github.com/python-pillow/Pillow)
+依赖库：[kuriyama](https://github.com/NatriumLab/python-mirai) [pixivpy](https://github.com/upbit/pixivpy) [json5](https://github.com/json5/json5) [pillow](https://github.com/python-pillow/Pillow) [aiofiles](https://github.com/Tinche/aiofiles)
 
 初次使用请将settings.template.json拷贝为settings.json，并填写mirai与pixiv栏目的信息。
 
@@ -30,3 +31,5 @@ MiraiPixiv
 [json5](https://github.com/json5/json5)
 
 [pillow](https://github.com/python-pillow/Pillow)
+
+[aiofiles](https://github.com/Tinche/aiofiles)
