@@ -122,7 +122,7 @@ class PixivAPI:
                 page = page + 1
 
     async def get_illusts_cached(self,
-                                 cache_file: T.Union[str, pathlib.Path],
+                                 cache_file: T.Union[str, Path],
                                  cache_outdated_time: T.Optional[int],
                                  search_func: str,
                                  illust_filter: T.Callable[[dict], bool],
@@ -141,13 +141,16 @@ class PixivAPI:
         :param kwargs: 初次调用search_func时的参数
         :return: 包含illust的列表
         """
+        if not isinstance(cache_file, Path):
+            cache_file = Path(cache_file)
+
         illusts = []
         cache_dirty = False  # 指示是否成功读取缓存
 
         # 若缓存文件存在且未过期，读取缓存
-        if os.path.exists(cache_file):
+        if cache_file.exists():
             now = time.time()
-            mtime = os.path.getmtime(cache_file)
+            mtime = cache_file.stat().st_mtime
             if cache_outdated_time is None or now - mtime <= cache_outdated_time:
                 async with aiofiles.open(cache_file, "r", encoding="utf8") as f:
                     content = json.loads(await f.read())
@@ -164,7 +167,7 @@ class PixivAPI:
             except:
                 traceback.print_exc()
                 # 从pixiv加载时发生异常，尝试读取缓存（即使可能已经过期）
-                if os.path.exists(cache_file):
+                if cache_file.exists():
                     async with aiofiles.open(cache_file, "r", encoding="utf8") as f:
                         content = json.loads(await f.read())
                         if "illusts" in content:
@@ -172,9 +175,8 @@ class PixivAPI:
 
         # 写入缓存
         if cache_dirty and len(illusts) > 0:
-            dirpath = os.path.split(cache_file)[0]
-            if not os.path.exists(dirpath):
-                os.makedirs(dirpath)
+            dirpath = cache_file.parent
+            dirpath.mkdir(parents=True, exist_ok=True)
 
             async with aiofiles.open(cache_file, "w", encoding="utf8") as f:
                 content = dict(illusts=illusts)
@@ -211,8 +213,7 @@ class PixivAPI:
         :return: illust保存的路径
         """
         dirpath = Path("./" + download_dir)
-        if not dirpath.exists():
-            dirpath.mkdir()
+        dirpath.mkdir(parents=True, exist_ok=True)
 
         if download_quantity == "original":
             if len(illust["meta_pages"]) > 0:

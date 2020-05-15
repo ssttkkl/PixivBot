@@ -1,5 +1,3 @@
-import re
-
 from bot_utils import *
 from message_reactor.abstract_message_reactor import AbstractMessageReactor
 

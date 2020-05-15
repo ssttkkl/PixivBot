@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+import re
 
 from mirai import *
 from mirai.image import InternalImage
@@ -68,3 +69,37 @@ def decode_chinese_int(text: str) -> int:
             ans = ans + radix * digit
 
     return ans
+
+
+def search_groups(pattern: str, flags: T.Sequence[str], text: str) -> T.Optional[T.List[T.Optional[str]]]:
+    flags_order = dict()
+    for i, flag in enumerate(flags):
+        flags_order[flag] = i
+
+    position = []
+    regex = pattern
+    for flag in flags:
+        p = pattern.find(flag)
+        if p != -1:
+            position.append((flag, p))
+            regex = regex.replace(flag, "(.*)")
+    position.sort(key=lambda x: x[1])
+
+    match_result = re.search(regex, text)
+
+    if match_result is None:
+        return None
+    else:
+        ans = dict()
+        for i, (flag, p) in enumerate(position):
+            ans[flag] = match_result.group(i + 1)
+
+        ans_sorted = []
+        for flag in flags:
+            if flag not in ans:
+                ans_sorted.append((None, flags_order[flag]))
+            else:
+                ans_sorted.append((ans[flag], flags_order[flag]))
+        ans_sorted.sort(key=lambda x: x[1])
+
+        return [x[0] for x in ans_sorted]

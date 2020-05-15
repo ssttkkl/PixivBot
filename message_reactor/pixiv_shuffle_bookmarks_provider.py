@@ -31,18 +31,17 @@ class PixivShuffleBookmarksProvider(AbstractShuffleProvider):
         """
         content = plain_str(message)
         for x in self.trigger:
-            regex = x.replace("$number", "(.*)")
-            match_result = re.search(regex, content)
+            result = search_groups(x, ["$number"], content)
+            if result is not None:
+                number = result[0]
 
-            if match_result is not None:
-                number = match_result.group(1)
-                try:
-                    if number.isdigit():
-                        number = int(number)
-                    else:
-                        number = decode_chinese_int(number)
-                except:
-                    number = 1
+                if number is None or number == "":
+                    number = "1"
+
+                if number.isdigit():
+                    number = int(number)
+                else:
+                    number = decode_chinese_int(number)
                 return number
 
         return None

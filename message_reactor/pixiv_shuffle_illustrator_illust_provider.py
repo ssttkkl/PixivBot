@@ -4,7 +4,7 @@ import typing as T
 
 from mirai import *
 
-from bot_utils import reply, plain_str, api, decode_chinese_int
+from bot_utils import reply, plain_str, api, decode_chinese_int, search_groups
 from message_reactor.abstract_shuffle_provider import AbstractShuffleProvider
 from pixiv_api import get_illust_filter
 
@@ -17,35 +17,19 @@ class PixivShuffleIllustratorIllustProvider(AbstractShuffleProvider):
         """
         content = plain_str(message)
         for x in self.trigger:
-            pos = dict(illustrator=x.find("$illustrator"), number=x.find("$number"))
+            result = search_groups(x, ["$illustrator", "$number"], content)
+            if result is not None:
+                illustrator, number = result
 
-            regex = x
-            if pos["number"] != -1:
-                regex = regex.replace("$number", "(.*)")
-            if pos["illustrator"] != -1:
-                regex = regex.replace("$illustrator", "(.*)")
-            match_result = re.search(regex, content)
+                if illustrator is None or illustrator == "":
+                    continue
+                if number is None or number == "":
+                    number = "1"
 
-            if match_result is not None:
-                if pos["illustrator"] != -1 and pos["number"] != -1:
-                    if pos["illustrator"] < pos["number"]:
-                        illustrator, number = match_result.group(1), match_result.group(2)
-                    else:
-                        illustrator, number = match_result.group(2), match_result.group(1)
-                elif pos["illustrator"] != -1:
-                    illustrator, number = match_result.group(1), "1"
-                elif pos["number"] != -1:
-                    illustrator, number = "", match_result.group(1)
+                if number.isdigit():
+                    number = int(number)
                 else:
-                    illustrator, number = "", "1"
-
-                try:
-                    if number.isdigit():
-                        number = int(number)
-                    else:
-                        number = decode_chinese_int(number)
-                except:
-                    number = 1
+                    number = decode_chinese_int(number)
                 return illustrator, number
 
         return None
@@ -90,12 +74,12 @@ class PixivShuffleIllustratorIllustProvider(AbstractShuffleProvider):
         if trigger_result is not None:
             illustrator, number = trigger_result
 
-            print(f"pixiv shuffle illustrator illust [{illustrator}] asked.")
+            print(f"[{number}] pixiv shuffle illustrator illust [{illustrator}] asked.")
             illustrator_id = await self.__get_illustrator_id__(illustrator)
             if illustrator_id is None:
                 await reply(bot, source, subject, [Plain(self.not_found_message)])
             else:
-                print(f"illustrator id [illustrator_id] selected.")
+                print(f"illustrator id [{illustrator_id}] selected.")
                 illusts = await self.__get_illusts__(illustrator_id)
                 print(f"[{len(illusts)}] illusts were found.")
                 async for msg in self.random_and_generate_reply(illusts, number):

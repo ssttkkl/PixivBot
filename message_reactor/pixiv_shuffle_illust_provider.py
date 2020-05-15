@@ -1,5 +1,3 @@
-import re
-
 from bot_utils import *
 from message_reactor.abstract_shuffle_provider import AbstractShuffleProvider
 
@@ -38,35 +36,19 @@ class PixivShuffleIllustProvider(AbstractShuffleProvider):
         """
         content = plain_str(message)
         for x in self.trigger:
-            pos = dict(keyword=x.find("$keyword"), number=x.find("$number"))
+            result = search_groups(x, ["$keyword", "$number"], content)
+            if result is not None:
+                keyword, number = result
 
-            regex = x
-            if pos["number"] != -1:
-                regex = regex.replace("$number", "(.*)")
-            if pos["keyword"] != -1:
-                regex = regex.replace("$keyword", "(.*)")
-            match_result = re.search(regex, content)
+                if keyword is None:
+                    keyword = ""
+                if number is None or number == "":
+                    number = "1"
 
-            if match_result is not None:
-                if pos["keyword"] != -1 and pos["number"] != -1:
-                    if pos["keyword"] < pos["number"]:
-                        keyword, number = match_result.group(1), match_result.group(2)
-                    else:
-                        keyword, number = match_result.group(2), match_result.group(1)
-                elif pos["keyword"] != -1:
-                    keyword, number = match_result.group(1), "1"
-                elif pos["number"] != -1:
-                    keyword, number = "", match_result.group(1)
+                if number.isdigit():
+                    number = int(number)
                 else:
-                    keyword, number = "", "1"
-
-                try:
-                    if number.isdigit():
-                        number = int(number)
-                    else:
-                        number = decode_chinese_int(number)
-                except:
-                    number = 1
+                    number = decode_chinese_int(number)
                 return keyword, number
 
         return None
