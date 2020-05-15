@@ -1,9 +1,11 @@
 # -*- coding: utf8 -*-
-import typing as T
 
 from mirai import *
-from mirai.event.message.base import BaseMessageComponent
 from mirai.image import InternalImage
+
+from pixiv_api import *
+
+api = PixivAPI()
 
 
 async def reply(bot: Mirai,
