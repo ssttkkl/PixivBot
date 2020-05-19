@@ -80,6 +80,9 @@ class PixivAPI:
             await self.__refresh_api__()
             return self.__back_api__
 
+    async def get_user_id(self):
+        return (await self.__api__()).user_id
+
     async def iter_illusts(self,
                            search_func: str,
                            illust_filter: T.Optional[T.Callable[[dict], bool]] = None,

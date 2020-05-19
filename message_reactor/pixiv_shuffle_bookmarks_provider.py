@@ -12,10 +12,15 @@ class PixivShuffleBookmarksProvider(AbstractShuffleProvider):
         # 缓存文件路径
         cache_file = os.path.abspath(self.search_cache_filename)
 
+        if self.user_id is not None:
+            user_id = self.user_id
+        else:
+            user_id = api.get_user_id()
+
         illusts = await api.get_illusts_cached(cache_file=cache_file,
                                                cache_outdated_time=self.search_cache_outdated_time,
                                                search_func=api.user_bookmarks_illust,
-                                               user_id=self.user_id,
+                                               user_id=user_id,
                                                illust_filter=get_illust_filter(
                                                    search_filter_tags=self.search_filter_tags,
                                                    search_bookmarks_lower_bound=self.search_bookmarks_lower_bound,

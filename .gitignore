@@ -1,6 +1,6 @@
 /venv/
 settings.json
-pixiv_pwd.json
+/.idea/
 /cache/
 /__pycache__/
 /.vscode/

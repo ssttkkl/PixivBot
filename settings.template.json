@@ -15,8 +15,7 @@
   // 这部分是监听的群组和好友，以及开启什么功能的配置
   "function": {
     "group": {
-      "listen": null,
-      // 若为null则监听所有群组，否则应为包含欲监听群组id的一个列表
+      "listen": null, // 若为null则监听所有群组，否则应为包含欲监听群组id的一个列表
       "ranking": true,
       "illust": true,
       "shuffle_illust": true,
@@ -24,8 +23,7 @@
       "shuffle_bookmarks": false
     },
     "friend": {
-      "listen": null,
-      // 若为null则监听所有好友，否则应为包含欲监听好友id的一个列表
+      "listen": null, // 若为null则监听所有好友，否则应为包含欲监听好友id的一个列表
       "ranking": true,
       "illust": true,
       "shuffle_illust": true,
@@ -35,8 +33,7 @@
   },
   // 这部分是查看排行榜的配置
   "ranking": {
-    "trigger": {
-      // 触发词，当消息中包含这些词语时就会触发
+    "trigger": { // 触发词，当消息中包含这些词语时就会触发
       "default": [
         "看看榜",
         "ランキングを見せてください"
@@ -66,140 +63,90 @@
         "看看漫画榜"
       ]
     },
-    "default_ranking_mode": "day",
-    // 默认查看的排行榜
-    "default_range": "1-20",
-    // 默认查看的排行榜范围
-    "item_per_page_group": 50,
-    // 每条群消息包含多少个插画（避免消息过长）
-    "item_per_page_friend": 10,
-    // 每条好友消息包含多少个插画（避免消息过长）
-    "item_pattern": "#$rank $title (https://www.pixiv.net/artworks/$id)\n"
-    // 每个插画的消息模板（仅支持$rank, $title, $id三个参数）
+    "default_ranking_mode": "day", // 默认查看的排行榜
+    "default_range": "1-20", // 默认查看的排行榜范围
+    "item_per_page_group": 50, // 每条群消息包含多少个插画（避免消息过长）
+    "item_per_page_friend": 10, // 每条好友消息包含多少个插画（避免消息过长）
+    "item_pattern": "#$rank $title (https://www.pixiv.net/artworks/$id)\n" // 每个插画的消息模板（仅支持$rank, $title, $id三个参数）
   },
   // 这部分是通过id查看插画的配置
   "illust": {
     "trigger": [
       "看看图",
       "イラストを見せてください"
-    ],
-    // 触发词
-    "domain": null,
-    // 反代使用的域名，若不希望使用反代则设为null
-    "download_dir": "cache/illust_img",
-    // 下载插画的目录
-    "download_quantity": "original",
-    // 下载插画的品质，可选值：origin, medium, square_medium
-    "download_replace": false,
-    // 下载插画时，若已经存在是否覆盖
-    "compress": true,
-    // 是否要对图片进行压缩
-    "compress_size": 1200,
-    // 将图片的长或宽压缩至此处设定的数值，保持原有长宽比
-    "compress_quantity": 75,
-    // 压缩品质，0—100
-    "reply_pattern": "「$title」\ntags: $tags\nhttps://www.pixiv.net/artworks/$id\n",
-    // 回复消息的模板（仅支持$title, $tags, $id三个参数）
+    ], // 触发词
+    "domain": null, // 反代使用的域名，若不希望使用反代则设为null
+    "download_dir": "cache/illust_img", // 下载插画的目录
+    "download_quantity": "original", // 下载插画的品质，可选值：original, medium, square_medium
+    "download_replace": false, // 下载插画时，若已经存在是否覆盖
+    "compress": true, // 是否要对图片进行压缩
+    "compress_size": 1200, // 将图片的长或宽压缩至此处设定的数值，保持原有长宽比
+    "compress_quantity": 75, // 压缩品质，0—100
+    "reply_pattern": "「$title」\ntags: $tags\nhttps://www.pixiv.net/artworks/$id\n", // 回复消息的模板（仅支持$title, $tags, $id三个参数）
     "block_tags": [
       "R-18",
       "NSFW"
-    ],
-    // 当画像包含设定的标签时拦截
-    "block_mode": "escape_img",
-    // 拦截模式："block_img"不显示画像、"fully_block"不显示任何内容
-    "block_message": "该画像因含有 %tag tag 而被自主规制"
-    // 当被拦截时回复的消息，%tag指代被拦截的标签
+    ], // 当画像包含设定的标签时拦截
+    "block_mode": "escape_img", // 拦截模式："escape_img"不显示画像、"fully_block"不显示任何内容
+    "block_message": "该画像因含有 %tag tag 而被自主规制" // 当被拦截时回复的消息，%tag指代被拦截的标签
   },
   // 这部分是搜索关键字随机抽选插画的配置
   "shuffle_illust": {
     "trigger": [
       "来$number张$keyword图",
       "$keywordのイラストをください"
-    ],
-    // 触发词的模板，其中$keyword指代关键字，$number指代数量
-    "limit_per_query": 10,
-    // 单次请求最大的图片数量
-    "not_found_message": "别看了，没有的。",
-    // 当搜索结果为空时回复的消息
-    "overlimit_message": "别看那么多色图了",
-    // 当请求数量超过限制时回复的消息
-    "shuffle_method": "bookmarks_proportion",
-    // 抽选方法。"uniform"均匀分布、"bookmarks_proportion"概率与书签数呈比例、"view_proportion"概率与浏览数呈比例、"time_proportion"概率与发布时间的时间差的负指数呈比例。
-    "search_cache_dir": "cache/search_cache",
-    // 搜索结果缓存的目录
-    "search_cache_outdated_time": 86400,
-    // 搜索结果缓存的时间，null表示无限期（单位：秒）
-    "search_item_limit": 500,
-    // 一次搜索最多包含多少插画
-    "search_page_limit": 30,
-    // 一次搜索最多翻多少页
-    "search_bookmarks_lower_bound": 100,
-    // 搜索结果只包含书签数不少于指定值的插画，null表示不设下限
-    "search_view_lower_bound": null,
-    // 搜索结果只包含浏览数不少于指定值的插画，null表示不设下限
+    ], // 触发词的模板，其中$keyword指代关键字，$number指代数量
+    "limit_per_query": 10, // 单次请求最大的图片数量
+    "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
+    "overlimit_message": "别看那么多色图了。", // 当请求数量超过限制时回复的消息
+    "shuffle_method": "bookmarks_proportion", // 抽选方法。"uniform"均匀分布、"bookmarks_proportion"概率与书签数呈比例、"view_proportion"概率与浏览数呈比例、"time_proportion"概率与发布时间的时间差的负指数呈比例。
+    "search_cache_dir": "cache/search_cache", // 搜索结果缓存的目录
+    "search_cache_outdated_time": 86400, // 搜索结果缓存的时间，null表示无限期（单位：秒）
+    "search_item_limit": 500, // 一次搜索最多包含多少插画
+    "search_page_limit": 30, // 一次搜索最多翻多少页
+    "search_bookmarks_lower_bound": 100, // 搜索结果只包含书签数不少于指定值的插画，null表示不设下限
+    "search_view_lower_bound": null, // 搜索结果只包含浏览数不少于指定值的插画，null表示不设下限
     "search_filter_tags": [
       "R-18",
       "NSFW"
-    ]
-    // 搜索结果过滤掉包含设定的标签的画像
+    ] // 搜索结果过滤掉包含设定的标签的画像
   },
   // 这部分是随机抽选书签插画的配置
   "shuffle_bookmarks": {
     "trigger": [
       "来$number张私家车",
       "ブックマーク一つをください"
-    ],
-    // 触发词
-    "user_id": 123456,
-    // 要查看书签的用户id
-    "not_found_message": "别看了，没有的。",
-    // 当搜索结果为空时回复的消息
-    "shuffle_method": "uniform",
-    // 抽选方法。同上
-    "search_cache_filename": "cache/bookmarks.json",
-    // 搜索结果缓存的文件
-    "search_cache_outdated_time": 3600,
-    // 搜索结果缓存的时间，null表示无限期（单位：秒）
-    "search_item_limit": 1000,
-    // 一次搜索最多包含多少插画
-    "search_page_limit": 50,
-    // 一次搜索最多翻多少页
-    "search_bookmarks_lower_bound": null,
-    // 搜索结果只包含书签数不少于指定值的插画，null表示不设下限
-    "search_view_lower_bound": null,
-    // 搜索结果只包含浏览数不少于指定值的插画，null表示不设下限
+    ], // 触发词，其中$number指代数量
+    "user_id": null, // 要查看书签的用户id，若为null则为登录用户的id
+    "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
+    "shuffle_method": "uniform", // 抽选方法。同上
+    "search_cache_filename": "cache/bookmarks.json", // 搜索结果缓存的文件
+    "search_cache_outdated_time": 3600, // 搜索结果缓存的时间，null表示无限期（单位：秒）
+    "search_item_limit": 1000, // 一次搜索最多包含多少插画
+    "search_page_limit": 50, // 一次搜索最多翻多少页
+    "search_bookmarks_lower_bound": null, // 搜索结果只包含书签数不少于指定值的插画，null表示不设下限
+    "search_view_lower_bound": null, // 搜索结果只包含浏览数不少于指定值的插画，null表示不设下限
     "search_filter_tags": [
       "R-18",
       "NSFW"
-    ]
-    // 过滤掉包含设定的标签的画像
+    ] // 过滤掉包含设定的标签的画像
   },
   "shuffle_illustrator_illust": {
     "trigger": [
       "来$number张$illustrator老师的作品",
       "$illustrator先生のイラスト一つをください"
-    ],
-    // 触发词的模板，其中$illustrator指代画师
-    "not_found_message": "别看了，没有的。",
-    // 当搜索结果为空时回复的消息
-    "shuffle_method": "time_proportion",
-    // 抽选方法。同上
-    "search_cache_dir": "cache/illustrator_cache",
-    // 搜索结果缓存的目录
-    "search_cache_outdated_time": 86400,
-    // 搜索结果缓存的时间，null表示无限期（单位：秒）
-    "search_item_limit": null,
-    // 一次搜索最多包含多少插画
-    "search_page_limit": null,
-    // 一次搜索最多翻多少页
-    "search_bookmarks_lower_bound": null,
-    // 搜索结果只包含书签数不少于指定值的插画，null表示不设下限
-    "search_view_lower_bound": null,
-    // 搜索结果只包含浏览数不少于指定值的插画，null表示不设下限
+    ], // 触发词的模板，其中$illustrator指代画师，$number指代数量
+    "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
+    "shuffle_method": "time_proportion", // 抽选方法。同上
+    "search_cache_dir": "cache/illustrator_cache", // 搜索结果缓存的目录
+    "search_cache_outdated_time": 86400, // 搜索结果缓存的时间，null表示无限期（单位：秒）
+    "search_item_limit": null, // 一次搜索最多包含多少插画
+    "search_page_limit": null, // 一次搜索最多翻多少页
+    "search_bookmarks_lower_bound": null, // 搜索结果只包含书签数不少于指定值的插画，null表示不设下限
+    "search_view_lower_bound": null, // 搜索结果只包含浏览数不少于指定值的插画，null表示不设下限
     "search_filter_tags": [
       "R-18",
       "NSFW"
-    ]
-    // 过滤掉包含设定的标签的画像
+    ] // 过滤掉包含设定的标签的画像
   }
 }
