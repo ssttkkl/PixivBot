@@ -1,9 +1,10 @@
+import asyncio
 import traceback
 import typing as T
 
 from mirai import *
 
-from bot_utils import reply, asyncio
+from bot_utils import reply
 
 
 class AbstractMessageReactor:

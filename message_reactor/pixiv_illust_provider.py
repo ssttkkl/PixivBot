@@ -1,9 +1,18 @@
-from bot_utils import *
+import asyncio
+import re
+import typing as T
+
+from mirai import *
+
+from bot_utils import plain_str, api
 from message_reactor.abstract_message_reactor import AbstractMessageReactor
 
 
 class PixivIllustProvider(AbstractMessageReactor):
-    def __check_triggered__(self, message: MessageChain) -> bool:
+    def __check_triggered(self, message: MessageChain) -> bool:
+        """
+        返回此消息是否触发
+        """
         content = plain_str(message)
         for x in self.trigger:
             if x in content:
@@ -11,7 +20,7 @@ class PixivIllustProvider(AbstractMessageReactor):
         return False
 
     async def generate_reply(self, bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
-        if self.__check_triggered__(message):
+        if self.__check_triggered(message):
             content = plain_str(message)
             regex = re.compile("[1-9][0-9]*")
 

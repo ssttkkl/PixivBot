@@ -1,11 +1,14 @@
 import re
+import typing as T
 
-from bot_utils import *
+from mirai import *
+
+from bot_utils import plain_str, api
 from message_reactor.abstract_message_reactor import AbstractMessageReactor
 
 
 class PixivRankingProvider(AbstractMessageReactor):
-    def __find_ranking_mode__(self, message: MessageChain) -> T.Optional[str]:
+    def __find_ranking_mode(self, message: MessageChain) -> T.Optional[str]:
         """
         找出消息中所指定的排行榜种类
         :return: 排行榜种类，若没有则为None
@@ -21,7 +24,7 @@ class PixivRankingProvider(AbstractMessageReactor):
                         return key
         return None
 
-    def __find_ranges__(self, message: MessageChain) -> T.Tuple[int, int]:
+    def __find_ranges(self, message: MessageChain) -> T.Tuple[int, int]:
         """
         找出消息中指定的排行范围
         :return: 排行范围的列表
@@ -37,9 +40,9 @@ class PixivRankingProvider(AbstractMessageReactor):
         return int(begin), int(end)
 
     async def generate_reply(self, bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
-        mode = self.__find_ranking_mode__(message)
+        mode = self.__find_ranking_mode(message)
         if mode is not None:
-            begin, end = self.__find_ranges__(message)
+            begin, end = self.__find_ranges(message)
             print(f"pixiv {mode} ranking {begin}-{end} asked.")
 
             illusts = (await api.get_illusts(search_func=api.illust_ranking, mode=mode, search_item_limit=end))

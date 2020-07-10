@@ -2,7 +2,6 @@ import asyncio
 import json
 import math
 import os
-import pathlib
 import threading
 import time
 import traceback
@@ -48,13 +47,13 @@ class PixivAPI:
     async def run_in_executor(self, func, *args, **kwargs):
         loop = asyncio.get_running_loop()
         if isinstance(func, str):
-            api = await self.__api__()
+            api = await self.__api()
             result = await loop.run_in_executor(self.__executor__, lambda: api.__getattribute__(func)(*args, **kwargs))
         else:
             result = await loop.run_in_executor(self.__executor__, lambda: func(*args, **kwargs))
         return result
 
-    async def __refresh_api__(self):
+    async def __refresh_api(self):
         self.__lock__.acquire()
         try:
             if bypass:
@@ -69,7 +68,7 @@ class PixivAPI:
         finally:
             self.__lock__.release()
 
-    async def __api__(self) -> pixivpy3.AppPixivAPI:
+    async def __api(self) -> pixivpy3.AppPixivAPI:
         """
         获取PixivAPI的实例
         :return: PixivAPI的实例
@@ -77,11 +76,11 @@ class PixivAPI:
         if time.time() - self.__api_init_time__ <= 1800:
             return self.__back_api__
         else:
-            await self.__refresh_api__()
+            await self.__refresh_api()
             return self.__back_api__
 
     async def get_user_id(self):
-        return (await self.__api__()).user_id
+        return (await self.__api()).user_id
 
     async def iter_illusts(self,
                            search_func: str,

@@ -1,10 +1,12 @@
 # -*- coding: utf8 -*-
 import re
+import typing as T
 
-from mirai import *
+from mirai import Mirai, Source, Group, Friend, MessageChain
+from mirai.event.message.base import BaseMessageComponent
 from mirai.image import InternalImage
 
-from pixiv_api import *
+from pixiv_api import PixivAPI
 
 api = PixivAPI()
 
@@ -71,7 +73,15 @@ def decode_chinese_int(text: str) -> int:
     return ans
 
 
-def search_groups(pattern: str, flags: T.Sequence[str], text: str) -> T.Optional[T.List[T.Optional[str]]]:
+def search_groups(pattern: str, flags: T.Sequence[str], text: str) -> T.List[T.Optional[str]]:
+    """
+    将字符串按照模板提取关键内容
+    （譬如，pattern="来$number张$keyword图", flags=["$number", "$keyword"], text="来3张色图"，返回值=["3", "色"]）
+    :param pattern: 模板串
+    :param flags: 标志的占位串
+    :param text: 匹配内容
+    :return: 提取出的标志的列表。若某个标志搜寻失败，则对应值为None
+    """
     flags_order = dict()
     for i, flag in enumerate(flags):
         flags_order[flag] = i
@@ -88,7 +98,7 @@ def search_groups(pattern: str, flags: T.Sequence[str], text: str) -> T.Optional
     match_result = re.search(regex, text)
 
     if match_result is None:
-        return None
+        return [None for _ in range(0, len(flags))]
     else:
         ans = dict()
         for i, (flag, p) in enumerate(position):
