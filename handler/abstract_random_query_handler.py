@@ -3,9 +3,8 @@ import typing as T
 
 from mirai import *
 from loguru import logger as log
-from utils import api
 from handler.abstract_message_handler import AbstractMessageHandler
-from pixiv_utils import random_illust
+from pixiv import make_illust_message, random_illust
 
 
 class AbstractRandomQueryHandler(AbstractMessageHandler):
@@ -22,7 +21,7 @@ class AbstractRandomQueryHandler(AbstractMessageHandler):
             if len(illusts) < number:
                 for illust in illusts:
                     log.info(f"""{self.tag}: selected illust [{illust["id"]}]""")
-                    tasks.append(asyncio.create_task(api.illust_to_message(illust)))
+                    tasks.append(asyncio.create_task(make_illust_message(illust)))
             else:
                 selected = dict()
                 for i in range(number):
@@ -35,7 +34,7 @@ class AbstractRandomQueryHandler(AbstractMessageHandler):
                     selected[illust["id"]] = illust
                     log.info(f"""{self.tag}: selected illust [{illust["id"]}]""")
                 for i in selected:
-                    tasks.append(asyncio.create_task(api.illust_to_message(selected[i])))
+                    tasks.append(asyncio.create_task(make_illust_message(selected[i])))
             while tasks:
                 done, tasks = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
                 for task in done:

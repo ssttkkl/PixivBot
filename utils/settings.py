@@ -4,7 +4,7 @@ import json5
 from loguru import logger as log
 
 
-def check_settings(template: dict, config: dict, path: str = "") -> bool:
+def __check_settings(template: dict, config: dict, path: str = "") -> bool:
     edited = False
     for key in template:
         if key not in config:
@@ -17,7 +17,7 @@ def check_settings(template: dict, config: dict, path: str = "") -> bool:
                     f"Expect json object at {path}.{key}, {type(config[key])} found in config file. Copy from the template.")
                 config[key] = template[key]
                 edited = True
-            edited = check_settings(template[key], config[key], f"{path}.{key}") or edited
+            edited = __check_settings(template[key], config[key], f"{path}.{key}") or edited
     return edited
 
 
@@ -28,10 +28,10 @@ else:
     settings = dict()
 
 with open("./settings.template.json", "r", encoding="utf8") as f:
-    settings_template = json5.load(f)
+    __template = json5.load(f)
 
-edited = check_settings(settings_template, settings)
-if edited:
+__edited = __check_settings(__template, settings)
+if __edited:
     with open("./settings.json", "w", encoding="utf8") as f:
         json5.dump(settings, f, ensure_ascii=False, quote_keys=True)
 

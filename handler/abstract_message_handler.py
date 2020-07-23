@@ -3,7 +3,8 @@ import typing as T
 
 from mirai import *
 
-from utils import reply
+from pixiv import PixivResultError
+from utils import reply, log
 
 
 class AbstractMessageHandler:
@@ -31,6 +32,9 @@ class AbstractMessageHandler:
         try:
             async for msg in self.generate_reply(bot, source, subject, message):
                 await reply(bot, source, subject, msg)
+        except PixivResultError as exc:
+            log.info(f"{self.tag}: {exc.error()}")
+            await reply(bot, source, subject, [Plain(exc.error()[:128])])
         except Exception as exc:
             traceback.print_exc()
             await reply(bot, source, subject, [Plain(str(exc)[:128])])

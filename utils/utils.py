@@ -1,50 +1,26 @@
 # -*- coding: utf8 -*-
+import asyncio
 import re
-import threading
 import typing as T
+from concurrent.futures.thread import ThreadPoolExecutor
+from functools import partial
 
-from loguru import logger as log
-from mirai import Mirai, Source, Group, Friend, MessageChain, Plain
-from mirai.event.message.base import BaseMessageComponent
-from mirai.image import InternalImage
-
-from pixiv_utils import PixivAPI
-
-api = PixivAPI()
+__executor = ThreadPoolExecutor(max_workers=8)
 
 
-async def reply(bot: Mirai,
-                source: Source,
-                subject: T.Union[Group, Friend],
-                message: T.Union[MessageChain,
-                                 BaseMessageComponent,
-                                 T.Sequence[T.Union[BaseMessageComponent,
-                                                    InternalImage]],
-                                 str]) -> T.NoReturn:
-    """
-    回复消息。若是群组则引用回复，若是好友则普通地回复。
-    :param bot: Mirai Bot实例
-    :param source: 原消息的Source
-    :param subject: 回复的对象
-    :param message: 回复的消息
-    """
-    if isinstance(message, tuple):
-        message = list(message)
-    if isinstance(subject, Group):
-        await bot.sendGroupMessage(group=subject, message=message, quoteSource=source)
-    elif isinstance(subject, Friend):
-        await bot.sendFriendMessage(friend=subject, message=message)
+def launch(func: T.Callable, *args, **kwargs):
+    loop = asyncio.get_running_loop()
+
+    # def f():
+    #     log.debug(f"{threading.currentThread()} {func.__name__}(args: {args}, kwargs: {kwargs})")
+    #     return func(*args, **kwargs)
+    #
+    # return loop.run_in_executor(__executor, f)
+    return loop.run_in_executor(__executor, partial(func, *args, **kwargs))
 
 
-def message_content(message: MessageChain) -> str:
-    """
-    提取消息中的文本
-    """
-    return ''.join([x.toString() for x in message.getAllofComponent(Plain)])
-
-
-__numerals__ = {'零': 0, '一': 1, '二': 2, '两': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
-                '百': 100, '千': 1000, '万': 10000, '亿': 100000000}
+__numerals = {'零': 0, '一': 1, '二': 2, '两': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
+              '百': 100, '千': 1000, '万': 10000, '亿': 100000000}
 
 
 def decode_chinese_int(text: str) -> int:
@@ -56,7 +32,7 @@ def decode_chinese_int(text: str) -> int:
     ans = 0
     radix = 1
     for i in reversed(range(len(text))):
-        digit = __numerals__[text[i]]
+        digit = __numerals[text[i]]
         if digit >= 10:
             if digit > radix:  # 成为新的基数
                 radix = digit

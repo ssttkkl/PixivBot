@@ -1,12 +1,11 @@
 import os
 import typing as T
 
-from loguru import logger as log
 from mirai import *
 
-from handler.abstract_random_query_handler import AbstractRandomQueryHandler
-from pixiv_utils import get_illust_filter
-from utils import api, message_content, match_groups, decode_chinese_int
+from pixiv import get_illusts_with_cache, make_illust_filter, papi
+from utils import log, message_content, match_groups, decode_chinese_int
+from .abstract_random_query_handler import AbstractRandomQueryHandler
 
 
 class PixivRandomBookmarkQueryHandler(AbstractRandomQueryHandler):
@@ -14,22 +13,21 @@ class PixivRandomBookmarkQueryHandler(AbstractRandomQueryHandler):
         """
         获取书签的画像（从缓存或服务器）
         """
-        # 缓存文件路径
-        cache_file = os.path.abspath(self.search_cache_filename)
+        cache_file = os.path.abspath(self.search_cache_filename)  # 缓存文件路径
 
         if self.user_id is not None:
             user_id = self.user_id
         else:
-            user_id = api.get_user_id()
+            user_id = papi.user_id
 
-        illusts = await api.get_illusts_cached(cache_file=cache_file,
+        illusts = await get_illusts_with_cache(cache_file=cache_file,
                                                cache_outdated_time=self.search_cache_outdated_time,
-                                               search_func=api.user_bookmarks_illust,
+                                               search_func=papi.user_bookmarks_illust,
                                                user_id=user_id,
-                                               illust_filter=get_illust_filter(
-                                                   search_filter_tags=self.search_filter_tags,
-                                                   search_bookmarks_lower_bound=self.search_bookmarks_lower_bound,
-                                                   search_view_lower_bound=self.search_view_lower_bound),
+                                               illust_filter=make_illust_filter(
+                                                   block_tags=self.search_filter_tags,
+                                                   bookmarks_lower_bound=self.search_bookmarks_lower_bound,
+                                                   view_lower_bound=self.search_view_lower_bound),
                                                search_item_limit=self.search_item_limit,
                                                search_page_limit=self.search_page_limit)
         return illusts

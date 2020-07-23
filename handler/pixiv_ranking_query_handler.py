@@ -1,11 +1,11 @@
 import re
 import typing as T
 
-from loguru import logger as log
 from mirai import *
 
-from handler.abstract_message_handler import AbstractMessageHandler
-from utils import message_content, api
+from pixiv import get_illusts, papi
+from utils import log, message_content
+from .abstract_message_handler import AbstractMessageHandler
 
 
 class PixivRankingQueryHandler(AbstractMessageHandler):
@@ -47,7 +47,9 @@ class PixivRankingQueryHandler(AbstractMessageHandler):
         begin, end = self.__find_ranges(message)
         log.info(f"{self.tag}: [{mode}] [{begin}-{end}]")
 
-        illusts = (await api.get_illusts(search_func=api.illust_ranking, mode=mode, search_item_limit=end))
+        illusts = await get_illusts(search_func=papi.illust_ranking,
+                                    mode=mode,
+                                    search_item_limit=end)
 
         message = []
         rank = begin

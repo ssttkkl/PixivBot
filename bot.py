@@ -4,7 +4,7 @@ from loguru import logger as log
 from mirai import *
 
 from handler import *
-from settings import *
+from utils import settings
 
 qq = settings["mirai"]["qq"]
 authKey = settings["mirai"]["auth_key"]
