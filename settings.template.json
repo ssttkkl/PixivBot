@@ -79,8 +79,7 @@
     "domain": null, // 反代使用的域名，若不希望使用反代则设为null
     "download_dir": "cache/illust_img", // 下载插画的目录
     "download_quantity": "original", // 下载插画的品质，可选值：original, medium, square_medium
-    "download_replace": false, // 下载插画时，若已经存在是否覆盖
-    "download_outdated_time": 604800, // 自动清理下载目录时删除多久以前的文件（单位：秒），null表示无限期
+    "download_outdated_time": 172800, // 自动清理下载目录时删除多久以前的文件（单位：秒），null表示无限期
     "compress": true, // 是否要对图片进行压缩
     "compress_size": 1200, // 将图片的长或宽压缩至此处设定的数值，保持原有长宽比
     "compress_quantity": 75, // 压缩品质，0—100
