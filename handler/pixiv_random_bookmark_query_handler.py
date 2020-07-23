@@ -58,6 +58,10 @@ class PixivRandomBookmarkQueryHandler(AbstractRandomQueryHandler):
         number = self.__find_number(message)
         if number is None:
             return
+
+        if number > self.limit_per_query:
+            yield [Plain(self.overlimit_message)]
+            return
         log.info(f"{self.tag}: [{number}]")
 
         illusts = await self.__get_bookmarks()
