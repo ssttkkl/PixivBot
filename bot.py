@@ -1,10 +1,11 @@
+import asyncio
 import typing as T
 
-from loguru import logger as log
 from mirai import *
 
 from handler import *
-from utils import settings
+from pixiv import clean_cache
+from utils import settings, log, launch
 
 qq = settings["mirai"]["qq"]
 authKey = settings["mirai"]["auth_key"]
@@ -19,16 +20,16 @@ log.info("Connecting " + url)
 bot = Mirai(url)
 
 handlers = {
-    "ranking_query":
+    "ranking":
         PixivRankingQueryHandler("ranking query", settings["ranking"]),
-    "illust_query":
+    "illust":
         PixivIllustQueryHandler("illust query", settings["illust"]),
-    "random_illust_query":
-        PixivRandomIllustQueryHandler("random illust query", settings["shuffle_illust"]),
-    "random_user_illust_query":
-        PixivRandomUserIllustQueryHandler("random user illust query", settings["shuffle_illustrator_illust"]),
-    "random_bookmark_query":
-        PixivRandomBookmarkQueryHandler("random bookmark query", settings["shuffle_bookmarks"])
+    "random_illust":
+        PixivRandomIllustQueryHandler("random illust query", settings["random_illust"]),
+    "random_user_illust":
+        PixivRandomUserIllustQueryHandler("random user illust query", settings["random_user_illust"]),
+    "random_bookmark":
+        PixivRandomBookmarkQueryHandler("random bookmark query", settings["random_bookmarks"])
 }
 
 
@@ -51,6 +52,13 @@ async def group_receiver(bot: Mirai, source: Source, group: Group, message: Mess
 async def friend_receiver(bot: Mirai, source: Source, friend: Friend, message: MessageChain):
     await on_receive(settings["function"]["friend"], bot, source, friend, message)
 
+
+@bot.subroutine
+async def auto_clean(bot: Mirai):
+    while True:
+        await launch(clean_cache)
+        # 睡一个小时
+        await asyncio.sleep(3600)
 
 if __name__ == "__main__":
     bot.run()

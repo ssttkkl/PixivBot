@@ -61,9 +61,9 @@ class PixivRankingQueryHandler(AbstractMessageHandler):
             rank = rank + 1
 
         if isinstance(subject, Group):
-            item_per_page = self.item_per_page_group
+            item_per_page = self.item_per_group_message
         elif isinstance(subject, Friend):
-            item_per_page = self.item_per_page_friend
+            item_per_page = self.item_per_friend_message
         else:
             raise TypeError(f"type(subject) expect Group or Friend, but {type(subject)} found.")
 

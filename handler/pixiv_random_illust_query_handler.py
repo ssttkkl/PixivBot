@@ -52,9 +52,9 @@ class PixivRandomIllustQueryHandler(AbstractRandomQueryHandler):
                                                    search_func=papi.search_illust,
                                                    word=keyword,
                                                    illust_filter=make_illust_filter(
-                                                       block_tags=self.search_filter_tags,
-                                                       bookmarks_lower_bound=self.search_bookmarks_lower_bound,
-                                                       view_lower_bound=self.search_view_lower_bound),
+                                                       block_tags=self.block_tags,
+                                                       bookmark_lower_bound=self.bookmark_lower_bound,
+                                                       view_lower_bound=self.view_lower_bound),
                                                    search_item_limit=self.search_item_limit,
                                                    search_page_limit=self.search_page_limit)
 

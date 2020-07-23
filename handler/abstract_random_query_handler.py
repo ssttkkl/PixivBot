@@ -27,9 +27,9 @@ class AbstractRandomQueryHandler(AbstractMessageHandler):
                 for i in range(number):
                     # 保证不会抽到重复，若抽了10次还是一样的就放弃了（不会吧不会吧）
                     retry = 1
-                    illust = random_illust(illusts, self.shuffle_method)
+                    illust = random_illust(illusts, self.random_method)
                     while retry < 10 and illust["id"] in selected:
-                        illust = random_illust(illusts, self.shuffle_method)
+                        illust = random_illust(illusts, self.random_method)
                         retry = retry + 1
                     selected[illust["id"]] = illust
                     log.info(f"""{self.tag}: selected illust [{illust["id"]}]""")

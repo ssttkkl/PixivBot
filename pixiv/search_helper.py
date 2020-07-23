@@ -124,18 +124,18 @@ async def get_illusts_with_cache(cache_file: T.Union[str, Path],
 
 
 def make_illust_filter(block_tags: T.Collection[str],
-                       bookmarks_lower_bound: T.Optional[int],
-                       view_lower_bound: T.Optional[int]):
+                       bookmark_lower_bound: int,
+                       view_lower_bound: int):
     def illust_filter(illust) -> bool:
         # 标签过滤
         for tag in block_tags:
             if has_tag(illust, tag):
                 return False
         # 书签下限过滤
-        if bookmarks_lower_bound is not None and illust["total_bookmarks"] < bookmarks_lower_bound:
+        if illust["total_bookmarks"] < bookmark_lower_bound:
             return False
         # 浏览量下限过滤
-        if view_lower_bound is not None and illust["total_view"] < view_lower_bound:
+        if illust["total_view"] < view_lower_bound:
             return False
         return True
 

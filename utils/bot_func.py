@@ -1,3 +1,4 @@
+import asyncio
 import threading
 import typing as T
 
@@ -6,7 +7,7 @@ from mirai import *
 from mirai.event.message.base import BaseMessageComponent
 from mirai.image import InternalImage
 
-reply_lock = threading.Lock()
+reply_lock = asyncio.Lock()
 
 
 async def reply(bot: Mirai,
@@ -26,15 +27,12 @@ async def reply(bot: Mirai,
     """
     if isinstance(message, tuple):
         message = list(message)
-    try:
-        reply_lock.acquire()
+    async with reply_lock:
         log.debug("reply lock acquired")
         if isinstance(subject, Group):
             await bot.sendGroupMessage(group=subject, message=message, quoteSource=source)
         elif isinstance(subject, Friend):
             await bot.sendFriendMessage(friend=subject, message=message)
-    finally:
-        reply_lock.release()
         log.debug("reply lock released")
 
 

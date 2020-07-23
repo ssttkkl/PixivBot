@@ -6,25 +6,25 @@ import time
 import typing as T
 
 
-def random_illust(illusts: T.Sequence[dict], shuffle_method: str) -> dict:
+def random_illust(illusts: T.Sequence[dict], random_method: str) -> dict:
     """
     从illusts随机抽选一个illust
     :param illusts: illust的列表
-    :param shuffle_method: 随机抽选的方法，可选项：bookmarks_proportion, view_proportion, time_proportion, uniform
+    :param random_method: 随机抽选的方法，可选项：bookmarks_proportion, view_proportion, time_proportion, uniform
     :return: 随机抽选的一个illust
     """
 
-    if shuffle_method == "bookmarks_proportion":
+    if random_method == "bookmark_proportion":
         # 概率正比于书签数
         bookmarks = list(map(lambda illust: int(illust["total_bookmarks"]) + 10, illusts))  # 加10平滑
         sum_bm = sum(bookmarks)
         probability = list(map(lambda x: x / sum_bm, bookmarks))
-    elif shuffle_method == "view_proportion":
+    elif random_method == "view_proportion":
         # 概率正比于查看人数
         view = list(map(lambda illust: int(illust["total_view"]) + 10, illusts))  # 加10平滑
         sum_view = sum(view)
         probability = list(map(lambda x: x / sum_view, view))
-    elif shuffle_method == "time_proportion":
+    elif random_method == "time_proportion":
         # 概率正比于 exp((当前时间戳 - 画像发布时间戳) / 3e7)
         def str_to_stamp(date_str: str):
             import time
@@ -42,11 +42,11 @@ def random_illust(illusts: T.Sequence[dict], shuffle_method: str) -> dict:
         sum_poss = sum(probability)
         for i in range(len(probability)):
             probability[i] = probability[i] / sum_poss
-    elif shuffle_method == "uniform":
+    elif random_method == "uniform":
         # 概率相等
         probability = 1 / len(illusts)
     else:
-        raise ValueError(f"illegal shuffle_method value: {shuffle_method}")
+        raise ValueError(f"illegal random_method value: {random_method}")
 
     for i in range(1, len(probability)):
         probability[i] = probability[i] + probability[i - 1]
