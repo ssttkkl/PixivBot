@@ -1,14 +1,15 @@
 import os
 import typing as T
 
+from loguru import logger as log
 from mirai import *
 
-from bot_utils import api, plain_str, search_groups, decode_chinese_int
-from message_reactor.abstract_shuffle_provider import AbstractShuffleProvider
-from pixiv_api import get_illust_filter
+from handler.abstract_random_query_handler import AbstractRandomQueryHandler
+from pixiv_utils import get_illust_filter
+from utils import api, message_content, match_groups, decode_chinese_int
 
 
-class PixivShuffleBookmarksProvider(AbstractShuffleProvider):
+class PixivRandomBookmarkQueryHandler(AbstractRandomQueryHandler):
     async def __get_bookmarks(self) -> T.Sequence[dict]:
         """
         获取书签的画像（从缓存或服务器）
@@ -38,15 +39,16 @@ class PixivShuffleBookmarksProvider(AbstractShuffleProvider):
         找出消息中所指定的数字（随机多少张书签）
         :return: 数字。若未触发则为None，若未指定数字则为1
         """
-        content = plain_str(message)
+        content = message_content(message)
         for x in self.trigger:
-            result = search_groups(x, ["$number"], content)
-            number = result[0]
+            result = match_groups(x, ["$number"], content)
+            if result is None:
+                continue
 
+            number = result["$number"]
             if number is None or number == "":
-                number = "1"
-
-            if number.isdigit():
+                number = 1
+            elif number.isdigit():
                 number = int(number)
             else:
                 number = decode_chinese_int(number)
@@ -56,9 +58,13 @@ class PixivShuffleBookmarksProvider(AbstractShuffleProvider):
 
     async def generate_reply(self, bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
         number = self.__find_number(message)
-        if number is not None:
-            print(f"[{number}] pixiv shuffle bookmarks asked.")
-            illusts = await self.__get_bookmarks()
-            print(f"[{len(illusts)}] illusts were found.")
-            async for msg in self.random_and_generate_reply(illusts, number):
-                yield msg
+        if number is None:
+            return
+        log.info(f"{self.tag}: [{number}]")
+
+        illusts = await self.__get_bookmarks()
+        log.info(f"{self.tag}: found [{len(illusts)}] bookmarks")
+        async for msg in self.random_and_generate_reply(illusts, number):
+            yield msg
+
+        log.info(f"{self.tag}: [{number}] ok")

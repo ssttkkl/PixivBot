@@ -330,8 +330,8 @@ def get_illust_filter(search_filter_tags: T.Collection[str],
     return illust_filter
 
 
-def shuffle_illust(illusts: T.Sequence[dict],
-                   shuffle_method: str) -> dict:
+def random_illust(illusts: T.Sequence[dict],
+                  shuffle_method: str) -> dict:
     """
     从illusts随机抽选一个illust
     :param illusts: illust的列表

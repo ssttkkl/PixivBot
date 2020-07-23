@@ -1,28 +1,34 @@
-import asyncio
 import typing as T
 
+from loguru import logger as log
 from mirai import *
 
-from message_reactor import *
-from settings import settings
+from handler import *
+from settings import *
 
 qq = settings["mirai"]["qq"]
 authKey = settings["mirai"]["auth_key"]
+host = settings["mirai"]["host"]
 port = settings["mirai"]["port"]
-mirai_api_http_locate = f"localhost:{port}/"
+locate = f"{host}:{port}/"
 if settings["mirai"]["enable_websocket"]:
-    mirai_api_http_locate = mirai_api_http_locate + "ws"
+    locate = locate + "ws"
 
-url = f"mirai://{mirai_api_http_locate}?authKey={authKey}&qq={qq}"
-print("Connecting " + url)
+url = f"mirai://{locate}?authKey={authKey}&qq={qq}"
+log.info("Connecting " + url)
 bot = Mirai(url)
 
-reactor = {
-    "ranking": PixivRankingProvider(settings["ranking"]),
-    "illust": PixivIllustProvider(settings["illust"]),
-    "shuffle_illust": PixivShuffleIllustProvider(settings["shuffle_illust"]),
-    "shuffle_illustrator_illust": PixivShuffleIllustratorIllustProvider(settings["shuffle_illustrator_illust"]),
-    "shuffle_bookmarks": PixivShuffleBookmarksProvider(settings["shuffle_bookmarks"])
+handlers = {
+    "ranking_query":
+        PixivRankingQueryHandler("ranking query", settings["ranking"]),
+    "illust_query":
+        PixivIllustQueryHandler("illust query", settings["illust"]),
+    "random_illust_query":
+        PixivRandomIllustQueryHandler("random illust query", settings["shuffle_illust"]),
+    "random_user_illust_query":
+        PixivRandomUserIllustQueryHandler("random user illust query", settings["shuffle_illustrator_illust"]),
+    "random_bookmark_query":
+        PixivRandomBookmarkQueryHandler("random bookmark query", settings["shuffle_bookmarks"])
 }
 
 
@@ -31,9 +37,9 @@ async def on_receive(function_dict: dict, bot: Mirai, source: Source, subject: T
     if function_dict["listen"] is not None and subject.id not in function_dict["listen"]:
         return
 
-    for key in reactor:
+    for key in handlers:
         if function_dict[key]:
-            await reactor[key].receive(bot, source, subject, message)
+            await handlers[key].receive(bot, source, subject, message)
 
 
 @bot.receiver("GroupMessage")

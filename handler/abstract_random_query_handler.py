@@ -2,13 +2,13 @@ import asyncio
 import typing as T
 
 from mirai import *
+from loguru import logger as log
+from utils import api
+from handler.abstract_message_handler import AbstractMessageHandler
+from pixiv_utils import random_illust
 
-from bot_utils import api
-from message_reactor.abstract_message_reactor import AbstractMessageReactor
-from pixiv_api import shuffle_illust
 
-
-class AbstractShuffleProvider(AbstractMessageReactor):
+class AbstractRandomQueryHandler(AbstractMessageHandler):
     async def random_and_generate_reply(self, illusts: T.Sequence[dict], number: int):
         """
         从illusts中随机抽取number张画像，并生成Message
@@ -21,20 +21,21 @@ class AbstractShuffleProvider(AbstractMessageReactor):
             tasks = []
             if len(illusts) < number:
                 for illust in illusts:
-                    print(f"""illust [{illust["id"]}] selected.""")
+                    log.info(f"""{self.tag}: selected illust [{illust["id"]}]""")
                     tasks.append(asyncio.create_task(api.illust_to_message(illust)))
             else:
-                selected_illust_id = set()
+                selected = dict()
                 for i in range(number):
                     # 保证不会抽到重复，若抽了10次还是一样的就放弃了（不会吧不会吧）
-                    retry_times = 0
-                    illust = shuffle_illust(illusts, self.shuffle_method)
-                    while retry_times < 10 and illust["id"] in selected_illust_id:
-                        illust = shuffle_illust(illusts, self.shuffle_method)
-                        retry_times = retry_times + 1
-                    selected_illust_id.add(illust["id"])
-                    print(f"""illust [{illust["id"]}] selected.""")
-                    tasks.append(asyncio.create_task(api.illust_to_message(illust)))
+                    retry = 1
+                    illust = random_illust(illusts, self.shuffle_method)
+                    while retry < 10 and illust["id"] in selected:
+                        illust = random_illust(illusts, self.shuffle_method)
+                        retry = retry + 1
+                    selected[illust["id"]] = illust
+                    log.info(f"""{self.tag}: selected illust [{illust["id"]}]""")
+                for i in selected:
+                    tasks.append(asyncio.create_task(api.illust_to_message(selected[i])))
             while tasks:
                 done, tasks = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
                 for task in done:

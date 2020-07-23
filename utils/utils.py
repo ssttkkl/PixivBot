@@ -1,12 +1,14 @@
 # -*- coding: utf8 -*-
 import re
+import threading
 import typing as T
 
-from mirai import Mirai, Source, Group, Friend, MessageChain
+from loguru import logger as log
+from mirai import Mirai, Source, Group, Friend, MessageChain, Plain
 from mirai.event.message.base import BaseMessageComponent
 from mirai.image import InternalImage
 
-from pixiv_api import PixivAPI
+from pixiv_utils import PixivAPI
 
 api = PixivAPI()
 
@@ -34,11 +36,11 @@ async def reply(bot: Mirai,
         await bot.sendFriendMessage(friend=subject, message=message)
 
 
-def plain_str(message: MessageChain) -> str:
+def message_content(message: MessageChain) -> str:
     """
     提取消息中的文本
     """
-    return ' '.join([x.toString() for x in message.getAllofComponent(Plain)])
+    return ''.join([x.toString() for x in message.getAllofComponent(Plain)])
 
 
 __numerals__ = {'零': 0, '一': 1, '二': 2, '两': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
@@ -51,11 +53,6 @@ def decode_chinese_int(text: str) -> int:
     :param text: 中文整数
     :return: 对应int
     """
-    if text[0] == '负':
-        return -decode_chinese_int(text[1:])
-    if text[0] == '正':
-        return decode_chinese_int(text[1:])
-
     ans = 0
     radix = 1
     for i in reversed(range(len(text))):
@@ -73,43 +70,31 @@ def decode_chinese_int(text: str) -> int:
     return ans
 
 
-def search_groups(pattern: str, flags: T.Sequence[str], text: str) -> T.List[T.Optional[str]]:
+def match_groups(pattern: str, placeholders: T.Sequence[str], text: str) -> T.Optional[T.Dict[str, str]]:
     """
     将字符串按照模板提取关键内容
     （譬如，pattern="来$number张$keyword图", flags=["$number", "$keyword"], text="来3张色图"，返回值=["3", "色"]）
     :param pattern: 模板串
-    :param flags: 标志的占位串
+    :param placeholders: 标志的占位串
     :param text: 匹配内容
     :return: 提取出的标志的列表。若某个标志搜寻失败，则对应值为None
     """
-    flags_order = dict()
-    for i, flag in enumerate(flags):
-        flags_order[flag] = i
 
-    position = []
-    regex = pattern
-    for flag in flags:
-        p = pattern.find(flag)
-        if p != -1:
-            position.append((flag, p))
-            regex = regex.replace(flag, "(.*)")
-    position.sort(key=lambda x: x[1])
+    pos = []
+    for ph in placeholders:
+        c = pattern.count(ph)
+        if c == 1:
+            pos.append((ph, pattern.find(ph)))
+            pattern = pattern.replace(ph, "(.*)")
+        elif c > 1:
+            raise Exception(f"{c} {ph} were found in pattern.")
+    pos.sort(key=lambda x: x[1])
 
-    match_result = re.search(regex, text)
-
+    match_result = re.search(pattern, text)
     if match_result is None:
-        return [None for _ in range(0, len(flags))]
+        return None
     else:
         ans = dict()
-        for i, (flag, p) in enumerate(position):
-            ans[flag] = match_result.group(i + 1)
-
-        ans_sorted = []
-        for flag in flags:
-            if flag not in ans:
-                ans_sorted.append((None, flags_order[flag]))
-            else:
-                ans_sorted.append((ans[flag], flags_order[flag]))
-        ans_sorted.sort(key=lambda x: x[1])
-
-        return [x[0] for x in ans_sorted]
+        for i, (ph, _) in enumerate(pos):
+            ans[ph] = match_result.group(i + 1)
+        return ans

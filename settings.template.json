@@ -2,6 +2,7 @@
   // 这部分是与 MiraiAPIHTTP 通信的参数
   "mirai": {
     "qq": 123456,
+    "host": "localhost",
     "auth_key": "auth_key",
     "port": 8000,
     "enable_websocket": false
@@ -16,19 +17,19 @@
   "function": {
     "group": {
       "listen": null, // 若为null则监听所有群组，否则应为包含欲监听群组id的一个列表
-      "ranking": true,
-      "illust": true,
-      "shuffle_illust": true,
-      "shuffle_illustrator_illust": true,
-      "shuffle_bookmarks": false
+      "ranking_query": true,
+      "illust_query": true,
+      "random_illust_query": true,
+      "random_user_illust_query": true,
+      "random_bookmark_query": false
     },
     "friend": {
       "listen": null, // 若为null则监听所有好友，否则应为包含欲监听好友id的一个列表
-      "ranking": true,
-      "illust": true,
-      "shuffle_illust": true,
-      "shuffle_illustrator_illust": true,
-      "shuffle_bookmarks": true
+      "ranking_query": true,
+      "illust_query": true,
+      "random_illust_query": true,
+      "random_user_illust_query": true,
+      "random_bookmark_query": true
     }
   },
   // 这部分是查看排行榜的配置

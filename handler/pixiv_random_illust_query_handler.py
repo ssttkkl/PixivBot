@@ -2,14 +2,39 @@ import os
 import re
 import typing as T
 
+from loguru import logger as log
 from mirai import *
 
-from bot_utils import api, plain_str, search_groups, decode_chinese_int
-from message_reactor.abstract_shuffle_provider import AbstractShuffleProvider
-from pixiv_api import get_illust_filter
+from utils import api, message_content, match_groups, decode_chinese_int
+from handler.abstract_random_query_handler import AbstractRandomQueryHandler
+from pixiv_utils import get_illust_filter
 
 
-class PixivShuffleIllustProvider(AbstractShuffleProvider):
+class PixivRandomIllustQueryHandler(AbstractRandomQueryHandler):
+    def __find_attrs(self, message: MessageChain) -> T.Optional[T.Tuple[str, int]]:
+        """
+        找出消息中所指定的关键字和数字
+        :return: 关键字和数字。若未触发则为None，若未指定关键字则为""，若未指定数字则为1
+        """
+        content = message_content(message)
+        for x in self.trigger:
+            result = match_groups(x, ["$keyword", "$number"], content)
+            if result is None:
+                continue
+
+            keyword, number = result["$keyword"], result["$number"]
+            if keyword is None:
+                keyword = ""
+            if number is None or number == "":
+                number = 1
+            elif number.isdigit():
+                number = int(number)
+            else:
+                number = decode_chinese_int(number)
+            return keyword, number
+
+        return None
+
     async def __get_illusts(self, keyword: str) -> T.Sequence[dict]:
         """
         获取搜索的画像（从缓存或服务器）
@@ -36,38 +61,20 @@ class PixivShuffleIllustProvider(AbstractShuffleProvider):
 
         return illusts
 
-    def __find_keyword(self, message: MessageChain) -> T.Optional[T.Tuple[str, int]]:
-        """
-        找出消息中所指定的关键字和数字
-        :return: 关键字和数字。若未触发则为None，若未指定关键字则为""，若未指定数字则为1
-        """
-        content = plain_str(message)
-        for x in self.trigger:
-            result = search_groups(x, ["$keyword", "$number"], content)
-            keyword, number = result
-
-            if keyword is None:
-                keyword = ""
-            if number is None or number == "":
-                number = "1"
-
-            if number.isdigit():
-                number = int(number)
-            else:
-                number = decode_chinese_int(number)
-            return keyword, number
-
-        return None
-
     async def generate_reply(self, bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
-        trigger_result = self.__find_keyword(message)
-        if trigger_result is not None:
-            keyword, number = trigger_result
-            if number > self.limit_per_query:
-                yield [Plain(self.overlimit_message)]
-            else:
-                print(f"[{number}] pixiv shuffle illust [{keyword}] asked.")
-                illusts = await self.__get_illusts(keyword)
-                print(f"[{len(illusts)}] illusts were found.")
-                async for msg in self.random_and_generate_reply(illusts, number):
-                    yield msg
+        attrs = self.__find_attrs(message)
+        if attrs is None:
+            return
+
+        keyword, number = attrs
+        if number > self.limit_per_query:
+            yield [Plain(self.overlimit_message)]
+            return
+        log.info(f"{self.tag}: [{number}] of [{keyword}]")
+
+        illusts = await self.__get_illusts(keyword)
+        log.info(f"{self.tag}: found [{len(illusts)}] illusts")
+        async for msg in self.random_and_generate_reply(illusts, number):
+            yield msg
+
+        log.info(f"{self.tag}: [{number}] of [{keyword}] ok")

@@ -1,30 +1,30 @@
 import os
 import typing as T
 
+from loguru import logger as log
 from mirai import *
 
-from bot_utils import reply, plain_str, api, decode_chinese_int, search_groups
-from message_reactor.abstract_shuffle_provider import AbstractShuffleProvider
-from pixiv_api import get_illust_filter
+from handler.abstract_random_query_handler import AbstractRandomQueryHandler
+from pixiv_utils import get_illust_filter
+from utils import reply, message_content, match_groups, decode_chinese_int, api
 
 
-class PixivShuffleIllustratorIllustProvider(AbstractShuffleProvider):
-    def __check_triggered(self, message: MessageChain) -> T.Optional[T.Tuple[str, int]]:
+class PixivRandomUserIllustQueryHandler(AbstractRandomQueryHandler):
+    def __find_attrs(self, message: MessageChain) -> T.Optional[T.Tuple[str, int]]:
         """
         找出消息中的搜索关键字
         :return: 搜索关键字，若未触发则为None
         """
-        content = plain_str(message)
+        content = message_content(message)
         for x in self.trigger:
-            result = search_groups(x, ["$illustrator", "$number"], content)
-            illustrator, number = result
-
-            if illustrator is None or illustrator == "":
+            result = match_groups(x, ["$illustrator", "$number"], content)
+            if result is None:
                 continue
-            if number is None or number == "":
-                number = "1"
 
-            if number.isdigit():
+            illustrator, number = result["$illustrator"], result["$number"]
+            if number is None or number == "":
+                number = 1
+            elif number.isdigit():
                 number = int(number)
             else:
                 number = decode_chinese_int(number)
@@ -32,7 +32,7 @@ class PixivShuffleIllustratorIllustProvider(AbstractShuffleProvider):
 
         return None
 
-    async def __get_illustrator_id(self, keyword: str) -> T.Optional[int]:
+    async def __get_user_id(self, keyword: str) -> T.Optional[int]:
         """
         获取指定关键词的画师id和名称
         :param keyword: 搜索关键词
@@ -68,17 +68,25 @@ class PixivShuffleIllustratorIllustProvider(AbstractShuffleProvider):
         return illusts
 
     async def generate_reply(self, bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
-        trigger_result = self.__check_triggered(message)
-        if trigger_result is not None:
-            illustrator, number = trigger_result
+        attrs = self.__find_attrs(message)
+        if attrs is None:
+            return
 
-            print(f"[{number}] pixiv shuffle illustrator illust [{illustrator}] asked.")
-            illustrator_id = await self.__get_illustrator_id(illustrator)
-            if illustrator_id is None:
-                await reply(bot, source, subject, [Plain(self.not_found_message)])
-            else:
-                print(f"illustrator id [{illustrator_id}] selected.")
-                illusts = await self.__get_illusts(illustrator_id)
-                print(f"[{len(illusts)}] illusts were found.")
-                async for msg in self.random_and_generate_reply(illusts, number):
-                    yield msg
+        keyword, number = attrs
+        if number > self.limit_per_query:
+            yield [Plain(self.overlimit_message)]
+            return
+        log.info(f"{self.tag}: [{number}] of [{keyword}]")
+
+        user_id = await self.__get_user_id(keyword)
+        if user_id is None:
+            await reply(bot, source, subject, [Plain(self.not_found_message)])
+            return
+
+        log.info(f"{self.tag}: [{keyword}] user id [{user_id}]")
+        illusts = await self.__get_illusts(user_id)
+        log.info(f"{self.tag}: found [{len(illusts)}] illusts")
+        async for msg in self.random_and_generate_reply(illusts, number):
+            yield msg
+
+        log.info(f"{self.tag}: [{number}] of [{keyword}] ok")

@@ -1,20 +1,21 @@
-import asyncio
 import traceback
 import typing as T
 
 from mirai import *
 
-from bot_utils import reply
+from utils import reply
 
 
-class AbstractMessageReactor:
-    def __init__(self, settings: dict):
+class AbstractMessageHandler:
+    def __init__(self, tag: str, settings: dict):
+        self.tag = tag
         self.settings = settings
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: str):
         return self.settings[item]
 
-    async def generate_reply(self, bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
+    async def generate_reply(self, bot: Mirai, source: Source, subject: T.Union[Group, Friend],
+                             message: MessageChain):
         raise NotImplementedError
         yield
 
@@ -28,10 +29,8 @@ class AbstractMessageReactor:
         :param message: 消息
         """
         try:
-            tasks = []
             async for msg in self.generate_reply(bot, source, subject, message):
-                tasks.append(reply(bot, source, subject, msg))
-            await asyncio.gather(*tasks)
+                await reply(bot, source, subject, msg)
         except Exception as exc:
             traceback.print_exc()
             await reply(bot, source, subject, [Plain(str(exc)[:128])])
