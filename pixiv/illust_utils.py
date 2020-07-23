@@ -44,7 +44,7 @@ def random_illust(illusts: T.Sequence[dict], random_method: str) -> dict:
             probability[i] = probability[i] / sum_poss
     elif random_method == "uniform":
         # 概率相等
-        probability = 1 / len(illusts)
+        probability = [1 / len(illusts)] * len(illusts)
     else:
         raise ValueError(f"illegal random_method value: {random_method}")
 
