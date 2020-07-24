@@ -1,5 +1,4 @@
 import asyncio
-import threading
 import typing as T
 
 from loguru import logger as log
@@ -7,7 +6,7 @@ from mirai import *
 from mirai.event.message.base import BaseMessageComponent
 from mirai.image import InternalImage
 
-reply_lock = asyncio.Lock()
+__upload_lock = asyncio.Lock()
 
 
 async def reply(bot: Mirai,
@@ -15,8 +14,8 @@ async def reply(bot: Mirai,
                 subject: T.Union[Group, Friend],
                 message: T.Union[MessageChain,
                                  BaseMessageComponent,
-                                 T.Sequence[T.Union[BaseMessageComponent,
-                                                    InternalImage]],
+                                 T.List[T.Union[BaseMessageComponent,
+                                                InternalImage]],
                                  str]) -> T.NoReturn:
     """
     回复消息。若是群组则引用回复，若是好友则普通地回复。
@@ -25,15 +24,35 @@ async def reply(bot: Mirai,
     :param subject: 回复的对象
     :param message: 回复的消息
     """
-    if isinstance(message, tuple):
-        message = list(message)
-    async with reply_lock:
-        log.debug("reply lock acquired")
-        if isinstance(subject, Group):
-            await bot.sendGroupMessage(group=subject, message=message, quoteSource=source)
-        elif isinstance(subject, Friend):
-            await bot.sendFriendMessage(friend=subject, message=message)
-        log.debug("reply lock released")
+
+    if isinstance(subject, Group):
+        t = "group"
+    elif isinstance(subject, Friend):
+        t = "friend"
+    else:
+        raise TypeError(f"type(subject) = {type(subject)}, except Group or Friend")
+
+    # 因为mirai-api-http的问题，不能并发传图不然容易车祸
+    if isinstance(message, list):
+        new_message = []
+        for msg in message:
+            if isinstance(msg, InternalImage):
+                try:
+                    async with __upload_lock:
+                        img = await asyncio.wait_for(bot.uploadImage(t, msg), timeout=60)
+                    img.flash = False
+                    new_message.append(img)
+                except asyncio.exceptions.TimeoutError:
+                    log.warning("Timeout when upload image")
+                    new_message.append(Plain("Timeout when upload image"))
+            else:
+                new_message.append(msg)
+        message = new_message
+
+    if isinstance(subject, Group):
+        await bot.sendGroupMessage(group=subject, message=message, quoteSource=source)
+    elif isinstance(subject, Friend):
+        await bot.sendFriendMessage(friend=subject, message=message)
 
 
 def message_content(message: MessageChain) -> str:
