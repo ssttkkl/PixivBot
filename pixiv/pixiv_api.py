@@ -1,6 +1,6 @@
 from pixivpy3 import AppPixivAPI, ByPassSniApi
 
-from utils import settings
+from utils import settings,log
 
 if settings["pixiv"]["bypass"]:
     papi = ByPassSniApi()
@@ -9,4 +9,8 @@ else:
     papi = AppPixivAPI()
 
 papi.set_accept_language('zh-cn')
-papi.login(settings["pixiv"]["username"], settings["pixiv"]["password"])
+
+
+def auth():
+    papi.login(settings["pixiv"]["username"], settings["pixiv"]["password"])
+    log.info("pixiv login succeeded")

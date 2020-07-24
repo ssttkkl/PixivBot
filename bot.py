@@ -5,6 +5,7 @@ from mirai import *
 
 from handler import *
 from pixiv import clean_cache
+from pixiv.pixiv_api import auth
 from utils import settings, log, launch
 
 qq = settings["mirai"]["qq"]
@@ -54,11 +55,20 @@ async def friend_receiver(bot: Mirai, source: Source, friend: Friend, message: M
 
 
 @bot.subroutine
+async def auto_auth(bot: Mirai):
+    while True:
+        await launch(auth)
+        # 睡一个小时
+        await asyncio.sleep(3600)
+
+
+@bot.subroutine
 async def auto_clean(bot: Mirai):
     while True:
         await launch(clean_cache)
         # 睡一个小时
         await asyncio.sleep(3600)
+
 
 if __name__ == "__main__":
     bot.run()
