@@ -11,7 +11,8 @@
   "pixiv": {
     "username": "username",
     "password": "password",
-    "bypass": false
+    "bypass": false, // 打开pixivpy自带的免代理访问支持
+    "proxy": null // 为pixiv设置代理，如："http://localhost:7890"，不建议和bypass同时使用，null表示不设代理
   },
   // 这部分是监听的群组和好友，以及开启什么功能的配置
   "function": {

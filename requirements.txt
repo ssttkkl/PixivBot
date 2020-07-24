@@ -1,6 +1,7 @@
-PixivPy==3.5.8
-kuriyama==0.3.3
-json5==0.9.4
-Pillow==7.2.0
-aiofiles==0.5.0
-loguru==0.5.1
+PixivPy
+kuriyama
+json5
+Pillow
+aiofiles
+loguru
+requests[socks]

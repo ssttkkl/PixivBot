@@ -40,7 +40,6 @@ async def reply(bot: Mirai,
                 try:
                     async with __upload_lock:
                         img = await asyncio.wait_for(bot.uploadImage(t, msg), timeout=60)
-                    img.flash = False
                     new_message.append(img)
                 except asyncio.exceptions.TimeoutError:
                     log.warning("Timeout when upload image")
