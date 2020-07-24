@@ -3,26 +3,34 @@ import typing as T
 
 from mirai import *
 
-from message_reactor import *
-from settings import settings
+from handler import *
+from pixiv import clean_cache
+from pixiv.pixiv_api import auth
+from utils import settings, log, launch
 
 qq = settings["mirai"]["qq"]
 authKey = settings["mirai"]["auth_key"]
+host = settings["mirai"]["host"]
 port = settings["mirai"]["port"]
-mirai_api_http_locate = f"localhost:{port}/"
+locate = f"{host}:{port}/"
 if settings["mirai"]["enable_websocket"]:
-    mirai_api_http_locate = mirai_api_http_locate + "ws"
+    locate = locate + "ws"
 
-url = f"mirai://{mirai_api_http_locate}?authKey={authKey}&qq={qq}"
-print("Connecting " + url)
+url = f"mirai://{locate}?authKey={authKey}&qq={qq}"
+log.info("Connecting " + url)
 bot = Mirai(url)
 
-reactor = {
-    "ranking": PixivRankingProvider(settings["ranking"]),
-    "illust": PixivIllustProvider(settings["illust"]),
-    "shuffle_illust": PixivShuffleIllustProvider(settings["shuffle_illust"]),
-    "shuffle_illustrator_illust": PixivShuffleIllustratorIllustProvider(settings["shuffle_illustrator_illust"]),
-    "shuffle_bookmarks": PixivShuffleBookmarksProvider(settings["shuffle_bookmarks"])
+handlers = {
+    "ranking":
+        PixivRankingQueryHandler("ranking query", settings["ranking"]),
+    "illust":
+        PixivIllustQueryHandler("illust query", settings["illust"]),
+    "random_illust":
+        PixivRandomIllustQueryHandler("random illust query", settings["random_illust"]),
+    "random_user_illust":
+        PixivRandomUserIllustQueryHandler("random user illust query", settings["random_user_illust"]),
+    "random_bookmark":
+        PixivRandomBookmarkQueryHandler("random bookmark query", settings["random_bookmarks"])
 }
 
 
@@ -31,9 +39,9 @@ async def on_receive(function_dict: dict, bot: Mirai, source: Source, subject: T
     if function_dict["listen"] is not None and subject.id not in function_dict["listen"]:
         return
 
-    for key in reactor:
+    for key in handlers:
         if function_dict[key]:
-            await reactor[key].receive(bot, source, subject, message)
+            await handlers[key].receive(bot, source, subject, message)
 
 
 @bot.receiver("GroupMessage")
@@ -44,6 +52,22 @@ async def group_receiver(bot: Mirai, source: Source, group: Group, message: Mess
 @bot.receiver("FriendMessage")
 async def friend_receiver(bot: Mirai, source: Source, friend: Friend, message: MessageChain):
     await on_receive(settings["function"]["friend"], bot, source, friend, message)
+
+
+@bot.subroutine
+async def auto_auth(bot: Mirai):
+    while True:
+        await launch(auth)
+        # 睡一个小时
+        await asyncio.sleep(3600)
+
+
+@bot.subroutine
+async def auto_clean(bot: Mirai):
+    while True:
+        await launch(clean_cache)
+        # 睡一个小时
+        await asyncio.sleep(3600)
 
 
 if __name__ == "__main__":

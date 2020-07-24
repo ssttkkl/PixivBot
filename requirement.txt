@@ -1,5 +1,0 @@
-pixivpy
-kuriyama
-json5
-pillow
-aiofiles
