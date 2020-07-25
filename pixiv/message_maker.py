@@ -4,7 +4,7 @@ from mirai import Plain, Image
 from mirai.event.message.base import BaseMessageComponent
 
 from utils import settings
-from .illust_downloader import cache_illust
+from .illust_cacher import cache_illust
 from .illust_utils import has_tag
 
 block_tags: T.Sequence[str] = settings["illust"]["block_tags"]

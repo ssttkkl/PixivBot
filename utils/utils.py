@@ -5,6 +5,16 @@ import typing as T
 from concurrent.futures.thread import ThreadPoolExecutor
 from functools import partial
 
+from mirai import MessageChain, Plain
+
+
+def message_content(message: MessageChain) -> str:
+    """
+    提取消息中的文本
+    """
+    return ''.join([x.toString() for x in message.getAllofComponent(Plain)])
+
+
 __executor = ThreadPoolExecutor(max_workers=8)
 
 

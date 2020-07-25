@@ -7,8 +7,7 @@ from pathlib import Path
 
 from PIL import Image, ImageFile
 
-from utils import settings, launch
-from .cache_manager import CacheManager
+from utils import settings, launch, CacheManager
 from .pixiv_api import papi
 
 compress: bool = settings["illust"]["compress"]
@@ -19,7 +18,21 @@ download_quantity: str = settings["illust"]["download_quantity"]
 download_dir: str = settings["illust"]["download_dir"]
 domain: T.Optional[str] = settings["illust"]["domain"]
 
-img_cache_manager = CacheManager()
+__img_cache_manager = CacheManager()
+
+
+async def start_illust_cacher():
+    await __img_cache_manager.start()
+    await __img_cache_manager.enable_auto_clear(3600)
+    __img_cache_manager.auto_clear_list = [
+        (settings["illust"]["download_dir"],
+         settings["illust"]["download_outdated_time"])
+    ]
+
+
+async def stop_illust_cacher():
+    await __img_cache_manager.disable_auto_clear()
+    await __img_cache_manager.stop()
 
 
 async def cache_illust(illust: dict) -> bytes:
@@ -28,6 +41,7 @@ async def cache_illust(illust: dict) -> bytes:
     :param illust: 给定illust
     :return: illust保存的路径
     """
+
     dirpath = Path("./" + download_dir)
     dirpath.mkdir(parents=True, exist_ok=True)
 
@@ -45,7 +59,8 @@ async def cache_illust(illust: dict) -> bytes:
     filename = os.path.basename(url)
     filepath = dirpath.joinpath(filename)
 
-    b = await img_cache_manager.get(filepath, partial(__download_and_compress, url), download_outdated_time)
+    b = await __img_cache_manager.get(filepath, partial(__download_and_compress, url),
+                                      cache_outdated_time=download_outdated_time, timeout=30)
     return b
 
 

@@ -1,6 +1,8 @@
+import asyncio
+
 from pixivpy3 import AppPixivAPI, ByPassSniApi
 
-from utils import settings, log
+from utils import settings, log, launch
 
 if settings["pixiv"]["proxy"] is not None:
     proxies = {
@@ -22,3 +24,13 @@ papi.set_accept_language('zh-cn')
 def auth():
     papi.login(settings["pixiv"]["username"], settings["pixiv"]["password"])
     log.info("pixiv login succeeded")
+
+
+def start_auto_auth():
+    async def watchman():
+        while True:
+            await launch(auth)
+            # 睡一个小时
+            await asyncio.sleep(3600)
+
+    return asyncio.create_task(watchman())
