@@ -1,12 +1,19 @@
 import asyncio
 import typing as T
+from functools import partial
 
 from loguru import logger as log
 from mirai import *
 from mirai.event.message.base import BaseMessageComponent
 from mirai.image import InternalImage
 
-__upload_lock = asyncio.Lock()
+from utils.wait_queue import WaitQueue
+
+__upload_queue = WaitQueue()
+
+
+def start_reply_queue():
+    __upload_queue.start()
 
 
 async def reply(bot: Mirai,
@@ -38,8 +45,7 @@ async def reply(bot: Mirai,
         for msg in message:
             if isinstance(msg, InternalImage):
                 try:
-                    async with __upload_lock:
-                        img = await asyncio.wait_for(bot.uploadImage(t, msg), timeout=60)
+                    img = await __upload_queue.do(partial(bot.uploadImage, t, msg))
                     new_message.append(img)
                 except asyncio.exceptions.TimeoutError:
                     log.warning("Timeout when upload image")
