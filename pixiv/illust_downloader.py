@@ -1,14 +1,14 @@
 import os
 import shutil
-import time
 import typing as T
+from functools import partial
 from io import BytesIO
 from pathlib import Path
 
-import aiofiles
 from PIL import Image, ImageFile
 
-from utils import settings, launch, log
+from utils import settings, launch
+from .cache_manager import CacheManager
 from .pixiv_api import papi
 
 compress: bool = settings["illust"]["compress"]
@@ -19,8 +19,10 @@ download_quantity: str = settings["illust"]["download_quantity"]
 download_dir: str = settings["illust"]["download_dir"]
 domain: T.Optional[str] = settings["illust"]["domain"]
 
+img_cache_manager = CacheManager()
 
-async def cache_illust(illust: dict) -> Path:
+
+async def cache_illust(illust: dict) -> bytes:
     """
     保存给定illust
     :param illust: 给定illust
@@ -43,21 +45,15 @@ async def cache_illust(illust: dict) -> Path:
     filename = os.path.basename(url)
     filepath = dirpath.joinpath(filename)
 
-    if filepath.exists():
-        now = time.time()
-        mtime = filepath.stat().st_mtime
-        if download_outdated_time is None or now - mtime <= download_outdated_time:
-            return filepath
+    b = await img_cache_manager.get(filepath, partial(__download_and_compress, url), download_outdated_time)
+    return b
 
+
+async def __download_and_compress(url: str) -> bytes:
     data = await launch(__fetch_data, url=url)
-
     if compress:
         data = await launch(__compress_illust, data)
-
-    async with aiofiles.open(filepath, "wb") as f:
-        await f.write(data)
-    log.debug(f"downloaded to {filepath}")
-    return filepath
+    return data
 
 
 def __fetch_data(url: str, referer='https://app-api.pixiv.net/') -> bytes:

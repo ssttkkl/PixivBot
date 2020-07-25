@@ -1,6 +1,8 @@
 import asyncio
 import typing as T
 
+ret_type = T.TypeVar("ret_type")
+
 
 class WaitQueue:
     def __init__(self, timeout: int = 60):
@@ -13,7 +15,7 @@ class WaitQueue:
         await self.__queue.put((fut, func))
         return await fut
 
-    async def __worker(self):
+    async def __worker(self) -> T.NoReturn:
         while True:
             fut, func = await self.__queue.get()
             try:

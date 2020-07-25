@@ -1,15 +1,14 @@
 import json
-import time
-import traceback
 import typing as T
 from pathlib import Path
 
-import aiofiles
-
-from utils import launch, log
+from utils import launch
+from .cache_manager import CacheManager
 from .illust_utils import has_tag
 from .pixiv_api import papi
 from .pixiv_error import PixivResultError
+
+search_cache_manager = CacheManager()
 
 
 async def get_illusts(search_func: T.Callable,
@@ -80,47 +79,55 @@ async def get_illusts_with_cache(cache_file: T.Union[str, Path],
     if not isinstance(cache_file, Path):
         cache_file = Path(cache_file)
 
-    illusts = []
-
-    # 若缓存文件存在且未过期，读取缓存
-    if cache_file.exists():
-        now = time.time()
-        mtime = cache_file.stat().st_mtime
-        if cache_outdated_time is None or now - mtime <= cache_outdated_time:
-            async with aiofiles.open(cache_file, "r", encoding="utf8") as f:
-                content = json.loads(await f.read())
-                if "illusts" in content and len(content["illusts"]) > 0:
-                    illusts = content["illusts"]
-            log.debug(f"cache was loaded from {cache_file}")
-            return illusts
-
-    # 若没读到缓存，则从pixiv加载
-    try:
+    async def __to_bytes():
         illusts = await get_illusts(search_func=search_func, illust_filter=illust_filter,
                                     search_item_limit=search_item_limit, search_page_limit=search_page_limit,
                                     *args, **kwargs)
-    except:
-        traceback.print_exc()
-        # 从pixiv加载时发生异常，尝试读取缓存（即使可能已经过期）
-        if cache_file.exists():
-            async with aiofiles.open(cache_file, "r", encoding="utf8") as f:
-                content = json.loads(await f.read())
-                if "illusts" in content:
-                    illusts = content["illusts"]
-            log.debug(f"because failed to fetch data on server, cache was loaded from {cache_file}")
-            return illusts
 
-    # 写入缓存
-    if len(illusts) > 0:
-        dirpath = cache_file.parent
-        dirpath.mkdir(parents=True, exist_ok=True)
+        return json.dumps(dict(illusts=illusts)).encode('UTF-8')
 
-        async with aiofiles.open(cache_file, "w", encoding="utf8") as f:
-            content = dict(illusts=illusts)
-            await f.write(json.dumps(content))
-        log.debug(f"cache was saved to {cache_file}")
+    b = await search_cache_manager.get(cache_file, __to_bytes, cache_outdated_time)
+    return json.loads(b.decode('UTF-8'))["illusts"]
 
-    return illusts
+    # # 若缓存文件存在且未过期，读取缓存
+    # if cache_file.exists():
+    #     now = time.time()
+    #     mtime = cache_file.stat().st_mtime
+    #     if cache_outdated_time is None or now - mtime <= cache_outdated_time:
+    #         async with aiofiles.open(cache_file, "r", encoding="utf8") as f:
+    #             content = json.loads(await f.read())
+    #             if "illusts" in content and len(content["illusts"]) > 0:
+    #                 illusts = content["illusts"]
+    #         log.debug(f"cache was loaded from {cache_file}")
+    #         return illusts
+    #
+    # # 若没读到缓存，则从pixiv加载
+    # try:
+    #     illusts = await get_illusts(search_func=search_func, illust_filter=illust_filter,
+    #                                 search_item_limit=search_item_limit, search_page_limit=search_page_limit,
+    #                                 *args, **kwargs)
+    # except:
+    #     traceback.print_exc()
+    #     # 从pixiv加载时发生异常，尝试读取缓存（即使可能已经过期）
+    #     if cache_file.exists():
+    #         async with aiofiles.open(cache_file, "r", encoding="utf8") as f:
+    #             content = json.loads(await f.read())
+    #             if "illusts" in content:
+    #                 illusts = content["illusts"]
+    #         log.debug(f"because failed to fetch data on server, cache was loaded from {cache_file}")
+    #         return illusts
+    #
+    # # 写入缓存
+    # if len(illusts) > 0:
+    #     dirpath = cache_file.parent
+    #     dirpath.mkdir(parents=True, exist_ok=True)
+    #
+    #     async with aiofiles.open(cache_file, "w", encoding="utf8") as f:
+    #         content = dict(illusts=illusts)
+    #         await f.write(json.dumps(content))
+    #     log.debug(f"cache was saved to {cache_file}")
+    #
+    # return illusts
 
 
 def make_illust_filter(block_tags: T.Collection[str],

@@ -3,9 +3,9 @@ import typing as T
 from mirai import Plain, Image
 from mirai.event.message.base import BaseMessageComponent
 
+from utils import settings
 from .illust_downloader import cache_illust
 from .illust_utils import has_tag
-from utils import settings
 
 block_tags: T.Sequence[str] = settings["illust"]["block_tags"]
 block_mode: str = settings["illust"]["block_mode"]
@@ -38,7 +38,7 @@ async def make_illust_message(illust: dict) -> T.Sequence[BaseMessageComponent]:
         else:
             raise ValueError("illegal block_mode value: " + block_mode)
     else:
-        filename = await cache_illust(illust)
-        message = [Plain(string), Image.fromFileSystem(filename)]
+        b = await cache_illust(illust)
+        message = [Plain(string), Image.fromBytes(b)]
 
     return message

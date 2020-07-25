@@ -4,8 +4,8 @@ import typing as T
 from mirai import *
 
 from handler import *
-from pixiv import clean_cache, auth
-from utils import settings, log, launch, start_reply_queue
+from pixiv import auth, search_cache_manager, img_cache_manager
+from utils import settings, log, launch, upload_queue
 
 qq = settings["mirai"]["qq"]
 authKey = settings["mirai"]["auth_key"]
@@ -55,12 +55,13 @@ async def friend_receiver(bot: Mirai, source: Source, friend: Friend, message: M
 
 @bot.subroutine
 async def prepare_bot(bot: Mirai):
-    start_reply_queue()
+    upload_queue.start()
+    search_cache_manager.start()
+    img_cache_manager.start()
 
     async def watchman():
         while True:
             await launch(auth)
-            await launch(clean_cache)
             # 睡一个小时
             await asyncio.sleep(3600)
 
