@@ -6,3 +6,4 @@ settings.json
 /.vscode/
 *.ipynb
 /.ipynb_checkpoints/
+poetry.lock
