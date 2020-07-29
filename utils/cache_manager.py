@@ -153,6 +153,8 @@ class CacheManager:
             b = await asyncio.wait_for(func(), timeout)
             fut.set_result(b)
 
+            cache_file.parent.mkdir(parents=True, exist_ok=True)
+
             async with aiofiles.open(cache_file, "wb") as f:
                 await f.write(b)
             log.info(f"cache saved to {cache_file}")
