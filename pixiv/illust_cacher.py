@@ -10,13 +10,14 @@ from PIL import Image, ImageFile
 from utils import settings, launch, CacheManager
 from .pixiv_api import papi
 
+domain: T.Optional[str] = settings["illust"]["domain"]
+download_dir: str = settings["illust"]["download_dir"]
+download_quantity: str = settings["illust"]["download_quantity"]
+download_outdated_time: int = settings["illust"]["download_outdated_time"]
+download_timeout: int = settings["illust"]["download_timeout"]
 compress: bool = settings["illust"]["compress"]
 compress_size: int = settings["illust"]["compress_size"]
 compress_quantity: int = settings["illust"]["compress_quantity"]
-download_outdated_time: int = settings["illust"]["download_outdated_time"]
-download_quantity: str = settings["illust"]["download_quantity"]
-download_dir: str = settings["illust"]["download_dir"]
-domain: T.Optional[str] = settings["illust"]["domain"]
 
 __img_cache_manager = CacheManager()
 
@@ -60,7 +61,8 @@ async def cache_illust(illust: dict) -> bytes:
     filepath = dirpath.joinpath(filename)
 
     b = await __img_cache_manager.get(filepath, partial(__download_and_compress, url),
-                                      cache_outdated_time=download_outdated_time, timeout=30)
+                                      cache_outdated_time=download_outdated_time,
+                                      timeout=download_timeout)
     return b
 
 
