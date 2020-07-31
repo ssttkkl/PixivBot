@@ -25,8 +25,9 @@ class PixivIllustQueryHandler(AbstractMessageHandler):
         if "error" in result:
             raise PixivResultError(result["error"])
         else:
+            msg = await make_illust_message(result["illust"])
             log.info(f"""{self.tag}: [{result["illust"]["id"]}] ok""")
-            return await make_illust_message(result["illust"])
+            return msg
 
     async def generate_reply(self, bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
         if self.__check_triggered(message):
@@ -40,7 +41,5 @@ class PixivIllustQueryHandler(AbstractMessageHandler):
             for x in ids:
                 tasks.append(asyncio.create_task(self.make_msg(x)))
 
-            while tasks:
-                done, tasks = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
-                for task in done:
-                    yield task.result()
+            for ft in asyncio.as_completed(tasks):
+                yield ft.result()

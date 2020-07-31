@@ -34,7 +34,7 @@ class AbstractMessageHandler:
                 await reply(bot, source, subject, msg)
         except PixivResultError as exc:
             log.info(f"{self.tag}: {exc.error()}")
-            await reply(bot, source, subject, [Plain(exc.error()[:128])])
+            await reply(bot, source, subject, [Plain(exc.error())])
         except Exception as exc:
             traceback.print_exc()
-            await reply(bot, source, subject, [Plain(str(exc)[:128])])
+            await reply(bot, source, subject, [Plain(f"{type(exc)}: {str(exc)}")])
