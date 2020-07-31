@@ -12,19 +12,9 @@ __search_cache_manager = CacheManager()
 
 async def start_search_helper():
     await __search_cache_manager.start()
-    await __search_cache_manager.enable_auto_clear(3600)
-    __search_cache_manager.auto_clear_list = [
-        (settings["random_illust"]["search_cache_dir"],
-         settings["random_illust"]["search_cache_outdated_time"]),
-        (settings["random_bookmarks"]["search_cache_filename"],
-         settings["random_bookmarks"]["search_cache_outdated_time"]),
-        (settings["random_user_illust"]["search_cache_dir"],
-         settings["random_user_illust"]["search_cache_outdated_time"])
-    ]
 
 
 async def stop_search_helper():
-    await __search_cache_manager.disable_auto_clear()
     await __search_cache_manager.stop()
 
 

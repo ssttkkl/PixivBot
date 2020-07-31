@@ -24,15 +24,9 @@ __img_cache_manager = CacheManager()
 
 async def start_illust_cacher():
     await __img_cache_manager.start()
-    await __img_cache_manager.enable_auto_clear(3600)
-    __img_cache_manager.auto_clear_list = [
-        (settings["illust"]["download_dir"],
-         settings["illust"]["download_outdated_time"])
-    ]
 
 
 async def stop_illust_cacher():
-    await __img_cache_manager.disable_auto_clear()
     await __img_cache_manager.stop()
 
 
