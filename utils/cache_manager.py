@@ -73,7 +73,7 @@ class CacheManager:
             return t.cancel()
 
     def __on_done(self, cache_file: Path):
-        log.debug(f"done {cache_file}")
+        log.trace(f"done {cache_file}")
         self.__waiting.pop(cache_file)
 
     def __on_get(self, fut: asyncio.Future,
@@ -81,7 +81,7 @@ class CacheManager:
                        func: T.Callable[[], T.Coroutine[T.Any, T.Any, bytes]],
                        cache_outdated_time: T.Optional[int] = None,
                        timeout: T.Optional[int] = None):
-        log.debug(f"get {cache_file}")
+        log.trace(f"get {cache_file}")
         del_if_outdated(cache_file, cache_outdated_time)
         if not cache_file.exists():
             if cache_file not in self.__waiting:
@@ -108,10 +108,10 @@ class CacheManager:
             async with aiofiles.open(cache_file, "wb") as f:
                 await f.write(b)
             log.info(f"cache saved to {cache_file}")
-            await self.__done_queue.put(("done", cache_file))
         except Exception as e:
             fut.set_exception(e)
         finally:
+            await self.__done_queue.put(("done", cache_file))
             event.set()
 
     @staticmethod
