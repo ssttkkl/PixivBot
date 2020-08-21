@@ -30,7 +30,7 @@ class WaitQueue:
         async with self.__worker_lock:
             if self.__worker_task is not None and not self.__worker_task.cancelled():
                 return False
-            __worker_task = asyncio.create_task(self.__worker())
+            self.__worker_task = asyncio.create_task(self.__worker())
             return True
 
     async def stop(self) -> bool:

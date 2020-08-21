@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 
 from pixivpy3 import AppPixivAPI, ByPassSniApi
 
@@ -29,7 +30,10 @@ def auth():
 def start_auto_auth():
     async def watchman():
         while True:
-            await launch(auth)
+            try:
+                await launch(auth)
+            except:
+                traceback.print_exc()
             # 睡一个小时
             await asyncio.sleep(3600)
 
