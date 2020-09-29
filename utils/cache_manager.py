@@ -1,4 +1,6 @@
 import asyncio
+from asyncio.exceptions import CancelledError
+from asyncio.queues import QueueEmpty
 import time
 import traceback
 import typing as T
@@ -40,24 +42,26 @@ class CacheManager:
             asyncio.create_task(self.__done_queue.get()),
         ]
         while True:
-            try:
-                done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
-                for c in done:
+            done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+            for c in done:
+                try:
                     res = c.result()
                     if res[0] == "done":
                         try:
                             self.__on_done(*res[1:])
                         finally:
                             self.__done_queue.task_done()
-                            pending.add(asyncio.create_task(self.__done_queue.get()))
+                            pending.add(asyncio.create_task(
+                                self.__done_queue.get()))
                     elif res[0] == "get":
                         try:
                             self.__on_get(*res[1:])
                         finally:
                             self.__query_queue.task_done()
-                            pending.add(asyncio.create_task(self.__query_queue.get()))
-            except:
-                traceback.print_exc()
+                            pending.add(asyncio.create_task(
+                                self.__query_queue.get()))
+                except:
+                    traceback.print_exc()
 
     async def start(self) -> bool:
         async with self.__worker_lock:
@@ -88,10 +92,12 @@ class CacheManager:
             if cache_file not in self.__waiting:
                 event = asyncio.Event()
                 self.__waiting[cache_file] = event
-                asyncio.create_task(self.__get_and_cache(fut, event, cache_file, func, timeout))
+                asyncio.create_task(self.__get_and_cache(
+                    fut, event, cache_file, func, timeout))
             else:
                 event = self.__waiting[cache_file]
-                asyncio.create_task(self.__wait_and_read_cache(event, fut, cache_file))
+                asyncio.create_task(
+                    self.__wait_and_read_cache(event, fut, cache_file))
         else:
             asyncio.create_task(self.__read_cache(fut, cache_file))
 

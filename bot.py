@@ -85,4 +85,7 @@ async def close_bot():
 
 
 if __name__ == "__main__":
-    app.launch_blocking()
+    try:
+        app.launch_blocking()
+    except KeyboardInterrupt:
+        pass
