@@ -8,11 +8,11 @@ license = "AGPL-3.0-or-later"
 [tool.poetry.dependencies]
 python = "^3.8"
 PixivPy = "^3.5.9"
-kuriyama = "^0.3.6"
 json5 = "^0.9.5"
 Pillow = "^7.2.0"
 aiofiles = "^0.5.0"
 loguru = "^0.5.1"
+graia-application-mirai = "^0.8.4"
 
 [tool.poetry.dev-dependencies]
 

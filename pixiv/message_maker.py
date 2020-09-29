@@ -1,8 +1,8 @@
 import asyncio
 import typing as T
 
-from mirai import Plain, Image
-from mirai.event.message.base import BaseMessageComponent
+from graia.application import MessageChain
+from graia.application.message.elements.internal import Plain, Image
 
 from utils import settings
 from .illust_cacher import cache_illust
@@ -15,7 +15,7 @@ download_timeout_message: str = settings["illust"]["download_timeout_message"]
 reply_pattern: str = settings["illust"]["reply_pattern"]
 
 
-async def make_illust_message(illust: dict) -> T.Sequence[BaseMessageComponent]:
+async def make_illust_message(illust: dict) -> MessageChain:
     """
     将给定illust按照模板转换为message
     :param illust: 给定illust
@@ -45,10 +45,10 @@ async def make_illust_message(illust: dict) -> T.Sequence[BaseMessageComponent]:
         message.append(Plain(string))
         try:
             b = await cache_illust(illust)
-            message.append(Image.fromBytes(b))
+            message.append(Image.fromUnsafeBytes(b))
         except asyncio.TimeoutError:
             message.append(Plain(download_timeout_message))
         except Exception as e:
             message.append(Plain(f"{type(e)} {str(e)}"))
 
-    return message
+    return MessageChain.create(message)

@@ -1,5 +1,6 @@
 import asyncio
 import time
+import traceback
 import typing as T
 from pathlib import Path
 
@@ -55,8 +56,8 @@ class CacheManager:
                         finally:
                             self.__query_queue.task_done()
                             pending.add(asyncio.create_task(self.__query_queue.get()))
-            except Exception as e:
-                e.with_traceback()
+            except:
+                traceback.print_exc()
 
     async def start(self) -> bool:
         async with self.__worker_lock:
@@ -77,12 +78,12 @@ class CacheManager:
         self.__waiting.pop(cache_file)
 
     def __on_get(self, fut: asyncio.Future,
-                       cache_file: Path,
-                       func: T.Callable[[], T.Coroutine[T.Any, T.Any, bytes]],
-                       cache_outdated_time: T.Optional[int] = None,
-                       timeout: T.Optional[int] = None):
+                 cache_file: Path,
+                 func: T.Callable[[], T.Coroutine[T.Any, T.Any, bytes]],
+                 cache_outdated_time: T.Optional[int] = None,
+                 timeout: T.Optional[int] = None):
         log.trace(f"get {cache_file}")
-        del_if_outdated(cache_file, cache_outdated_time)
+        self.__del_if_outdated(cache_file, cache_outdated_time)
         if not cache_file.exists():
             if cache_file not in self.__waiting:
                 event = asyncio.Event()
@@ -135,11 +136,11 @@ class CacheManager:
         except Exception as e:
             fut.set_exception(e)
 
-
-def del_if_outdated(file: Path, outdated_time: T.Optional[int]):
-    if file.exists():
-        now = time.time()
-        mtime = file.stat().st_mtime
-        if outdated_time is not None and now - mtime > outdated_time:
-            file.unlink()
-            log.info(f"deleted outdated cache {file}")
+    @staticmethod
+    def __del_if_outdated(file: Path, outdated_time: T.Optional[int]):
+        if file.exists():
+            now = time.time()
+            mtime = file.stat().st_mtime
+            if outdated_time is not None and now - mtime > outdated_time:
+                file.unlink()
+                log.info(f"deleted outdated cache {file}")

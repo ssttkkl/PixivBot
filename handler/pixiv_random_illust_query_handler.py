@@ -2,20 +2,22 @@ import os
 import re
 import typing as T
 
-from mirai import *
+from graia.application import MessageChain, GraiaMiraiApplication, Group, Friend
+from loguru import logger
 
 from pixiv import get_illusts_with_cache, make_illust_filter, get_illusts, papi
-from utils import log, message_content, match_groups, decode_chinese_int
-from .abstract_random_query_handler import AbstractRandomQueryHandler
+from utils import match_groups, decode_chinese_int
+from .random_helper import random_and_generate_reply
+from .sender_filter_query_handler import SenderFilterQueryHandler
 
 
-class PixivRandomIllustQueryHandler(AbstractRandomQueryHandler):
+class PixivRandomIllustQueryHandler(SenderFilterQueryHandler):
     def __find_attrs(self, message: MessageChain) -> T.Optional[T.Tuple[str, int]]:
         """
         找出消息中所指定的关键字和数字
         :return: 关键字和数字。若未触发则为None，若未指定关键字则为""，若未指定数字则为1
         """
-        content = message_content(message)
+        content = message.asDisplay()
         for x in self.trigger:
             result = match_groups(x, ["$keyword", "$number"], content)
             if result is None:
@@ -60,20 +62,22 @@ class PixivRandomIllustQueryHandler(AbstractRandomQueryHandler):
 
         return illusts
 
-    async def generate_reply(self, bot: Mirai, source: Source, subject: T.Union[Group, Friend], message: MessageChain):
+    async def generate_reply(self, app: GraiaMiraiApplication,
+                             subject: T.Union[Group, Friend],
+                             message: MessageChain) -> T.AsyncGenerator[T.Union[str, MessageChain], None]:
         attrs = self.__find_attrs(message)
         if attrs is None:
             return
 
         keyword, number = attrs
         if number > self.limit_per_query:
-            yield [Plain(self.overlimit_message)]
+            yield self.overlimit_message
             return
-        log.info(f"{self.tag}: [{number}] of [{keyword}]")
+        logger.info(f"{self.tag}: [{number}] of [{keyword}]")
 
         illusts = await self.__get_illusts(keyword)
-        log.info(f"{self.tag}: found [{len(illusts)}] illusts")
-        async for msg in self.random_and_generate_reply(illusts, number):
+        logger.info(f"{self.tag}: found [{len(illusts)}] illusts")
+        async for msg in random_and_generate_reply(self, illusts, number):
             yield msg
 
-        log.info(f"{self.tag}: [{number}] of [{keyword}] ok")
+        logger.info(f"{self.tag}: [{number}] of [{keyword}] ok")
