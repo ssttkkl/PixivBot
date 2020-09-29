@@ -98,7 +98,7 @@
   "random_illust": {
     "trigger": [
       "来$number张$keyword图",
-      "$keywordのイラストをください"
+      "$keywordのイラスト$numberつをください"
     ], // 触发词的模板，其中$keyword指代关键字，$number指代数量
     "limit_per_query": 10, // 单次请求最大的图片数量
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
@@ -119,7 +119,7 @@
   "random_bookmarks": {
     "trigger": [
       "来$number张私家车",
-      "ブックマーク一つをください"
+      "ブックマーク$numberつをください"
     ], // 触发词，其中$number指代数量
     "user_id": null, // 要查看书签的用户id，若为null则为登录用户的id
     "limit_per_query": 10, // 单次请求最大的图片数量
@@ -140,7 +140,7 @@
   "random_user_illust": {
     "trigger": [
       "来$number张$illustrator老师的作品",
-      "$illustrator先生のイラスト一つをください"
+      "$illustrator先生の作品$numberつをください"
     ], // 触发词的模板，其中$illustrator指代画师，$number指代数量
     "limit_per_query": 10, // 单次请求最大的图片数量
     "not_found_message": "别看了，没有的。", // 当搜索结果为空时回复的消息
