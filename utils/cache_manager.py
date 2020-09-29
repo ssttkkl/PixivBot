@@ -1,5 +1,8 @@
 import asyncio
+from asyncio.exceptions import CancelledError
+from asyncio.queues import QueueEmpty
 import time
+import traceback
 import typing as T
 from pathlib import Path
 
@@ -39,24 +42,26 @@ class CacheManager:
             asyncio.create_task(self.__done_queue.get()),
         ]
         while True:
-            try:
-                done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
-                for c in done:
+            done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+            for c in done:
+                try:
                     res = c.result()
                     if res[0] == "done":
                         try:
                             self.__on_done(*res[1:])
                         finally:
                             self.__done_queue.task_done()
-                            pending.add(asyncio.create_task(self.__done_queue.get()))
+                            pending.add(asyncio.create_task(
+                                self.__done_queue.get()))
                     elif res[0] == "get":
                         try:
                             self.__on_get(*res[1:])
                         finally:
                             self.__query_queue.task_done()
-                            pending.add(asyncio.create_task(self.__query_queue.get()))
-            except Exception as e:
-                e.with_traceback()
+                            pending.add(asyncio.create_task(
+                                self.__query_queue.get()))
+                except:
+                    traceback.print_exc()
 
     async def start(self) -> bool:
         async with self.__worker_lock:
@@ -77,20 +82,22 @@ class CacheManager:
         self.__waiting.pop(cache_file)
 
     def __on_get(self, fut: asyncio.Future,
-                       cache_file: Path,
-                       func: T.Callable[[], T.Coroutine[T.Any, T.Any, bytes]],
-                       cache_outdated_time: T.Optional[int] = None,
-                       timeout: T.Optional[int] = None):
+                 cache_file: Path,
+                 func: T.Callable[[], T.Coroutine[T.Any, T.Any, bytes]],
+                 cache_outdated_time: T.Optional[int] = None,
+                 timeout: T.Optional[int] = None):
         log.trace(f"get {cache_file}")
-        del_if_outdated(cache_file, cache_outdated_time)
+        self.__del_if_outdated(cache_file, cache_outdated_time)
         if not cache_file.exists():
             if cache_file not in self.__waiting:
                 event = asyncio.Event()
                 self.__waiting[cache_file] = event
-                asyncio.create_task(self.__get_and_cache(fut, event, cache_file, func, timeout))
+                asyncio.create_task(self.__get_and_cache(
+                    fut, event, cache_file, func, timeout))
             else:
                 event = self.__waiting[cache_file]
-                asyncio.create_task(self.__wait_and_read_cache(event, fut, cache_file))
+                asyncio.create_task(
+                    self.__wait_and_read_cache(event, fut, cache_file))
         else:
             asyncio.create_task(self.__read_cache(fut, cache_file))
 
@@ -135,11 +142,11 @@ class CacheManager:
         except Exception as e:
             fut.set_exception(e)
 
-
-def del_if_outdated(file: Path, outdated_time: T.Optional[int]):
-    if file.exists():
-        now = time.time()
-        mtime = file.stat().st_mtime
-        if outdated_time is not None and now - mtime > outdated_time:
-            file.unlink()
-            log.info(f"deleted outdated cache {file}")
+    @staticmethod
+    def __del_if_outdated(file: Path, outdated_time: T.Optional[int]):
+        if file.exists():
+            now = time.time()
+            mtime = file.stat().st_mtime
+            if outdated_time is not None and now - mtime > outdated_time:
+                file.unlink()
+                log.info(f"deleted outdated cache {file}")

@@ -2,7 +2,7 @@ import json
 import typing as T
 from pathlib import Path
 
-from utils import launch, CacheManager, settings
+from utils import launch, CacheManager
 from .illust_utils import has_tag
 from .pixiv_api import papi
 from .pixiv_error import PixivResultError

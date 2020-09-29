@@ -1,5 +1,5 @@
 PixivPy
-kuriyama
+graia-application-mirai
 json5
 Pillow
 aiofiles

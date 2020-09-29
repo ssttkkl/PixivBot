@@ -1,8 +1,9 @@
 import asyncio
 import typing as T
 
-from mirai import Plain, Image
-from mirai.event.message.base import BaseMessageComponent
+from graia.application import MessageChain
+from graia.application.message.elements.internal import Plain, Image
+from graia.template import Template
 
 from utils import settings
 from .illust_cacher import cache_illust
@@ -15,40 +16,41 @@ download_timeout_message: str = settings["illust"]["download_timeout_message"]
 reply_pattern: str = settings["illust"]["reply_pattern"]
 
 
-async def make_illust_message(illust: dict) -> T.Sequence[BaseMessageComponent]:
+async def make_illust_message(illust: dict) -> MessageChain:
     """
     将给定illust按照模板转换为message
     :param illust: 给定illust
     :return: 转换后的message
     """
-
-    string = reply_pattern.replace("$title", illust["title"]) \
-        .replace("$tags", " ".join(map(lambda x: x["name"], illust["tags"]))) \
-        .replace("$id", str(illust["id"]))
+    msg = Template(reply_pattern).render(
+        title=Plain(illust["title"]),
+        tags=Plain(" ".join(map(lambda x: x["name"], illust["tags"]))),
+        id=Plain(str(illust["id"]))
+    )
 
     illegal_tags = []
     for tag in block_tags:
         if has_tag(illust, tag):
             illegal_tags.append(tag)
 
-    message = []
-
     if len(illegal_tags) > 0:
-        block_message_formatted = block_message.replace("%tag", ' '.join(illegal_tags))
+        block_msg = Template(block_message).render(
+            tag=Plain(' '.join(illegal_tags))
+        )
         if block_mode == "escape_img":
-            message.append(Plain(string + '\n' + block_message_formatted))
+            return msg.plusWith(block_msg)
         elif block_mode == "fully_block":
-            message.append(Plain(block_message_formatted))
+            return block_msg
         else:
             raise ValueError("illegal block_mode value: " + block_mode)
-    else:
-        message.append(Plain(string))
-        try:
-            b = await cache_illust(illust)
-            message.append(Image.fromBytes(b))
-        except asyncio.TimeoutError:
-            message.append(Plain(download_timeout_message))
-        except Exception as e:
-            message.append(Plain(f"{type(e)} {str(e)}"))
 
-    return message
+    try:
+        b = await cache_illust(illust)
+        img_msg = MessageChain.create([Image.fromUnsafeBytes(b)])
+    except asyncio.TimeoutError:
+        img_msg = MessageChain.create([Plain(download_timeout_message)])
+    except Exception as e:
+        img_msg = MessageChain.create([Plain(f"{type(e)} {str(e)}")])
+    msg.plus(img_msg)
+
+    return msg

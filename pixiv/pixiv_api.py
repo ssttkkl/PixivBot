@@ -1,9 +1,10 @@
 import asyncio
 import traceback
 
+from loguru import logger
 from pixivpy3 import AppPixivAPI, ByPassSniApi
 
-from utils import settings, log, launch
+from utils import settings, launch
 
 if settings["pixiv"]["proxy"] is not None:
     proxies = {
@@ -24,7 +25,7 @@ papi.set_accept_language('zh-cn')
 
 def auth():
     papi.login(settings["pixiv"]["username"], settings["pixiv"]["password"])
-    log.info("pixiv login succeeded")
+    logger.info("pixiv login succeeded")
 
 
 def start_auto_auth():

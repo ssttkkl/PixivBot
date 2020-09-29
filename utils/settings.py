@@ -1,19 +1,19 @@
 import os.path
 
 import json5
-from loguru import logger as log
+from loguru import logger
 
 
 def __check_settings(template: dict, config: dict, path: str = "") -> bool:
     edited = False
     for key in template:
         if key not in config:
-            log.warning(f"No {path}.{key} was found in config file. Copy from the template.")
+            logger.warning(f"No {path}.{key} was found in config file. Copy from the template.")
             config[key] = template[key]
             edited = True
         elif isinstance(template[key], dict):
             if not isinstance(config[key], dict):
-                log.warning(
+                logger.warning(
                     f"Expect json object at {path}.{key}, {type(config[key])} found in config file. Copy from the template.")
                 config[key] = template[key]
                 edited = True
@@ -35,4 +35,4 @@ if __edited:
     with open("./settings.json", "w", encoding="utf8") as f:
         json5.dump(settings, f, ensure_ascii=False, quote_keys=True)
 
-log.info("Config file was loaded successfully.")
+logger.info("Config file was loaded successfully.")
