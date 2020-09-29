@@ -1,6 +1,8 @@
 import abc
 import typing as T
 
+from loguru import logger
+
 from graia.application import GraiaMiraiApplication, Group, Friend, MessageChain
 from graia.broadcast import Broadcast, ExecutionStop
 
@@ -21,8 +23,8 @@ class SenderFilterQueryHandler(AbstractMessageHandler, metaclass=abc.ABCMeta):
               subject: T.Union[Group, Friend],
               message: MessageChain) -> T.NoReturn:
         if isinstance(subject, Group):
-            if (self.allow_group is not None) and (subject.id in self.allow_group):
+            if (self.allow_group is not None) and (subject.id not in self.allow_group):
                 raise ExecutionStop()
         elif isinstance(subject, Friend):
-            if (self.allow_friend is not None) and (subject.id in self.allow_friend):
+            if (self.allow_friend is not None) and (subject.id not in self.allow_friend):
                 raise ExecutionStop()
