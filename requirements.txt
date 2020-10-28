@@ -1,5 +1,6 @@
 PixivPy
 graia-application-mirai
+graia-template
 json5
 Pillow
 aiofiles
