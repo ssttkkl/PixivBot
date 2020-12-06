@@ -3,50 +3,52 @@ import re
 import typing as T
 
 from graia.application import GraiaMiraiApplication, Group, Friend, MessageChain
-from graia.broadcast import ExecutionStop
 from loguru import logger
 
 from pixiv import make_illust_message, papi, PixivResultError
 from utils import launch
-from .sender_filter_query_handler import SenderFilterQueryHandler
+from .abstract_message_handler import AbstractMessageHandler
 
 
-class PixivIllustQueryHandler(SenderFilterQueryHandler):
+class PixivIllustQueryHandler(AbstractMessageHandler):
 
-    def judge(self, app: GraiaMiraiApplication,
-              subject: T.Union[Group, Friend],
-              message: MessageChain):
-        super().judge(app, subject, message)
+    async def handle(self, app: GraiaMiraiApplication,
+                     subject: T.Union[Group, Friend],
+                     message: MessageChain,
+                     channel: asyncio.Queue) -> bool:
+        # 检测是否触发
+        accept = False
         content = message.asDisplay()
         for x in self.trigger:
             if x in content:
-                return
-        raise ExecutionStop()
+                accept = True
+                break
 
-    async def make_msg(self, illust_id):
-        result = await launch(papi.illust_detail, illust_id=illust_id)
-        if "error" in result:
-            raise PixivResultError(result["error"])
-        else:
-            msg = await make_illust_message(result["illust"])
-            logger.info(f"""{self.tag}: [{result["illust"]["id"]}] ok""")
-            return msg
+        if not accept:
+            return False
 
-    async def generate_reply(self, app: GraiaMiraiApplication,
-                             subject: T.Union[Group, Friend],
-                             message: MessageChain) -> T.AsyncGenerator[str, T.Any]:
-        content = message.asDisplay()
-
+        # 提取消息中的所有id
         regex = re.compile("[1-9][0-9]*")
         ids = [int(x) for x in regex.findall(content)]
         logger.info(f"{self.tag}: {ids}")
 
+        # 每个id建立一个task，以获取插画并扔到channel中
+        async def make_msg(illust_id):
+            try:
+                result = await launch(papi.illust_detail, illust_id=illust_id)
+                if "error" in result:
+                    raise PixivResultError(result["error"])
+                else:
+                    msg = await make_illust_message(result["illust"])
+                    logger.info(f"""{self.tag}: [{result["illust"]["id"]}] ok""")
+            except Exception as exc:
+                msg = self.handle_and_make_error_message(exc)
+
+            await channel.put(msg)
+
         tasks = []
         for x in ids:
-            tasks.append(asyncio.create_task(self.make_msg(x)))
+            tasks.append(asyncio.create_task(make_msg(x)))
 
-        for ft in asyncio.as_completed(tasks):
-            try:
-                yield await ft
-            except Exception as exc:
-                yield self.generate_error_message(exc)
+        await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+        return True

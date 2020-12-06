@@ -44,4 +44,4 @@ async def random_and_generate_reply(handler: AbstractMessageHandler,
             try:
                 yield await task
             except Exception as exc:
-                yield handler.generate_error_message(exc)
+                yield handler.handle_and_make_error_message(exc)
