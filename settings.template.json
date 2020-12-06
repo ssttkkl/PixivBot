@@ -11,7 +11,7 @@
   "pixiv": {
     "username": "username",
     "password": "password",
-    "bypass": false, // 打开pixivpy自带的免代理访问支持
+    "bypass": false, // 【好像已经失效了，还是自备梯子吧】打开pixivpy自带的免代理访问支持
     "proxy": null // 为pixiv设置代理，如："http://localhost:7890"，null表示不设代理（不应与bypass功能同时使用；使用socks代理需手动安装requests[socks]包）
   },
   // 这部分是监听的群组和好友，以及开启什么功能的配置
