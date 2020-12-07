@@ -18,6 +18,7 @@
   "function": {
     "group": {
       "listen": null, // 若为null则监听所有群组，否则应为包含欲监听群组id的一个列表
+      "help": true,
       "ranking": true,
       "illust": true,
       "random_illust": true,
@@ -26,12 +27,21 @@
     },
     "friend": {
       "listen": null, // 若为null则监听所有好友，否则应为包含欲监听好友id的一个列表
+      "help": true,
       "ranking": true,
       "illust": true,
       "random_illust": true,
       "random_user_illust": true,
       "random_bookmark": true
     }
+  },
+  // 这部分是查看帮助的配置
+  "help": {
+    "trigger": [
+      "怎么看色图"
+    ],
+    "trigger_mode": "match", // match：完全匹配；search：部分匹配
+    "text_file": "help.txt" // 帮助文本所在的文件
   },
   // 这部分是查看排行榜的配置
   "ranking": {
