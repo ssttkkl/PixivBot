@@ -5,9 +5,17 @@ MiraiPixiv
 
 ## 使用方式
 
-> 1.  配置[mirai-console](https://github.com/mamoe/mirai-console)与[mirai-api-http](https://github.com/project-mirai/mirai-api-http)（参见：https://github.com/project-mirai/mirai-api-http/blob/master/README.md ）
-> 2. `pip install -r requirements.txt`（或 `poetry update`如果你使用[poetry](https://python-poetry.org/)）
-> 3. `python bot.py`（或 `poetry run python bot.py`如果你使用[poetry](https://python-poetry.org/)）
+1.  配置[mirai-console](https://github.com/mamoe/mirai-console)（参见[这个](https://github.com/mamoe/mirai-console/blob/master/docs/Run.md)）与[mirai-api-http](https://github.com/project-mirai/mirai-api-http)（参见[这个](https://github.com/project-mirai/mirai-api-http/blob/master/README.md)）
+
+> 本人环境：
+> 
+> - mirai-core-all: 1.3.3
+> - mirai-console: 1.0-M4
+> - mirai-console-pure: 1.0-M4
+> - mirai-api-http: 1.8.4
+
+2. `pip install -r requirements.txt`（或 `poetry update`如果你使用[poetry](https://python-poetry.org/)）
+3. `python bot.py`（或 `poetry run python bot.py`如果你使用[poetry](https://python-poetry.org/)）
 
 初次使用请将`settings.template.json`拷贝为`settings.json`，并填写mirai与pixiv栏目的信息。
 
