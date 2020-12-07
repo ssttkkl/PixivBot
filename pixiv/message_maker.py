@@ -24,6 +24,9 @@ async def make_illust_message(illust: dict) -> MessageChain:
     """
     msg = Template(reply_pattern).render(
         title=Plain(illust["title"]),
+        author=Plain(illust["user"]["name"]),
+        author_id=Plain(illust["user"]["id"]),
+        caption=Plain(illust["caption"]),
         tags=Plain(" ".join(map(lambda x: x["name"], illust["tags"]))),
         id=Plain(str(illust["id"]))
     )
