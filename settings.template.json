@@ -16,6 +16,15 @@
   },
   // 这部分是监听的群组和好友，以及开启什么功能的配置
   "function": {
+    // 各个功能的优先度，消息从优先度高到低进行识别
+    "priority":{
+        "ranking": 8,
+        "illust": 8,
+        "random_illust": 8,
+        "random_user_illust": 9,
+        "random_bookmark": 8,
+        "help": 114514
+    },
     "group": {
       "listen": null, // 若为null则监听所有群组，否则应为包含欲监听群组id的一个列表
       "help": true,

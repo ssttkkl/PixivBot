@@ -27,33 +27,38 @@ app = GraiaMiraiApplication(
 manager = HandlerManager(bcc)
 manager.register(
     HelpQueryHandler(tag="help query", settings=settings["help"]),
-    priority=114514,
+    priority=settings["function"]["priority"]["help"],
     allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["help"] else [],
     allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["help"] else []
 )
 manager.register(
     PixivRankingQueryHandler(tag="ranking query", settings=settings["ranking"]),
+    priority=settings["function"]["priority"]["ranking"],
     allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["ranking"] else [],
     allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["ranking"] else []
 )
 manager.register(
     PixivIllustQueryHandler(tag="illust query", settings=settings["illust"]),
+    priority=settings["function"]["priority"]["illust"],
     allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["illust"] else [],
     allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["illust"] else []
 )
 manager.register(
     PixivRandomIllustQueryHandler(tag="random illust query", settings=settings["random_illust"]),
+    priority=settings["function"]["priority"]["random_illust"],
     allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["random_illust"] else [],
     allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["random_illust"] else []
 )
 manager.register(
     PixivRandomUserIllustQueryHandler(tag="random user illust query", settings=settings["random_user_illust"]),
+    priority=settings["function"]["priority"]["random_user_illust"],
     allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"][
         "random_user_illust"] else [],
     allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["random_user_illust"] else []
 )
 manager.register(
     PixivRandomBookmarkQueryHandler(tag="random bookmark query", settings=settings["random_bookmarks"]),
+    priority=settings["function"]["priority"]["random_bookmark"],
     allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["random_bookmark"] else [],
     allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["random_bookmark"] else []
 )
