@@ -1,12 +1,11 @@
 import asyncio
-import typing as T
 
 from graia.application import GraiaMiraiApplication, Session
 from graia.application.event.lifecycle import ApplicationLaunched, ApplicationShutdowned
-from graia.application.message.chain import MessageChain
 from graia.broadcast import Broadcast
 
 from handler import *
+from handler.handler_manager import HandlerManager
 from my_logger import MyLogger
 from pixiv import start_auto_auth, start_search_helper, start_illust_cacher, stop_illust_cacher, stop_search_helper
 from utils import settings, start_reply_queue, stop_reply_queue
@@ -25,48 +24,39 @@ app = GraiaMiraiApplication(
     logger=MyLogger()
 )
 
-handlers = {
-    "ranking": PixivRankingQueryHandler(
-        tag="ranking query",
-        settings=settings["ranking"],
-        bcc=bcc,
-        allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["ranking"] else [],
-        allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["ranking"] else []
-    ),
-    "illust": PixivIllustQueryHandler(
-        tag="illust query",
-        settings=settings["illust"],
-        bcc=bcc,
-        allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["illust"] else [],
-        allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["illust"] else []
-    ),
-    "random_illust": PixivRandomIllustQueryHandler(
-        tag="random illust query",
-        settings=settings["random_illust"],
-        bcc=bcc,
-        allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"][
-            "random_illust"] else [],
-        allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["random_illust"] else []
-    ),
-    "random_user_illust": PixivRandomUserIllustQueryHandler(
-        tag="random user illust query",
-        settings=settings["random_user_illust"],
-        bcc=bcc,
-        allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"][
-            "random_user_illust"] else [],
-        allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"][
-            "random_user_illust"] else []
-    ),
-    "random_bookmark": PixivRandomBookmarkQueryHandler(
-        tag="random bookmark query",
-        settings=settings["random_bookmarks"],
-        bcc=bcc,
-        allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"][
-            "random_bookmark"] else [],
-        allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"][
-            "random_bookmark"] else []
-    )
-}
+manager = HandlerManager(bcc)
+manager.register(
+    HelpQueryHandler(tag="help query", settings=settings["help"]),
+    priority=114514,
+    allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["help"] else [],
+    allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["help"] else []
+)
+manager.register(
+    PixivRankingQueryHandler(tag="ranking query", settings=settings["ranking"]),
+    allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["ranking"] else [],
+    allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["ranking"] else []
+)
+manager.register(
+    PixivIllustQueryHandler(tag="illust query", settings=settings["illust"]),
+    allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["illust"] else [],
+    allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["illust"] else []
+)
+manager.register(
+    PixivRandomIllustQueryHandler(tag="random illust query", settings=settings["random_illust"]),
+    allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["random_illust"] else [],
+    allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["random_illust"] else []
+)
+manager.register(
+    PixivRandomUserIllustQueryHandler(tag="random user illust query", settings=settings["random_user_illust"]),
+    allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"][
+        "random_user_illust"] else [],
+    allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["random_user_illust"] else []
+)
+manager.register(
+    PixivRandomBookmarkQueryHandler(tag="random bookmark query", settings=settings["random_bookmarks"]),
+    allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["random_bookmark"] else [],
+    allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["random_bookmark"] else []
+)
 
 
 @bcc.receiver(ApplicationLaunched, priority=16)

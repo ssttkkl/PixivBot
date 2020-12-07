@@ -1,3 +1,4 @@
+import asyncio
 import os
 import typing as T
 
@@ -7,10 +8,10 @@ from loguru import logger
 from pixiv import get_illusts_with_cache, make_illust_filter, papi
 from utils import match_groups, decode_chinese_int
 from .random_helper import random_and_generate_reply
-from .sender_filter_query_handler import SenderFilterQueryHandler
+from .abstract_message_handler import AbstractMessageHandler
 
 
-class PixivRandomBookmarkQueryHandler(SenderFilterQueryHandler):
+class PixivRandomBookmarkQueryHandler(AbstractMessageHandler):
     async def __get_bookmarks(self) -> T.Sequence[dict]:
         """
         获取书签的画像（从缓存或服务器）
@@ -56,21 +57,24 @@ class PixivRandomBookmarkQueryHandler(SenderFilterQueryHandler):
 
         return None
 
-    async def generate_reply(self, app: GraiaMiraiApplication,
-                             subject: T.Union[Group, Friend],
-                             message: MessageChain):
+    async def handle(self, app: GraiaMiraiApplication,
+                     subject: T.Union[Group, Friend],
+                     message: MessageChain,
+                     channel: asyncio.Queue) -> bool:
         number = self.__find_number(message)
         if number is None:
-            return
+            return False
 
         if number > self.limit_per_query:
-            yield self.overlimit_message
-            return
+            await channel.put(self.overlimit_message)
+            return True
+
         logger.info(f"{self.tag}: [{number}]")
 
         illusts = await self.__get_bookmarks()
         logger.info(f"{self.tag}: found [{len(illusts)}] bookmarks")
         async for msg in random_and_generate_reply(self, illusts, number):
-            yield msg
+            await channel.put(msg)
 
         logger.info(f"{self.tag}: [{number}] ok")
+        return True

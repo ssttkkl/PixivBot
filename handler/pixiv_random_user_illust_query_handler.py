@@ -1,3 +1,4 @@
+import asyncio
 import os
 import typing as T
 
@@ -7,10 +8,10 @@ from loguru import logger
 from pixiv import get_illusts_with_cache, make_illust_filter, papi
 from utils import match_groups, decode_chinese_int, launch
 from .random_helper import random_and_generate_reply
-from .sender_filter_query_handler import SenderFilterQueryHandler
+from .abstract_message_handler import AbstractMessageHandler
 
 
-class PixivRandomUserIllustQueryHandler(SenderFilterQueryHandler):
+class PixivRandomUserIllustQueryHandler(AbstractMessageHandler):
     def __find_attrs(self, message: MessageChain) -> T.Optional[T.Tuple[str, int]]:
         """
         找出消息中的搜索关键字
@@ -69,28 +70,31 @@ class PixivRandomUserIllustQueryHandler(SenderFilterQueryHandler):
                                                search_page_limit=self.search_page_limit)
         return illusts
 
-    async def generate_reply(self, app: GraiaMiraiApplication,
-                             subject: T.Union[Group, Friend],
-                             message: MessageChain):
+    async def handle(self, app: GraiaMiraiApplication,
+                     subject: T.Union[Group, Friend],
+                     message: MessageChain,
+                     channel: asyncio.Queue) -> bool:
         attrs = self.__find_attrs(message)
         if attrs is None:
-            return
+            return False
 
         keyword, number = attrs
         if number > self.limit_per_query:
-            yield self.overlimit_message
-            return
+            await channel.put(self.overlimit_message)
+            return True
+
         logger.info(f"{self.tag}: [{number}] of [{keyword}]")
 
         user_id = await self.__get_user_id(keyword)
         if user_id is None:
-            yield self.not_found_message
-            return
-
+            await channel.put(self.not_found_message)
+            return True
         logger.info(f"{self.tag}: got [{keyword}] user id [{user_id}]")
+
         illusts = await self.__get_illusts(user_id)
         logger.info(f"{self.tag}: found [{len(illusts)}] illusts")
         async for msg in random_and_generate_reply(self, illusts, number):
-            yield msg
+            await channel.put(msg)
 
         logger.info(f"{self.tag}: [{number}] of [{keyword}] ok")
+        return True

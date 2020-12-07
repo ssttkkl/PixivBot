@@ -18,6 +18,7 @@
   "function": {
     "group": {
       "listen": null, // 若为null则监听所有群组，否则应为包含欲监听群组id的一个列表
+      "help": true,
       "ranking": true,
       "illust": true,
       "random_illust": true,
@@ -26,12 +27,21 @@
     },
     "friend": {
       "listen": null, // 若为null则监听所有好友，否则应为包含欲监听好友id的一个列表
+      "help": true,
       "ranking": true,
       "illust": true,
       "random_illust": true,
       "random_user_illust": true,
       "random_bookmark": true
     }
+  },
+  // 这部分是查看帮助的配置
+  "help": {
+    "trigger": [
+      "怎么看色图"
+    ],
+    "trigger_mode": "match", // match：完全匹配；search：部分匹配
+    "text_file": "help.txt" // 帮助文本所在的文件
   },
   // 这部分是查看排行榜的配置
   "ranking": {
@@ -86,7 +96,7 @@
     "compress": true, // 是否要对图片进行压缩
     "compress_size": 1200, // 将图片的长或宽压缩至此处设定的数值，保持原有长宽比
     "compress_quantity": 75, // 压缩品质，0—100
-    "reply_pattern": "「$title」\ntags: $tags\nhttps://www.pixiv.net/artworks/$id\n", // 回复消息的模板（仅支持$title, $tags, $id三个参数）
+    "reply_pattern": "「$title」$author\nhttps://www.pixiv.net/artworks/$id\n", // 回复消息的模板（参数：$title, $author, $author_id, $caption, $tags, $id）
     "block_tags": [
       "R-18",
       "NSFW"

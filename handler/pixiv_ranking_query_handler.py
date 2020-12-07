@@ -1,3 +1,4 @@
+import asyncio
 import re
 import typing as T
 
@@ -7,10 +8,10 @@ from graia.template import Template
 from loguru import logger
 
 from pixiv import get_illusts, papi
-from .sender_filter_query_handler import SenderFilterQueryHandler
+from .abstract_message_handler import AbstractMessageHandler
 
 
-class PixivRankingQueryHandler(SenderFilterQueryHandler):
+class PixivRankingQueryHandler(AbstractMessageHandler):
     def __find_ranking_mode(self, message: MessageChain) -> T.Optional[str]:
         """
         找出消息中所指定的排行榜种类
@@ -48,12 +49,13 @@ class PixivRankingQueryHandler(SenderFilterQueryHandler):
             id=Plain(str(illust["id"]))
         )
 
-    async def generate_reply(self, app: GraiaMiraiApplication,
-                             subject: T.Union[Group, Friend],
-                             message: MessageChain) -> T.AsyncGenerator[T.Union[str, MessageChain], None]:
+    async def handle(self, app: GraiaMiraiApplication,
+                     subject: T.Union[Group, Friend],
+                     message: MessageChain,
+                     channel: asyncio.Queue) -> bool:
         mode = self.__find_ranking_mode(message)
         if mode is None:
-            return
+            return False
 
         begin, end = self.__find_ranges(message)
         logger.info(f"{self.tag}: [{mode}] [{begin}-{end}]")
@@ -67,8 +69,7 @@ class PixivRankingQueryHandler(SenderFilterQueryHandler):
         elif isinstance(subject, Friend):
             item_per_msg = self.item_per_friend_message
         else:
-            raise TypeError(
-                f"type(subject) expect Group or Friend, got {type(subject)}.")
+            raise TypeError(f"type(subject) expect Group or Friend, got {type(subject)}.")
 
         msg = MessageChain.create([])
         item_cur_msg = 0
@@ -77,12 +78,13 @@ class PixivRankingQueryHandler(SenderFilterQueryHandler):
             msg.plus(self.__make_msg(rank, illust))
             item_cur_msg = item_cur_msg + 1
             if item_cur_msg == item_per_msg:
-                yield msg
+                await channel.put(msg)
                 msg = MessageChain.create([])
                 item_cur_msg = 0
             rank = rank + 1
 
         if item_cur_msg > 0:
-            yield msg
+            await channel.put(msg)
 
         logger.info(f"{self.tag}: [{mode}] [{begin}-{end}] ok")
+        return True

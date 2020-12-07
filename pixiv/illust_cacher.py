@@ -32,9 +32,9 @@ async def stop_illust_cacher():
 
 async def cache_illust(illust: dict) -> bytes:
     """
-    保存给定illust
+    缓存给定illust，或从缓存中读取
     :param illust: 给定illust
-    :return: illust保存的路径
+    :return: illust的bytes
     """
 
     dirpath = Path("./" + download_dir)
