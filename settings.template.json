@@ -79,7 +79,7 @@
     ], // 触发词
     "domain": null, // 反代使用的域名，若不希望使用反代则设为null
     "download_dir": "cache/illust_img", // 下载插画的目录
-    "download_quantity": "original", // 下载插画的品质，可选值：original, medium, square_medium
+    "download_quantity": "original", // 下载插画的品质，可选值：original, large, medium, square_medium
     "download_outdated_time": 172800, // 自动清理下载目录时删除多久以前的文件（单位：秒），null表示无限期
     "download_timeout": 60,
     "download_timeout_message": "下载超时",
