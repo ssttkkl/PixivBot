@@ -26,6 +26,12 @@ app = GraiaMiraiApplication(
 
 manager = HandlerManager(bcc)
 manager.register(
+    HelpQueryHandler(tag="help query", settings=settings["help"]),
+    priority=114514,
+    allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["help"] else [],
+    allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["help"] else []
+)
+manager.register(
     PixivRankingQueryHandler(tag="ranking query", settings=settings["ranking"]),
     allow_friend=settings["function"]["friend"]["listen"] if settings["function"]["friend"]["ranking"] else [],
     allow_group=settings["function"]["group"]["listen"] if settings["function"]["group"]["ranking"] else []
