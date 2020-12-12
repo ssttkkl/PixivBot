@@ -42,12 +42,23 @@ class PixivRandomIllustQueryHandler(AbstractMessageHandler):
         获取搜索的画像（从缓存或服务器）
         """
         if not keyword:  # 若未指定关键词，则从今日排行榜中选取
-            illusts = await get_illusts(search_func=papi.illust_ranking,
-                                        search_page_limit=1)
+            # 缓存文件路径
+            cache_file = os.path.join(os.path.curdir, self.ranking_search_cache)
+
+            illusts = await get_illusts_with_cache(cache_file=cache_file,
+                                                   cache_outdated_time=self.ranking_search_cache_outdated_time,
+                                                   search_func=papi.illust_ranking,
+                                                   illust_filter=make_illust_filter(
+                                                       block_tags=self.block_tags,
+                                                       bookmark_lower_bound=self.bookmark_lower_bound,
+                                                       view_lower_bound=self.view_lower_bound),
+                                                   search_item_limit=self.ranking_search_item_limit,
+                                                   search_page_limit=self.ranking_search_page_limit)
         else:
             # 缓存文件路径
             dirpath = os.path.join(os.path.curdir, self.search_cache_dir)
-            filename = re.sub("\.[<>/\\\|:\"*?]", "_", keyword) + ".json"  # 转义非法字符
+            filename = re.sub("\.[<>/\\\|:\"*?]", "_",
+                              keyword) + ".json"  # 转义非法字符
             cache_file = os.path.join(dirpath, filename)
 
             illusts = await get_illusts_with_cache(cache_file=cache_file,

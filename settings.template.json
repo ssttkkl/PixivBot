@@ -127,6 +127,10 @@
     "search_cache_outdated_time": 7200, // 搜索结果缓存的时间（单位：秒），null表示无限期
     "search_item_limit": 500, // 一次搜索最多包含多少插画，null表示无上限（慎用）
     "search_page_limit": 30, // 一次搜索最多翻多少页，null表示无上限（慎用）
+    "ranking_search_cache": "cache/ranking_search_cache.json", // 搜索排行榜（未指定关键字时）结果缓存的文件
+    "ranking_search_cache_outdated_time": 7200, // 搜索排行榜（未指定关键字时）结果缓存的时间（单位：秒），null表示无限期
+    "ranking_search_item_limit": 50, // 一次搜索排行榜（未指定关键字时）最多包含多少插画，null表示无上限（慎用）
+    "ranking_search_page_limit": null, // 一次搜索排行榜（未指定关键字时）最多翻多少页，null表示无上限（慎用）
     "bookmark_lower_bound": 100, // 搜索结果只包含书签数不少于指定值的插画
     "view_lower_bound": 0, // 搜索结果只包含浏览数不少于指定值的插画
     "block_tags": [
