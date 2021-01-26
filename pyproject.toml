@@ -1,20 +1,21 @@
 [tool.poetry]
 name = "mirai-pixiv-bot"
-version = "0.1.0"
+version = "0.2.1"
 description = ""
 authors = ["ssttkkl <huang.wen.long@hotmail.com>"]
 license = "AGPL-3.0-or-later"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.6"
 PixivPy = "^3.5.10"
 json5 = "^0.9.5"
-Pillow = "^7.2.0"
-aiofiles = "^0.5.0"
-loguru = "^0.5.1"
-graia-application-mirai = "^0.11.0"
+Pillow = "^8.1.0"
+aiofiles = "^0.6.0"
+loguru = "^0.5.3"
+graia-application-mirai = "^0.15.0"
 graia-template = "^0.0.4"
 sortedcontainers = "^2.3.0"
+devtools = "^0.6.1"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.4"
@@ -23,3 +24,6 @@ autopep8 = "^1.5.4"
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
+[[tool.poetry.source]]
+name = "douban"
+url = "https://pypi.doubanio.com/simple/"
