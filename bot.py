@@ -6,9 +6,8 @@ from graia.broadcast import Broadcast
 
 from handler import *
 from handler.handler_manager import HandlerManager
-from my_logger import MyLogger
 from pixiv import start_auto_auth, start_search_helper, start_illust_cacher, stop_illust_cacher, stop_search_helper
-from utils import settings, start_reply_queue, stop_reply_queue
+from utils import settings, start_reply_queue, stop_reply_queue, LoguruWarpper
 
 loop = asyncio.get_event_loop()
 bcc = Broadcast(loop=loop)
@@ -21,7 +20,7 @@ app = GraiaMiraiApplication(
         # Graia 已经可以根据所配置的消息接收的方式来保证消息接收部分的正常运作.
         websocket=settings["mirai"]["enable_websocket"]
     ),
-    logger=MyLogger()
+    logger=LoguruWarpper()
 )
 
 manager = HandlerManager(bcc)

@@ -2,7 +2,7 @@ from graia.application import AbstractLogger
 from loguru import logger
 
 
-class MyLogger(AbstractLogger):
+class LoguruWarpper(AbstractLogger):
     def info(self, msg):
         logger.info(msg)
 
