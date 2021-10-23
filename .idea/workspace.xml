@@ -20,7 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="180c943e-7951-470c-a1da-250b9ecd1146" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,6 +66,9 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\huangwenlong\PycharmProjects\PixivBot" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\huangwenlong\PycharmProjects\PixivBot\utils" />
     </key>
@@ -137,7 +142,7 @@
       <workItem from="1634265659710" duration="108000" />
       <workItem from="1634265789975" duration="797000" />
       <workItem from="1634958975520" duration="1217000" />
-      <workItem from="1634962064179" duration="991000" />
+      <workItem from="1634962064179" duration="1346000" />
     </task>
     <task id="LOCAL-00001" summary="update requirements">
       <created>1607218773059</created>
@@ -223,7 +228,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634963069387</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="迁移到NoneBot2">
+      <created>1634963098601</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1634963098601</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
