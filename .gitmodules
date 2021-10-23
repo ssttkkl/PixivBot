@@ -1,0 +1,3 @@
+[submodule "src/plugins/nonebot-plugin-pixivbot"]
+	path = src/plugins/nonebot-plugin-pixivbot
+	url = https://github.com/ssttkkl/nonebot-plugin-pixivbot.git
