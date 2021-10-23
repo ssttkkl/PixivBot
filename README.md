@@ -9,9 +9,9 @@ PixivBot
 
 1. 将本仓库clone到本地；
 2. 别忘了`pip install -r requirement.txt`安装依赖包；
-3. 下载go-cqhttp并配置连接（参考https://v2.nonebot.dev/guide/cqhttp-guide.html）；
+3. 下载go-cqhttp并配置连接（参考[CQHTTP 协议使用指南 | NoneBot](https://v2.nonebot.dev/guide/cqhttp-guide.html)）；
 3. 安装MongoDB（用于保存缓存）；
-4. 在.env中修改配置（至少需要下述的最小配置项才能工作）；
+4. 在.env.prod中修改配置（至少需要下述的最小配置项才能工作）；
 5. 运行`python /src/plugins/nonebot-plugin-pixivbot/mongo_helper.py`配置索引（本插件依赖MongoDB的TTL索引自动清理过期缓存）；
 6. `nb run`运行bot。
 
@@ -33,13 +33,13 @@ PixivBot
 - **/pixivbot subscribe \<type\> \<schedule\>**：为本群（本用户）订阅类型为<type>的定时推送功能，时间满足<schedule>时进行推送
     - \<type\>：可选值有ranking, random_bookmark, random_recommended_illust
     - \<schedule\>：有三种格式，*00:30\*x*为每隔30分钟进行一次推送，*12:00*为每天12:00进行一次推送，*00:10+00:30\*x*为从今天00:10开始每隔30分钟进行一次推送（开始时间若是一个过去的时间点，则从下一个开始推送的时间点进行推送）
-- **/pixivbot subscribe：查看本群（本用户）的所有订阅
-- **/pixivbot unsubscribe <type>**：取消本群（本用户）的订阅
+- **/pixivbot subscribe**：查看本群（本用户）的所有订阅
+- **/pixivbot unsubscribe \<type\>**：取消本群（本用户）的订阅
     - \<type\>：可选值有all, ranking, random_bookmark, random_recommended_illust
 
 ## 注意事项
 
-1. 必须登录pixiv账号并获取refresh_token才能使用。（参考：https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362）
+1. 必须登录pixiv账号并获取refresh_token才能使用。（参考：[@ZipFile Pixiv OAuth Flow](https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362)）
 2. **搜索请求**太频繁会撞Rate Limit、收到警告甚至被ban号，不建议大群内使用。（或者只开放部分功能当普通的涩图bot）
 3. 根据1和2，建议使用小号登录。
 4. 学业繁忙，issue可能不会及时处理。
