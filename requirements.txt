@@ -5,4 +5,4 @@ nonebot2==2.0.0a16
 nonebot_plugin_apscheduler==0.1.2
 nonebot-adapter-cqhttp==2.0.0a16
 motor==2.5.1
-nb-cli==0.4.2
+nb-cli==0.5.1
