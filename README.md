@@ -7,13 +7,14 @@ PixivBot
 
 ## 环境配置
 
-1. 将本仓库clone到本地；
-2. 别忘了`pip install -r requirement.txt`安装依赖包；
-3. 下载go-cqhttp并配置连接（参考[CQHTTP 协议使用指南 | NoneBot](https://v2.nonebot.dev/guide/cqhttp-guide.html)）；
-3. 安装MongoDB（用于保存缓存）；
-4. 在.env.prod中修改配置（至少需要下述的最小配置项才能工作）；
-5. 运行`python /src/plugins/nonebot-plugin-pixivbot/mongo_helper.py`配置索引（本插件依赖MongoDB的TTL索引自动清理过期缓存）；
-6. `nb run`运行bot。
+1. `git clone https://github.com/ssttkkl/PixivBot.git`；
+2. `git submodule update --init --recursive`；
+3. `pip install -r requirement.txt`；
+4. 下载go-cqhttp并配置连接（参考[CQHTTP 协议使用指南 | NoneBot](https://v2.nonebot.dev/guide/cqhttp-guide.html)）；
+5. 安装MongoDB，创建一个数据库用于保存缓存，并创建一个能够访问该数据库的用户；
+6. 运行`python /src/plugins/nonebot-plugin-pixivbot/mongo_helper.py`配置索引（本插件依赖MongoDB的TTL索引自动清理过期缓存）；
+7. 在.env.prod中修改配置（至少需要下述的最小配置项才能工作）；
+8. `nb run`运行bot。
 
 ## 触发语句
 
