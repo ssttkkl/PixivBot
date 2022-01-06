@@ -1,9 +1,10 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
-RUN python3 -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple
+ENV APP_MODULE=bot:app
+ENV MAX_WORKERS=1
 
-RUN python3 -m pip install poetry && poetry config virtualenvs.create false
+COPY ./ /app/
 
-COPY ./pyproject.toml ./poetry.lock* /app/
+WORKDIR /app
 
-RUN poetry install --no-root --no-dev
+RUN python3 -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple && python3 -m pip install -r requirements.txt

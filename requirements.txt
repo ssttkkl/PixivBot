@@ -1,5 +1,6 @@
 PixivPy-Async==1.2.13
 aiohttp-socks==0.6.0
+python-socks[asyncio]==2.0.1
 Pillow==8.4.0
 nonebot2==2.0.0a16
 nonebot_plugin_apscheduler==0.1.2
