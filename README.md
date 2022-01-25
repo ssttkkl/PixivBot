@@ -30,6 +30,9 @@ $ docker run --network bot-net -itd --name bot-mongo mongo --auth
 # 登入MongoDB终端
 $ docker exec -it bot-mongo mongo pixiv_bot
 
+# 切换到admin数据库
+$ use admin
+
 # 创建一个名为admin，密码为123456的管理员用户。
 > db.createUser({ user:'admin',pwd:'123456',roles:[ { role:'userAdminAnyDatabase', db: 'admin'},"readWriteAnyDatabase"]})
 
