@@ -25,7 +25,7 @@ $ docker network create bot-net
 $ docker pull mongo:latest
 
 # 运行一个名为bot-mongo的MongoDB容器
-$ docker run --network bot-net -itd --name bot-mongo mongo --auth
+$ docker run --network bot-net -itd --name bot-mongo mongo:latest --auth
 
 # 登入MongoDB终端
 $ docker exec -it bot-mongo mongo pixiv_bot
