@@ -9,7 +9,7 @@ PixivBot
 
 事前准备：登录pixiv账号并获取refresh_token。（参考：[@ZipFile Pixiv OAuth Flow](https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362)）
 
-### 通过 Docker 配置（推荐）
+### 通过 Docker 配置（推荐非 Windows 用户使用此方式）
 
 1. 安装Docker
 
@@ -102,7 +102,7 @@ servers:
 $ docker restart bot-gocq
 ```
 
-### 手动配置
+### 手动配置（推荐 Windows 用户使用此方式）
 
 1. `git clone https://github.com/ssttkkl/PixivBot.git`；
 2. `git submodule update --init --recursive`；
@@ -125,7 +125,7 @@ $ docker restart bot-gocq
 - **看看图*114514***：查看id为*114514*的插画
 - **来张私家车**：从书签中随机抽选一张插画
 
-订阅语句（只有SUPERUSER才能触发）：
+超级语句：
 
 - **/pixivbot subscribe \<type\> \<schedule\>**：为本群（本用户）订阅类型为<type>的定时推送功能，时间满足<schedule>时进行推送
     - \<type\>：可选值有ranking, random_bookmark, random_recommended_illust
