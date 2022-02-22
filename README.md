@@ -133,11 +133,14 @@ $ docker restart bot-gocq
 - **/pixivbot subscribe**：查看本群（本用户）的所有订阅
 - **/pixivbot unsubscribe \<type\>**：取消本群（本用户）的订阅
     - \<type\>：可选值有all, ranking, random_bookmark, random_recommended_illust
+- **/pixivbot bind <pixiv_user_id>**：绑定Pixiv账号（用于随机书签功能）
+- **/pixivbot unbind**：解绑Pixiv账号
+- **/pixivbot invalidate_cache**：清除缓存
 
 ## 注意事项
 
 1. 必须登录pixiv账号并获取refresh_token才能使用。
-2. **搜索请求**太频繁会撞Rate Limit、收到警告甚至被ban号，不建议大群内使用。（或者只开放部分功能当普通的涩图bot）
+2. 尽管作者已经尽力以高并发作为目标进行开发，但由于向Pixiv发送**搜索请求**太频繁会撞Rate Limit、收到警告甚至被ban号，因此不保证并发用户数量较大时还能够正常使用。（或者只开放部分功能当普通的涩图bot）
 3. 根据1和2，建议使用小号登录。
 4. 学业繁忙，issue可能不会及时处理。
 
@@ -158,6 +161,7 @@ pixiv_mongo_conn_url=  # MongoDB连接URL，格式：mongodb://<用户名>:<密�
 pixiv_mongo_database_name=  # 连接的MongoDB数据库
 pixiv_proxy=None  # 代理URL
 pixiv_query_timeout=60  # 查询超时（单位：秒）
+pixiv_simultaneous_query=8  # 向Pixiv查询的并发数
 
 pixiv_block_tags=[]  # 当插画含有指定tag时会被过滤
 pixiv_block_action=no_image  # 过滤时的动作，可选值：no_image(不显示插画，回复插画信息), completely_block(只回复过滤提示), no_reply(无回复)
