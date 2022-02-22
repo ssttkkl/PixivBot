@@ -94,7 +94,7 @@ message:
 
 servers:
   - ws-reverse:
-      universal: ws://bot:8080/cqhttp/ws
+      universal: ws://bot:8080/onebot/v11/ws
 ```
 
 再次启动go-cqhttp容器
@@ -107,7 +107,7 @@ $ docker restart bot-gocq
 1. `git clone https://github.com/ssttkkl/PixivBot.git`；
 2. `git submodule update --init --recursive`；
 3. `pip install -r requirement.txt`；
-4. 下载go-cqhttp并配置连接（参考[CQHTTP 协议使用指南 | NoneBot](https://v2.nonebot.dev/guide/cqhttp-guide.html)）；
+4. 安装go-cqhttp，配置连接（参考[配置连接 | NoneBot](https://onebot.adapters.nonebot.dev/docs/guide/setup)）；
 5. 安装MongoDB，创建一个数据库用于保存缓存，并创建一个能够访问该数据库的用户；
 6. 在.env.prod中修改配置；
 7. `nb run`运行bot。
