@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 nonebot2 = "^2.0.0b2"
-nb-cli = "^0.6.6"
 PixivPy-Async = "^1.2.13"
 aiohttp-socks = "^0.6.0"
 Pillow = "^9.0.1"
@@ -18,9 +17,11 @@ motor = "^2.5.1"
 
 [tool.poetry.dev-dependencies]
 nonebot-test = "^0.1.0"
+nb-cli = "^0.6.6"
 
 [tool.nonebot]
 plugins = ["nonebot_plugin_apscheduler"]
+plugin_dirs = ["src/plugins"]
 
 [build-system]
 requires = ["poetry_core>=1.0.0"]
