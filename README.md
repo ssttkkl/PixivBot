@@ -61,6 +61,7 @@ SUPERUSERS=[能够发送超级命令的用户，逗号隔开]
 ```
 # 将仓库拷贝到本地
 $ git clone https://github.com/ssttkkl/PixivBot.git
+$ cd PixivBot
 $ git submodule update --init --recursive
 
 # 构建Docker镜像
@@ -100,6 +101,35 @@ servers:
 再次启动go-cqhttp容器
 ```
 $ docker restart bot-gocq
+```
+
+5. 如何更新
+
+先更新仓库
+```
+$ cd PixivBot
+# 拉取最新仓库
+$ git pull
+```
+
+或者重新克隆仓库
+```
+# 将仓库拷贝到本地
+$ git clone https://github.com/ssttkkl/PixivBot.git
+$ cd PixivBot
+$ git submodule update --init --recursive
+```
+
+重新构建Docker镜像并运行Docker容器
+```
+# 移除旧Docker容器
+$ docker container rm bot
+# 移除旧Docker镜像
+$ docker image rm pixiv-bot
+# 构建Docker镜像
+$ docker build -t pixiv-bot .
+# 启动一个名为bot的Docker容器，监听所有IP的8080端口
+$ docker run --network bot-net --name bot -e HOST=0.0.0.0 -e PORT=8080 --env-file env-file.txt -d pixiv-bot:latest
 ```
 
 ### 手动配置（推荐 Windows 用户使用此方式）
