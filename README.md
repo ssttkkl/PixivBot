@@ -103,7 +103,7 @@ servers:
 $ docker restart bot-gocq
 ```
 
-5. 如何更新
+6. 如何更新
 
 先更新仓库
 ```
