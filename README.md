@@ -3,7 +3,44 @@ PixivBot
 
 仅集成了NoneBot插件[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)的Bot。
 
-注：本项目已彻底从Mirai/Graia框架迁移至NoneBot2框架，旧版本用户请重新进行配置。
+## 触发语句
+
+普通语句：
+
+所有数字参数均支持中文数字和罗马数字。
+
+- **看看<类型>榜<范围>***：查看pixiv榜单（<类型>可省略，<范围>应为a-b或a）
+  - 示例：看看榜、看看日榜、看看榜1-5、看看月榜一
+- **来<数量>张图**：从推荐插画随机抽选一张插画（<数量>可省略，下同）
+  - 示例：来张图、来五张图
+- **来<数量>张<关键字>图**：搜索关键字，从搜索结果随机抽选一张插画
+  - 示例：来张初音ミク图、来五张初音ミク图
+  - 注：默认开启关键字翻译功能。Bot会在平时的数据爬取时记录各个Tag的中文翻译。在搜索时，若关键字的日文翻译存在，则使用日文翻译代替关键字进行搜索。
+- **来<数量>张<用户>老师的图**：搜索用户，从插画列表中随机抽选一张插画
+  - 示例：来张Rella老师的图、来五张Rella老师的图
+- **看看图<插画ID>**：查看ID对应的插画
+  - 示例：看看图114514
+- **来<数量>张私家车**：从书签中随机抽选一张插画（发送者需绑定Pixiv账号，或者在配置中指定默认Pixiv账号）
+  - 示例：来张私家车、来五张私家车
+- **还要**：重复上一次请求
+- **不够色**：获取上一张插画的相关插画
+
+命令语句：
+
+- **/pixivbot schedule \<type\> \<schedule\> [..args]**：为本群（本用户）订阅类型为<type>的定时推送功能，时间满足<schedule>时进行推送
+    - \<type\>：可选值有ranking, random_bookmark, random_recommended_illust, random_illust, random_user_illust
+    - \<schedule\>：有三种格式，*00:30\*x*为每隔30分钟进行一次推送，*12:00*为每天12:00进行一次推送，*00:10+00:30\*x*为从今天00:10开始每隔30分钟进行一次推送（开始时间若是一个过去的时间点，则从下一个开始推送的时间点进行推送）
+    - [..args]：
+      - \<type\>为ranking时，接受\<mode\> \<range\>
+      - \<type\>为random_bookmark时，接受\<pixiv_user_id\>
+      - \<type\>为random_illust时，接受\<word\>
+      - \<type\>为random_user_illust时，接受\<user\>
+- **/pixivbot schedule**：查看本群（本用户）的所有订阅
+- **/pixivbot unschedule <type>**：取消本群（本用户）的订阅
+- **/pixivbot bind <pixiv_user_id>**：绑定Pixiv账号（用于随机书签功能）
+- **/pixivbot unbind**：解绑Pixiv账号
+- **/pixivbot invalidate_cache**：清除缓存
+
 
 ## 开始使用
 
@@ -103,24 +140,34 @@ servers:
 $ docker restart bot-gocq
 ```
 
-6. 如何更新
+6. 清除冗余的Docker镜像
+
+```
+$ docker image prune
+```
+
+#### 附：如何更新
 
 先更新仓库
+
 ```
 $ cd PixivBot
 # 拉取最新仓库
 $ git pull
+$ git submodule update --init --recursive
 ```
 
 或者重新克隆仓库
+
 ```
 # 将仓库拷贝到本地
 $ git clone https://github.com/ssttkkl/PixivBot.git
 $ cd PixivBot
-$ git submodule update --init --recursive
+$ git submodule update --recursive
 ```
 
 重新构建Docker镜像并运行Docker容器
+
 ```
 # 移除旧Docker容器
 $ docker container rm bot
@@ -142,32 +189,6 @@ $ docker run --network bot-net --name bot -e HOST=0.0.0.0 -e PORT=8080 --env-fil
 6. 在.env.prod中修改配置；
 7. `nb run`运行bot。
 
-## 触发语句
-
-普通语句：
-
-- **看看榜**：查看pixiv榜单的第1到第3名（榜单类型和默认查询范围可以在设置文件更改）
-- **看看榜*21-25***：查看pixiv榜单的第21到第25名
-- **看看榜*50***：查看pixiv榜单的第50名
-- **来张图**：从推荐插画随机抽选一张插画
-- **来张*初音ミク*图**：搜索关键字*初音ミク*，从搜索结果随机抽选一张插画
-- **来张*森倉円*老师的图**：搜索画师*森倉円*，从该画师的插画列表里随机抽选一张插画
-- **看看图*114514***：查看id为*114514*的插画
-- **来张私家车**：从书签中随机抽选一张插画
-- **还要**：重复上一次请求
-- **不够色**：获取上一张插画的相关推荐
-
-命令语句：
-
-- **/pixivbot subscribe \<type\> \<schedule\>**：为本群（本用户）订阅类型为<type>的定时推送功能，时间满足<schedule>时进行推送
-    - \<type\>：可选值有ranking, random_bookmark, random_recommended_illust
-    - \<schedule\>：有三种格式，*00:30\*x*为每隔30分钟进行一次推送，*12:00*为每天12:00进行一次推送，*00:10+00:30\*x*为从今天00:10开始每隔30分钟进行一次推送（开始时间若是一个过去的时间点，则从下一个开始推送的时间点进行推送）
-- **/pixivbot subscribe**：查看本群（本用户）的所有订阅
-- **/pixivbot unsubscribe \<type\>**：取消本群（本用户）的订阅
-    - \<type\>：可选值有all, ranking, random_bookmark, random_recommended_illust
-- **/pixivbot bind <pixiv_user_id>**：绑定Pixiv账号（用于随机书签功能）
-- **/pixivbot unbind**：解绑Pixiv账号
-- **/pixivbot invalidate_cache**：清除缓存
 
 ## 注意事项
 
@@ -180,20 +201,32 @@ $ docker run --network bot-net --name bot -e HOST=0.0.0.0 -e PORT=8080 --env-fil
 
 最小配置：
 ```
-PIXIV_MONGO_CONN_URL=  # mongodb://<用户名>:<密码>@<主机>:<端口>
-PIXIV_MONGO_DATABASE_NAME=  # 数据库名称
-PIXIV_REFRESH_TOKEN=  # 前面获取的REFRESH_TOKEN
+pixiv_refresh_token=  # 前面获取的REFRESH_TOKEN
+pixiv_mongo_conn_url=  # MongoDB连接URL，格式：mongodb://<用户名>:<密码>@<主机>:<端口>/<数据库>
+pixiv_mongo_database_name=  # 连接的MongoDB数据库
 SUPERUSERS=[]  # 只有SUPERUSERS能够发送超级命令
 ```
 
 完整配置（除最小配置出现的配置项以外都是可选项，给出的是默认值）：
 ```
 pixiv_refresh_token=  # 前面获取的REFRESH_TOKEN
-pixiv_mongo_conn_url=  # MongoDB连接URL，格式：mongodb://<用户名>:<密码>@<主机>:<端口>
+pixiv_mongo_conn_url=  # MongoDB连接URL，格式：mongodb://<用户名>:<密码>@<主机>:<端口>/<数据库>
 pixiv_mongo_database_name=  # 连接的MongoDB数据库
 pixiv_proxy=None  # 代理URL
 pixiv_query_timeout=60  # 查询超时（单位：秒）
 pixiv_simultaneous_query=8  # 向Pixiv查询的并发数
+
+# 缓存过期时间（单位：秒）
+pixiv_download_cache_expires_in = 3600 * 24 * 7
+pixiv_illust_detail_cache_expires_in = 3600 * 24 * 7
+pixiv_user_detail_cache_expires_in = 3600 * 24 * 7
+pixiv_illust_ranking_cache_expires_in = 3600 * 6
+pixiv_search_illust_cache_expires_in = 3600 * 24
+pixiv_search_user_cache_expires_in = 3600 * 24
+pixiv_user_illusts_cache_expires_in = 3600 * 24
+pixiv_user_bookmarks_cache_expires_in = 3600 * 24
+pixiv_related_illusts_cache_expires_in = 3600 * 24
+pixiv_other_cache_expires_in = 3600 * 6
 
 pixiv_block_tags=[]  # 当插画含有指定tag时会被过滤
 pixiv_block_action=no_image  # 过滤时的动作，可选值：no_image(不显示插画，回复插画信息), completely_block(只回复过滤提示), no_reply(无回复)
@@ -208,6 +241,8 @@ pixiv_compression_quantity=None  # 插画压缩品质（0到100）
 pixiv_more_enabled=True  # 启用重复上一次请求（还要）功能
 
 pixiv_illust_query_enabled=True  # 启用插画查询（看看图）功能
+
+pixiv_tag_translation_enabled=True  # 启用搜索关键字翻译功能
 
 pixiv_query_cooldown=0  # 每次查询的冷却时间
 pixiv_no_query_cooldown_users=[]  # 在这个列表中的用户不受冷却时间的影响
