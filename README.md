@@ -90,7 +90,7 @@ $ use admin
 
 先将配置项写入文件env-file.txt，以便下一步导入（更多的配置项参考下文）
 ```
-PIXIV_MONGO_CONN_URL=mongodb://pixiv_bot:pixiv_bot@bot-mongo:27017
+PIXIV_MONGO_CONN_URL=mongodb://pixiv_bot:pixiv_bot@bot-mongo:27017/pixiv_bot?authSource=pixiv_bot
 PIXIV_MONGO_DATABASE_NAME=pixiv_bot
 PIXIV_REFRESH_TOKEN=前面获取的REFRESH_TOKEN
 SUPERUSERS=[能够发送超级命令的用户，逗号隔开]
