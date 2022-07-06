@@ -169,6 +169,8 @@ $ git submodule update --recursive
 重新构建Docker镜像并运行Docker容器
 
 ```
+# 停止旧Docker容器
+$ docker stop bot
 # 移除旧Docker容器
 $ docker container rm bot
 # 移除旧Docker镜像
