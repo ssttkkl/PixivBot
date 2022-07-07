@@ -15,4 +15,6 @@ COPY ./ /app/
 
 WORKDIR /app
 
-RUN python3 -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple && python3 -m pip install -r requirements.txt
+# 需要使用清华源的话替换为下面这条语句
+# RUN python3 -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && python3 -m pip install -r requirements.txt
+RUN python3 -m pip install -r requirements.txt
