@@ -1,17 +1,19 @@
 [tool.poetry]
 name = "pixiv-bot"
-version = "1.1.0"
+version = "1.1.0a1"
 description = "pixiv-bot"
-authors = []
+authors = [
+    {email = "huang.wen.long@hotmail.com", name = "ssttkkl"}
+]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
+nonebot2 = "^2.0.0b4"
 nonebot-plugin-pixivbot-onebot-v11 = "^1.1.0a1"
 
 [tool.poetry.dev-dependencies]
-nonebot-test = "^0.1.0"
-nb-cli = "^0.6.6"
+nb-cli = "^0.6.7"
 
 [tool.nonebot]
 plugins = ["nonebot_plugin_pixivbot_onebot_v11"]
