@@ -1,7 +1,7 @@
 PixivBot
 =====
 
-仅集成了NoneBot插件[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)的Bot。
+仅集成了NoneBot插件[nonebot-plugin-pixivbot-onebot-v11](https://github.com/ssttkkl/nonebot-plugin-pixivbot-onebot-v11)的Bot。
 
 ## 触发语句
 
@@ -99,10 +99,10 @@ SUPERUSERS=[能够发送超级命令的用户，逗号隔开]
 # 将仓库拷贝到本地
 $ git clone https://github.com/ssttkkl/PixivBot.git
 $ cd PixivBot
-$ git submodule update --init --recursive
 
 # 构建Docker镜像
 $ docker build -t pixiv-bot .
+
 # 启动一个名为bot的Docker容器，监听所有IP的8080端口
 $ docker run --network bot-net --name bot -e HOST=0.0.0.0 -e PORT=8080 --env-file env-file.txt -d pixiv-bot:latest
 ```
@@ -154,7 +154,6 @@ $ docker image prune
 $ cd PixivBot
 # 拉取最新仓库
 $ git pull
-$ git submodule update --init --recursive
 ```
 
 或者重新克隆仓库
@@ -163,7 +162,6 @@ $ git submodule update --init --recursive
 # 将仓库拷贝到本地
 $ git clone https://github.com/ssttkkl/PixivBot.git
 $ cd PixivBot
-$ git submodule update --recursive
 ```
 
 重新构建Docker镜像并运行Docker容器
@@ -172,7 +170,7 @@ $ git submodule update --recursive
 # 停止旧Docker容器
 $ docker stop bot
 # 移除旧Docker容器
-$ docker container rm bot
+$ docker rm bot
 # 移除旧Docker镜像
 $ docker image rm pixiv-bot
 # 构建Docker镜像
@@ -184,10 +182,10 @@ $ docker run --network bot-net --name bot -e HOST=0.0.0.0 -e PORT=8080 --env-fil
 ### 手动配置（推荐 Windows 用户使用此方式）
 
 1. `git clone https://github.com/ssttkkl/PixivBot.git`；
-2. `git submodule update --init --recursive`；
+2. `cd PixivBot`
 3. `pip install -r requirement.txt`；
 4. 安装go-cqhttp，配置连接（参考[配置连接 | NoneBot](https://onebot.adapters.nonebot.dev/docs/guide/setup)）；
-5. 安装MongoDB，创建一个数据库用于保存缓存，并创建一个能够访问该数据库的用户；
+5. 安装MongoDB，并创建一个数据库供应用使用；
 6. 在.env.prod中修改配置；
 7. `nb run`运行bot。
 
