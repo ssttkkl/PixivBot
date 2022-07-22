@@ -86,8 +86,8 @@ servers:
 # 拉取go-cqhttp镜像
 $ docker pull silicer/go-cqhttp:latest
 
-# 运行一个名为bot-mongo的go-cqhttp容器，数据目录挂载到宿主机的/etc/go-cqhttp目录下
-$ docker run -itd --name bot-mongo -v /etc/go-cqhttp:/data silicer/go-cqhttp:latest
+# 运行一个名为bot-gocq的go-cqhttp容器，数据目录挂载到宿主机的/etc/go-cqhttp目录下
+$ docker run -itd --name bot-gocq -v /etc/go-cqhttp:/data silicer/go-cqhttp:latest
 ```
 
 #### 附：如何更新
