@@ -1,3 +1,3 @@
 nonebot2>=2.0.0b4
 nb-cli>=0.6.7
-nonebot-plugin-pixivbot-onebot-v11>=1.1.0a1
+nonebot-plugin-pixivbot-onebot-v11>=1.1.0a2

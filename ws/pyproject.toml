@@ -2,9 +2,7 @@
 name = "pixiv-bot"
 version = "1.1.0a2"
 description = "pixiv-bot"
-authors = [
-    {email = "huang.wen.long@hotmail.com", name = "ssttkkl"}
-]
+authors = "ssttkkl <huang.wen.long@hotmail.com>"
 readme = "README.md"
 
 [tool.poetry.dependencies]

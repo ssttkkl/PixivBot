@@ -109,7 +109,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-reverse-ws/.env
 .env.prod
 .env.dev
 .venv
