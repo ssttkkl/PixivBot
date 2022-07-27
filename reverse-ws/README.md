@@ -165,7 +165,7 @@ servers:
 $ docker pull silicer/go-cqhttp:latest
 
 # 运行一个名为bot-gocq的go-cqhttp容器，数据目录挂载到宿主机的/etc/go-cqhttp目录下
-$ docker run -itd --name bot-gocq -v /etc/go-cqhttp:/data silicer/go-cqhttp:latest
+$ docker run --network bot-net -v /etc/go-cqhttp:/data --name bot-gocq -d silicer/go-cqhttp:latest
 ```
 
 #### 附：如何更新
