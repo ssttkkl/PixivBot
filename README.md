@@ -3,6 +3,17 @@ PixivBot
 
 集成NoneBot插件[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)多协议版本的Bot。
 
+## 开始使用
+
+### 事前准备
+
+登录pixiv账号并获取refresh_token。（参考：[@ZipFile Pixiv OAuth Flow](https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362)）
+
+### 选择版本
+
+- [反向驱动器](./reverse/README.md)：支持OneBot V11 [![Reverse](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-reverse.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-reverse.yml) 
+- [正向WS驱动器](./ws/README.md)：支持OneBot V11、开黑啦 [![Forward WS](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws.yml) [![Forward WS (PyPy)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws-pypy.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws-pypy.yml) 
+
 ## 触发语句
 
 ### 普通语句
@@ -42,17 +53,6 @@ PixivBot
 - **/pixivbot invalidate_cache**：清除缓存（只有超级用户能够发送此命令）
 - **/pixivbot**、**/pixivbot help**：查看帮助
 
-
-## 开始使用
-
-### 事前准备
-
-登录pixiv账号并获取refresh_token。（参考：[@ZipFile Pixiv OAuth Flow](https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362)）
-
-### 选择版本
-
-- [反向驱动器](./reverse/README.md)：支持OneBot V11
-- [正向WS驱动器](./ws/README.md)：支持OneBot V11、开黑啦
 
 ## Special Thanks
 

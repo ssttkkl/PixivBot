@@ -1,4 +1,4 @@
-name: Reverse
+name: Forward WS (PyPy)
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -14,7 +14,7 @@ env:
   USERNAME: ssttkkl
   REGISTRY: docker.io
   IMAGE_NAME: ssttkkl/pixiv-bot
-  CONTAINER_TYPE: reverse
+  CONTAINER_TYPE: ws
 
 
 jobs:
@@ -84,6 +84,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./${{ env.CONTAINER_TYPE }}
+          file: ./${{ env.CONTAINER_TYPE }}/Dockerfile.pypy
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
