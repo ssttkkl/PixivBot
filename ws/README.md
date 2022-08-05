@@ -1,4 +1,4 @@
-PixivBot (Reverse Websocket)
+PixivBot (Forward Websocket)
 =====
 
 ## 开始使用
@@ -47,25 +47,7 @@ $ use admin
 > exit
 ```
 
-4. 安装PixivBot
-
-先将配置项写入文件/etc/pixivbot/.env.prod（更多的配置项参考下文）
-```
-PIXIV_MONGO_CONN_URL=mongodb://pixiv_bot:pixiv_bot@bot-mongo:27017/pixiv_bot?authSource=pixiv_bot
-PIXIV_MONGO_DATABASE_NAME=pixiv_bot
-PIXIV_REFRESH_TOKEN=  # 前面获取的REFRESH_TOKEN
-SUPERUSERS=["onebot:123456"]  # 能够发送超级命令的用户（JSON数组，元素格式为"adapter:user_id"）
-BLOCKLIST=["onebot:114514", "kaiheila:1919810"]  # Bot不响应的用户，可以避免Bot之间相互调用（JSON数组，元素格式为"adapter:user_id"）
-```
-```
-# 拉取PixivBot镜像
-$ docker pull ssttkkl/pixiv-bot:reverse-ws
-
-# 运行一个名为bot的PixivBot容器，监听8080端口，配置文件挂载到宿主机的/etc/pixivbot/.env.prod文件下
-$ docker run --network bot-net -v /etc/pixivbot/.env.prod:/app/.env.prod --name bot -e HOST=0.0.0.0 -e PORT=8080 -d ssttkkl/pixiv-bot:reverse-ws
-```
-
-5. 安装[Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp)（仅当需要搭建QQ Bot时）
+4. 安装[Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp)（仅当需要搭建QQ Bot时）
 
 先将配置项写入文件/etc/go-cqhttp/config.yml，使用反向WebSocket连接
 
@@ -156,8 +138,11 @@ database: # 数据库相关设置
 
 # 连接服务列表
 servers:
-  - ws-reverse:
-      universal: ws://bot:8080/onebot/v11/ws
+  - ws:
+    # 正向WS服务器监听地址
+    address: 0.0.0.0:6700
+    middlewares:
+      <<: *default # 引用默认中间件
 ```
 
 ```
@@ -165,7 +150,30 @@ servers:
 $ docker pull silicer/go-cqhttp:latest
 
 # 运行一个名为bot-gocq的go-cqhttp容器，数据目录挂载到宿主机的/etc/go-cqhttp目录下
-$ docker run -itd --name bot-gocq -v /etc/go-cqhttp:/data silicer/go-cqhttp:latest
+$ docker run --network bot-net -v /etc/go-cqhttp:/data --name bot-gocq -d silicer/go-cqhttp:latest
+```
+
+5. 安装PixivBot
+
+先将配置项写入文件/etc/pixivbot/.env.prod（更多的配置项参考下文）
+```
+driver=~httpx+~websockets
+
+ONEBOT_WS_URLS=["ws://bot-gocq:6700"]  # 若无需配置go-cqhttp可删除此条
+kaiheila_bots=[{"token": "1/ABCDEFG=/abcdefgh/1145141919=="}]  # 若无需配置开黑啦可删除此条
+
+PIXIV_MONGO_CONN_URL=mongodb://pixiv_bot:pixiv_bot@bot-mongo:27017/pixiv_bot?authSource=pixiv_bot
+PIXIV_MONGO_DATABASE_NAME=pixiv_bot
+PIXIV_REFRESH_TOKEN=  # 前面获取的REFRESH_TOKEN
+SUPERUSERS=["onebot:123456"]  # 能够发送超级命令的用户（JSON数组，元素格式为"adapter:user_id"）
+BLOCKLIST=["onebot:114514", "kaiheila:1919810"]  # Bot不响应的用户，可以避免Bot之间相互调用（JSON数组，元素格式为"adapter:user_id"）
+```
+```
+# 拉取PixivBot镜像
+$ docker pull ssttkkl/pixiv-bot:ws
+
+# 运行一个名为bot的PixivBot容器，配置文件挂载到宿主机的/etc/pixivbot/.env.prod文件下
+$ docker run --network bot-net -v /etc/pixivbot/.env.prod:/app/.env.prod --name bot -d ssttkkl/pixiv-bot:ws
 ```
 
 #### 附：如何更新
@@ -178,13 +186,13 @@ $ docker stop bot
 $ docker rm bot
 
 # 移除旧Docker镜像
-$ docker image rm ssttkkl/pixiv-bot:reverse-ws
+$ docker image rm ssttkkl/pixiv-bot:ws
 
 # 拉取新PixivBot镜像
-$ docker pull ssttkkl/pixiv-bot:reverse-ws
+$ docker pull ssttkkl/pixiv-bot:ws
 
 # 运行新容器
-$ docker run --network bot-net -v /etc/pixivbot/.env.prod:/app/.env.prod --name bot -e HOST=0.0.0.0 -e PORT=8080 -d ssttkkl/pixiv-bot:reverse-ws
+$ docker run --network bot-net -v /etc/pixivbot/.env.prod:/app/.env.prod --name bot -d ssttkkl/pixiv-bot:ws
 ```
 
 ### 手动配置（推荐 Windows 用户使用此方式）
