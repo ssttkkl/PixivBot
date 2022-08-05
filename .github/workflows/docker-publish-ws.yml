@@ -8,6 +8,7 @@ name: Docker WS
 on:
   release:
     types: [ published ]
+  workflow_dispatch:
 
 env:
   USERNAME: ssttkkl
