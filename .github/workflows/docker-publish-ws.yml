@@ -14,7 +14,8 @@ env:
   USERNAME: ssttkkl
   REGISTRY: docker.io
   IMAGE_NAME: ssttkkl/pixiv-bot
-  CONTAINER_TYPE: ws
+  IMAGE_TYPE: ws
+  BASE_TAG: ws
 
 
 jobs:
@@ -71,11 +72,11 @@ jobs:
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch,suffix=-${{ env.CONTAINER_TYPE }}
-            type=pep440,pattern={{version}},suffix=-${{ env.CONTAINER_TYPE }}
-            type=pep440,pattern={{major}}.{{minor}},suffix=-${{ env.CONTAINER_TYPE }}
-            type=pep440,pattern={{major}},suffix=-${{ env.CONTAINER_TYPE }}
-            type=raw,value=${{ env.CONTAINER_TYPE }}
+            type=ref,event=branch,suffix=-${{ env.BASE_TAG }}
+            type=pep440,pattern={{version}},suffix=-${{ env.BASE_TAG }}
+            type=pep440,pattern={{major}}.{{minor}},suffix=-${{ env.BASE_TAG }}
+            type=pep440,pattern={{major}},suffix=-${{ env.BASE_TAG }}
+            type=raw,value=${{ env.BASE_TAG }}
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -83,7 +84,7 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v3
         with:
-          context: ./${{ env.CONTAINER_TYPE }}
+          context: ./${{ env.IMAGE_TYPE }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
