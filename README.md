@@ -51,8 +51,8 @@ PixivBot
 
 ### 选择版本
 
-- [反向WebSocket](./reverse-ws/README.md)：支持OneBot V11
-- [正向WebSocket](./ws/README.md)：支持OneBot V11、开黑啦
+- [反向驱动器](./reverse/README.md)：支持OneBot V11
+- [正向WS驱动器](./ws/README.md)：支持OneBot V11、开黑啦
 
 ## Special Thanks
 

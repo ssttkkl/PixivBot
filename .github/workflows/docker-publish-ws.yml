@@ -13,7 +13,7 @@ env:
   USERNAME: ssttkkl
   REGISTRY: docker.io
   IMAGE_NAME: ssttkkl/pixiv-bot
-  CONTAINER_TYPE: reverse
+  CONTAINER_TYPE: ws
 
 
 jobs:
