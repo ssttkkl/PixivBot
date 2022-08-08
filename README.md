@@ -1,7 +1,9 @@
 PixivBot
 =====
 
-集成NoneBot插件[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)多协议版本的Bot。
+集成插件[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)多协议版本的NoneBot实例的Docker镜像，适用于Docker方式部署。
+
+非Docker方式可自行创建NoneBot实例并安装[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)插件。
 
 ## 开始使用
 
