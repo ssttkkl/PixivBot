@@ -6,6 +6,8 @@ name: Forward WS
 # documentation.
 
 on:
+  push:
+    branch: [ master ]
   release:
     types: [ published ]
   workflow_dispatch:
