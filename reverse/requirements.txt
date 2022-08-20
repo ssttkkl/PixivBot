@@ -1,2 +1,2 @@
 nonebot2>=2.0.0b4
-nonebot-plugin-pixivbot-onebot-v11>=1.2.0
+nonebot-plugin-pixivbot[onebot]>=1.3.0
