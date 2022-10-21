@@ -4,12 +4,10 @@ ENV TZ=Asia/Shanghai
 
 RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime
 
-RUN python3 -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && python3 -m pip install nonebot2 nb-cli PixivPy-Async numpy motor Pillow nonebot_plugin_apscheduler nonebot-adapter-onebot
-
 COPY ./ /app/
 
 WORKDIR /app
 
-RUN python3 -m pip install dist/*.whl
+RUN python3 -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ && python3 -m pip install poetry && poetry source add --default aliyun https://mirrors.aliyun.com/pypi/simple/ && poetry add dist/*.whl && poetry install
 
-CMD ["nb", "run"]
+CMD ["poetry", "run", "nb", "run"]

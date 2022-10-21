@@ -11,4 +11,4 @@ COPY ./ /app/
 
 WORKDIR /app
 
-RUN python3 -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && python3 -m pip install dist/*.whl
+RUN python3 -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ && python3 -m pip install poetry && poetry source add --default aliyun https://mirrors.aliyun.com/pypi/simple/ && poetry add dist/*.whl && poetry install

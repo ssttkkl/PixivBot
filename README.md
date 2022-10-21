@@ -45,12 +45,19 @@ PixivBot
     - \<schedule\>：有三种格式，*00:30\*x*为每隔30分钟进行一次推送，*12:00*为每天12:00进行一次推送，*00:10+00:30\*x*为从今天00:10开始每隔30分钟进行一次推送（开始时间若是一个过去的时间点，则从下一个开始推送的时间点进行推送）
     - [..args]：
       - \<type\>为ranking时，接受\<mode\> \<range\>
-      - \<type\>为random_bookmark时，接受\<pixiv_user_id\>
+      - \<type\>为random_bookmark时，接受\<pixiv_user_id\>（可空）
       - \<type\>为random_illust时，接受\<word\>
       - \<type\>为random_user_illust时，接受\<user\>
-- **/pixivbot schedule**：查看本群（本用户）的所有订阅
-- **/pixivbot unschedule <type>**：取消本群（本用户）的订阅
-- **/pixivbot bind <pixiv_user_id>**：绑定Pixiv账号（用于随机书签功能）
+- **/pixivbot schedule**：查看本群（本用户）的所有定时推送订阅
+- **/pixivbot unschedule <type>**：取消本群（本用户）的定时推送订阅
+- **/pixivbot watch \<type\> [..args]**：为本群（本用户）订阅类型为<type>的更新推送功能
+    - \<type\>：可选值有user_illusts, following_illusts
+    - [..args]：
+      - \<type\>为user_illusts时，接受\<pixiv_user_id\>/\<user\>
+      - \<type\>为following_illusts时，接受\<pixiv_user_id\>/\<user\>（可空）
+- **/pixivbot watch**：查看本群（本用户）的所有更新推送订阅
+- **/pixivbot unwatch \<type\> [..args]**：取消本群（本用户）的更新推送订阅
+- **/pixivbot bind \<pixiv_user_id\>**：绑定Pixiv账号（用于随机书签功能）
 - **/pixivbot unbind**：解绑Pixiv账号
 - **/pixivbot invalidate_cache**：清除缓存（只有超级用户能够发送此命令）
 - **/pixivbot**、**/pixivbot help**：查看帮助
