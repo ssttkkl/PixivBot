@@ -1,4 +1,4 @@
-PixivBot (Reverse Websocket)
+PixivBot (Reverse)
 =====
 
 ## 开始使用
