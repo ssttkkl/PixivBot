@@ -59,10 +59,10 @@ BLOCKLIST=["onebot:114514", "kaiheila:1919810"]  # Bot不响应的用户，可�
 ```
 ```
 # 拉取PixivBot镜像
-$ docker pull ssttkkl/pixiv-bot:reverse-ws
+$ docker pull ssttkkl/pixiv-bot:reverse
 
 # 运行一个名为bot的PixivBot容器，监听8080端口，配置文件挂载到宿主机的/etc/pixivbot/.env.prod文件下
-$ docker run --network bot-net -v /etc/pixivbot/.env.prod:/app/.env.prod --name bot -e HOST=0.0.0.0 -e PORT=8080 -d ssttkkl/pixiv-bot:reverse-ws
+$ docker run --network bot-net -v /etc/pixivbot/.env.prod:/app/.env.prod --name bot -e HOST=0.0.0.0 -e PORT=8080 -d ssttkkl/pixiv-bot:reverse
 ```
 
 5. 安装[Mrs4s/go-cqhttp](https://github.com/Mrs4s/go-cqhttp)（仅当需要搭建QQ Bot时）
@@ -178,13 +178,13 @@ $ docker stop bot
 $ docker rm bot
 
 # 移除旧Docker镜像
-$ docker image rm ssttkkl/pixiv-bot:reverse-ws
+$ docker image rm ssttkkl/pixiv-bot:reverse
 
 # 拉取新PixivBot镜像
-$ docker pull ssttkkl/pixiv-bot:reverse-ws
+$ docker pull ssttkkl/pixiv-bot:reverse
 
 # 运行新容器
-$ docker run --network bot-net -v /etc/pixivbot/.env.prod:/app/.env.prod --name bot -e HOST=0.0.0.0 -e PORT=8080 -d ssttkkl/pixiv-bot:reverse-ws
+$ docker run --network bot-net -v /etc/pixivbot/.env.prod:/app/.env.prod --name bot -e HOST=0.0.0.0 -e PORT=8080 -d ssttkkl/pixiv-bot:reverse
 ```
 
 ### 手动配置（推荐 Windows 用户使用此方式）
