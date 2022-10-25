@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.9"
 nonebot2 = "^2.0.0b5"
 nonebot-plugin-pixivbot = {extras = ["onebot", "kook"], version = "^1.4.0rc2"}
+httpx = "^0.23.0"
 
 [tool.poetry.dev-dependencies]
 nb-cli = "^0.6.7"
