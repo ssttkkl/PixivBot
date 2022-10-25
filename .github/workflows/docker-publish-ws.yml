@@ -7,7 +7,7 @@ name: Forward WS
 
 on:
   push:
-    branch: [ master ]
+    branches: [ master ]
   release:
     types: [ published ]
   workflow_dispatch:
