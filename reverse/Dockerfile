@@ -1,3 +1,13 @@
+FROM python:3.10-slim as requirements-stage
+
+WORKDIR /tmp
+
+RUN pip install poetry
+
+COPY ./pyproject.toml ./poetry.lock* /tmp/
+
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
+
 FROM antonapetrov/uvicorn-gunicorn-fastapi:python3.10-slim
 
 ENV APP_MODULE=bot:app
@@ -7,10 +17,10 @@ ENV TZ=Asia/Shanghai
 
 RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime
 
+COPY --from=requirements-stage /tmp/requirements.txt /app/requirements.txt
+
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+
 COPY ./ /app/
 
 WORKDIR /app
-
-# 需要使用清华源的话替换为下面这条语句
-RUN python3 -m pip install poetry && poetry install
-# RUN python3 -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ && python3 -m pip install poetry && poetry source add --default aliyun https://mirrors.aliyun.com/pypi/simple/ && poetry install
