@@ -7,8 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-nonebot2 = "^2.0.0b5"
-nonebot-plugin-pixivbot = {extras = ["onebot"], version = "^1.4.0rc2"}
+nonebot2 = "^2.0.0rc1"
+nonebot-plugin-pixivbot = {extras = ["onebot"], version = "^1.4.0"}
 
 [tool.poetry.dev-dependencies]
 nb-cli = "^0.6.7"
