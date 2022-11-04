@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pixiv-bot"
-version = "1.4"
+version = "1.5.0"
 description = "pixiv-bot"
 authors = ["ssttkkl <huang.wen.long@hotmail.com>"]
 readme = "README.md"
@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 nonebot2 = "^2.0.0rc1"
-nonebot-plugin-pixivbot = {extras = ["onebot"], version = "^1.4.0"}
+nonebot-plugin-pixivbot = {extras = ["onebot", "kook"], version = "1.5.0"}
 httpx = "^0.23.0"
 
 [tool.poetry.dev-dependencies]
