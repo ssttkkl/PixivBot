@@ -6,6 +6,8 @@ name: Reverse
 # documentation.
 
 on:
+  schedule:
+    - cron: '0 7 * * *'
   push:
     branches: [ master ]
   release:
