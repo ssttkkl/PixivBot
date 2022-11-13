@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import nonebot
+import uvloop
 from nonebot.adapters.onebot.v11 import Adapter as OnebotV11Adapter
 from nonebot.adapters.kaiheila import Adapter as KaiheilaAdapter
 
+uvloop.install()
 nonebot.init()
 
 driver = nonebot.get_driver()
