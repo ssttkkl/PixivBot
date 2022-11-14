@@ -1,4 +1,41 @@
+FROM python:3.10 as plugin-build-stage
+
+RUN pip install poetry
+
+WORKDIR /tmp
+
+RUN git clone https://github.com/ssttkkl/nonebot-plugin-pixivbot.git
+
+WORKDIR /tmp/nonebot-plugin-pixivbot
+
+RUN poetry build
+
+RUN mv /tmp/nonebot-plugin-pixivbot/dist/*.whl /tmp/
+
+WORKDIR /tmp
+
+RUN git clone https://github.com/ssttkkl/nonebot-plugin-pixivbot-onebot-v11.git
+
+WORKDIR /tmp/nonebot-plugin-pixivbot-onebot-v11
+
+RUN poetry build
+
+RUN mv /tmp/nonebot-plugin-pixivbot-onebot-v11/dist/*.whl /tmp/
+
+WORKDIR /tmp
+
+RUN git clone https://github.com/ssttkkl/nonebot-plugin-pixivbot-kook.git
+
+WORKDIR /tmp/nonebot-plugin-pixivbot-kook
+
+RUN poetry build
+
+RUN mv /tmp/nonebot-plugin-pixivbot-kook/dist/*.whl /tmp/
+
+
 FROM pypy:3.9
+
+WORKDIR /app
 
 ENV TZ=Asia/Shanghai
 
@@ -6,10 +43,10 @@ RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime
 
 COPY ./ /app/
 
-WORKDIR /app
+RUN python -m pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
-# 需要使用清华源的话替换为下面这条语句
-RUN python3 -m pip install poetry && poetry install
-# RUN python3 -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ && python3 -m pip install poetry && poetry source add --default aliyun https://mirrors.aliyun.com/pypi/simple/ && poetry install
+COPY --from=plugin-build-stage /tmp/*.whl /tmp/
 
-CMD ["poetry", "run", "nb", "run"]
+RUN python -m pip install --find-links=/tmp nonebot-plugin-pixivbot-onebot-v11 nonebot-plugin-pixivbot-kook nonebot-plugin-pixivbot[mongo]
+
+CMD ["python", "-m", "nb", "run"]
