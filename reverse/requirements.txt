@@ -11,7 +11,7 @@ idna==3.4
 loguru==0.6.0
 multidict==6.0.2
 nonebot2==2.0.0rc1
-pydantic==1.9.2
+pydantic==1.10.2
 pydantic[dotenv]==1.9.2
 pygtrie==2.5.0
 python-dotenv==0.21.0
