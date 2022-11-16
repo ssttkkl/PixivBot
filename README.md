@@ -13,8 +13,8 @@ PixivBot
 
 ### 选择版本
 
-- [反向驱动器](./reverse/README.md)：支持OneBot V11 [![Reverse](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-reverse.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-reverse.yml) 
-- [正向WS驱动器](./ws/README.md)：支持OneBot V11、开黑啦 [![Forward WS](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws.yml) [![Forward WS (PyPy)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws-pypy.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws-pypy.yml) 
+- [反向驱动器](./reverse/README.md)：支持OneBot V11、Telegram [![Reverse](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-reverse.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-reverse.yml) 
+- [正向WS驱动器](./ws/README.md)：支持OneBot V11、KOOK（开黑啦）、Telegram [![Forward WS](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws.yml) [![Forward WS (PyPy)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws-pypy.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws-pypy.yml) 
 
 ### 添加其他插件
 
