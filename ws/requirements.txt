@@ -4,7 +4,7 @@ click==8.1.3
 colorama==0.4.6
 fastapi==0.79.1
 h11==0.12.0
-httpcore==0.15.0
+httpcore==0.16.2
 httptools==0.5.0
 httpx==0.23.0
 idna==3.4
