@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-nonebot2 = "^2.0.0rc1"
+nonebot2 = "^2.0.0rc2"
 httpx = "^0.23.0"
 uvloop = "^0.17.0"
 
