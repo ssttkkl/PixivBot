@@ -70,6 +70,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 ENV TZ=Asia/Shanghai
+ENV DRIVER=~httpx+~websockets
 
 RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime
 
@@ -83,4 +84,4 @@ COPY --from=plugin-build-stage /tmp/*.whl /tmp/
 
 RUN python -m pip install --find-links=/tmp nonebot-plugin-pixivbot-onebot-v11 nonebot-plugin-pixivbot-kook nonebot-plugin-pixivbot-telegram nonebot-plugin-pixivbot[mongo]
 
-CMD ["python", "-m", "nb", "run"]
+CMD ["nb", "run"]

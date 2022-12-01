@@ -155,16 +155,21 @@ $ docker run --network bot-net -v /etc/go-cqhttp:/data --name bot-gocq -d silice
 
 5. 安装PixivBot
 
-先将配置项写入文件/etc/pixivbot/.env.prod（更多的配置项参考下文）
+先将配置项写入文件/etc/pixivbot/.env.prod（更多的配置项参考[ssttkkl/nonebot-plugin-pixivbot/README.md](https://github.com/ssttkkl/nonebot-plugin-pixivbot/blob/main/README.md#%E9%85%8D%E7%BD%AE)）
+
 ```
-driver=~httpx+~websockets
-
-ONEBOT_WS_URLS=["ws://bot-gocq:6700"]  # 若无需配置go-cqhttp可删除此条
+# 适配器配置
+ONEBOT_WS_URLS=["ws://bot-gocq:6700"]  # 若无需配置onebot可删除此条
 kaiheila_bots=[{"token": "1/ABCDEFG=/abcdefgh/1145141919=="}]  # 若无需配置开黑啦可删除此条
+telegram_bots=[{"token": "1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHI"}]  # 若无需配置telegram可删除此条
+telegram_proxy=socks5://127.0.0.1:7890  # 若无需配置telegram或无需对telegram使用代理可删除此条
 
+# PixivBot配置
 PIXIV_MONGO_CONN_URL=mongodb://pixiv_bot:pixiv_bot@bot-mongo:27017/pixiv_bot?authSource=pixiv_bot
 PIXIV_MONGO_DATABASE_NAME=pixiv_bot
-PIXIV_REFRESH_TOKEN=  # 前面获取的REFRESH_TOKEN
+PIXIV_REFRESH_TOKEN=abcdefghijklmnopqrstuvwxyz123456789101112-AB  # 上文获取的REFRESH_TOKEN
+PIXIV_PROXY=socks5://127.0.0.1:7890  # 无需对pixiv使用代理可删除此条
+
 SUPERUSERS=["onebot:123456"]  # 能够发送超级命令的用户（JSON数组，元素格式为"adapter:user_id"）
 BLOCKLIST=["onebot:114514", "kaiheila:1919810"]  # Bot不响应的用户，可以避免Bot之间相互调用（JSON数组，元素格式为"adapter:user_id"）
 ```
@@ -195,10 +200,6 @@ $ docker run --network bot-net -v /etc/pixivbot/.env.prod:/app/.env.prod --name 
 ### 手动配置（推荐 Windows 用户使用此方式）
 
 参考[创建项目 | NoneBot](https://v2.nonebot.dev/docs/tutorial/create-project)创建一个Bot，安装[ssttkkl/nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)插件。
-
-## 配置项
-
-参考[ssttkkl/nonebot-plugin-pixivbot/README.md](https://github.com/ssttkkl/nonebot-plugin-pixivbot/blob/main/README.md#%E9%85%8D%E7%BD%AE)
 
 ## Special Thanks
 

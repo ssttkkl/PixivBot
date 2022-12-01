@@ -9,8 +9,6 @@ readme = "README.md"
 python = "^3.9"
 nonebot2 = "^2.0.0rc1"
 httpx = "^0.23.0"
-
-[tool.poetry.dev-dependencies]
 nb-cli = "^0.6.7"
 
 [tool.nonebot]

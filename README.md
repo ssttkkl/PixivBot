@@ -22,18 +22,12 @@ PixivBot
 
 1. 配置并启动Bot容器
 
-2. 安装nb-cli
- 
-```shell
-docker exec bot pip install nb-cli
-```
-
-3. 安装其他插件
+2. 安装插件
 ```shell
 docker exec bot nb plugin install <插件名>
 ```
 
-4. 重启容器
+3. 重启容器
 ```shell
 docker restart bot
 ```
