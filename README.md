@@ -1,5 +1,7 @@
 PixivBot
-=====
+===== 
+
+[![Build and Publish](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish.yml)
 
 集成插件[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)多协议版本的NoneBot实例的Docker镜像，适用于Docker方式部署。
 
@@ -13,8 +15,8 @@ PixivBot
 
 ### 选择版本
 
-- [反向驱动器](./reverse/README.md)：支持OneBot V11、Telegram [![Reverse](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-reverse.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-reverse.yml) 
-- [正向WS驱动器](./ws/README.md)：支持OneBot V11、KOOK（开黑啦）、Telegram [![Forward WS](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws.yml) [![Forward WS (PyPy)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws-pypy.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish-ws-pypy.yml) 
+- [反向驱动器](./reverse/README.md)：支持OneBot V11
+- [正向WS驱动器](./ws/README.md)：支持OneBot V11、KOOK（开黑啦）、Telegram
 
 ### 添加其他插件
 
