@@ -52,6 +52,18 @@ RUN poetry build
 RUN mv /tmp/nonebot-plugin-pixivbot-telegram/dist/*.whl /tmp/
 
 
+# ======== requirements-stage ========
+FROM python:3.10-slim as requirements-stage
+
+WORKDIR /tmp
+
+RUN pip install poetry
+
+COPY ./pyproject.toml ./poetry.lock* /tmp/
+
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
+
+
 # ======== image ========
 FROM antonapetrov/uvicorn-gunicorn-fastapi:python3.10-slim
 
@@ -63,6 +75,8 @@ ENV TZ=Asia/Shanghai
 ENV DRIVER=~fastapi
 
 RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime
+
+COPY --from=requirements-stage /tmp/requirements.txt /app/requirements.txt
 
 COPY ./ /app/
 
