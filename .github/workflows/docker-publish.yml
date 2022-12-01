@@ -1,0 +1,71 @@
+name: Forward WS
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+env:
+  USERNAME: ssttkkl
+  REGISTRY: docker.io
+  IMAGE_NAME: ssttkkl/pixiv-bot
+
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        image_type: ["reverse", "ws"]
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@7e0881f8fe90b25e305bbf0309761e9314607e25
+        with:
+          cosign-release: 'v1.9.0'
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: ${{ github.ref_type == 'branch' && github.ref_name == 'master' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch,suffix=-${{ matrix.image_type }}
+            type=pep440,pattern={{version}},suffix=-${{ matrix.image_type }}
+            type=pep440,pattern={{major}}.{{minor}},suffix=-${{ matrix.image_type }}
+            type=pep440,pattern={{major}},suffix=-${{ matrix.image_type }}
+            type=raw,value=${{ matrix.image_type }}
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v3
+        with:
+          context: ./${{ matrix.image_type }}
+          push: ${{ github.ref_type == 'branch' && github.ref_name == 'master' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
