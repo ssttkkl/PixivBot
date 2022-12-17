@@ -44,6 +44,13 @@ docker restart bot
 
 [nonebot/nonebot2](https://github.com/nonebot/nonebot2)
 
+## 在线乞讨
+
+<details><summary>点击请我打两把maimai</summary>
+
+![](https://github.com/ssttkkl/ssttkkl/blob/main/afdian-ssttkkl.jfif)
+
+</details>
 
 ## LICENSE
 
