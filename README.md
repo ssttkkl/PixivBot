@@ -3,9 +3,11 @@ PixivBot
 
 [![Build and Publish](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/ssttkkl/PixivBot/actions/workflows/docker-publish.yml)
 
-集成插件[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)多协议版本的NoneBot实例的Docker镜像，适用于Docker方式部署。
+~~集成插件[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)多协议版本的NoneBot实例的Docker镜像，适用于Docker方式部署。~~
 
-非Docker方式可自行创建NoneBot实例并安装[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)插件。
+~~非Docker方式可自行创建NoneBot实例并安装[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)插件。~~
+
+本项目将不再更新，请自行使用NoneBot2安装[nonebot-plugin-pixivbot](https://github.com/ssttkkl/nonebot-plugin-pixivbot)插件进行使用。
 
 ## 开始使用
 
